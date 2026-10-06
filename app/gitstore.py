@@ -36,13 +36,14 @@ def _q(v: str) -> str:
 
 
 def render(conv: Conversation) -> str:
+    uname = conv.username or USERNAME or "user"
     out = ["---",
            f"conversation_id: {conv.id}",
            f"platform: {conv.platform}",
-           f"username: {_q(conv.username)}",
+           f"username: {_q(uname)}",
            f"title: {_q(conv.title)}",
-           f"created_at: {conv.created_at}",
-           f"updated_at: {conv.updated_at}",
+           f"created_at: {conv.created_at or ''}",
+           f"updated_at: {conv.updated_at or ''}",
            "---", "", f"# {conv.title}", ""]
     for m in conv.messages:
         who = {"user": "User", "assistant": "Claude"}.get(m.role, m.role.title())
@@ -52,7 +53,9 @@ def render(conv: Conversation) -> str:
 
 def rel_path(conv: Conversation) -> str:
     # id, not title, is the identity: titles change and collide
-    return f"{_slug(conv.username)}/{conv.platform}/{_slug(conv.id)}.md"
+    uname = conv.username or USERNAME or "user"
+    return f"{_slug(uname)}/{conv.platform}/{_slug(conv.id)}.md"
+
 
 
 def commit_snapshot(conv: Conversation) -> None:

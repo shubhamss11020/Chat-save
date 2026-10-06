@@ -5,6 +5,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
 from . import gitstore
+from .auth import current_user
 from .models import Conversation
 
 mcp = FastMCP(
@@ -26,4 +27,10 @@ async def save_chat_transcript(conversations: list[Conversation]) -> dict:
     Idempotent: re-sending an unchanged conversation creates no new commit.
     Returns {"saved": [ids], "failed": {id: error}}.
     """
+    user = current_user.get()
+    if user:
+        for c in conversations:
+            if not c.username or c.username in ("user", "unknown", "rajat"):
+                c.username = user
     return await asyncio.to_thread(gitstore.save_batch, conversations)
+

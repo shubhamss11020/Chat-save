@@ -11,12 +11,13 @@ class Message(BaseModel):
 
 class Conversation(BaseModel):
     id: str
-    title: str
-    username: str
-    platform: Literal["chatgpt", "claude"]
-    created_at: str
-    updated_at: str
+    title: str = "Untitled conversation"
+    username: Optional[str] = ""
+    platform: Literal["chatgpt", "claude"] = "claude"
+    created_at: Optional[str] = ""
+    updated_at: Optional[str] = ""
     messages: list[Message]
+
 
 
 class ConversationEvent(BaseModel):

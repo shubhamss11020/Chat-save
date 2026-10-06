@@ -19,3 +19,12 @@ def save(conv: Conversation) -> str:
     rel = gitstore.write(conv)
     db.upsert(conv, h, rel)
     return "saved"
+
+
+def index_only(conv: Conversation, git_path: str) -> str:
+    """Index a transcript that already lives in git (no write/commit)."""
+    h = content_hash(conv)
+    if db.get_hash(conv.platform, conv.id) == h:
+        return "unchanged"
+    db.upsert(conv, h, git_path)
+    return "indexed"

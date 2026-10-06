@@ -21,7 +21,7 @@ services:
         value: chat-memory
       - key: CHATSAVE_GIT_EMAIL
         value: chat-memory@users.noreply.github.com
-      - key: CHATSAVE_GIT_URL      # https://<github-token>@github.com/<you>/<repo>.git
+      - key: CHATSAVE_GIT_URL      # https://github.com/<you>/<repo>.git
         sync: false
       - key: MCP_AUTH_TOKEN        # long random string
         sync: false

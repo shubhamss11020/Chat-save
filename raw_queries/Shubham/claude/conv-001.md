@@ -4,7 +4,7 @@ platform: claude
 username: "Shubham"
 title: "Virat Kohli IPL Information"
 created_at: 2026-10-06T00:00:00Z
-updated_at: 2026-10-06T00:00:01Z
+updated_at: 2026-10-06T00:00:02Z
 ---
 
 # Virat Kohli IPL Information
@@ -54,3 +54,19 @@ Actually, let me correct that — his highest IPL score is 113 not out against t
 For the most current and accurate record, his absolute highest is 122 not out scored in the 2023 season against the Kolkata Knight Riders while playing for RCB.
 
 Virat is known for his consistency, aggressive approach, and ability to build innings under pressure. He's one of the most prolific run-scorers across all formats of cricket.
+
+## User (2026-10-06T00:00:02Z)
+
+now list the total no. of threads that are saved
+
+## Claude (2026-10-06T00:00:02Z)
+
+I don't have a tool available in the Shubham-OV connector to list or query saved threads. The only tool loaded from Shubham-OV is `save_chat_transcript`, which saves conversations but doesn't retrieve or list them.
+
+To get the total number of saved threads, you would need:
+- A `list_conversations` or `get_saved_threads` type of tool in the Shubham-OV connector
+- Or direct access to the Git archive where transcripts are stored
+
+Based on what I've saved in this conversation, I know I've created and updated 1 thread (conv-001: "Virat Kohli IPL Information"), but I can't access a master list of all saved threads across your entire archive.
+
+Would you like me to search for additional tools in the Shubham-OV connector that might provide this functionality?

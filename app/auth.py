@@ -11,7 +11,10 @@ class TokenAuth:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] != "http" or not AUTH_TOKEN or scope["path"] == "/health":
+        # /.well-known stays open (it 404s) so clients don't mistake our 401 for an OAuth server
+        path = scope["path"]
+        if (scope["type"] != "http" or not AUTH_TOKEN or path == "/health"
+                or path.startswith("/.well-known/")):
             return await self.app(scope, receive, send)
         headers = dict(scope["headers"])
         got = headers.get(b"authorization", b"").decode().removeprefix("Bearer ").strip()

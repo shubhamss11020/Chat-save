@@ -66,14 +66,51 @@ def rel_path(conv: Conversation) -> str:
     return f"{_slug(uname)}/{conv.platform}/{_slug(conv.id)}.md"
 
 
+def _parse_existing_messages(text: str) -> list[Message]:
+    """Parse existing markdown messages into a list of Message objects."""
+    messages = []
+    sections = re.split(r'(?m)^## (User|Claude|Assistant)(?: \((.*?)\))?\s*$', text)
+    if len(sections) < 3:
+        return []
+    idx = 1
+    msg_num = 1
+    while idx < len(sections) - 2:
+        raw_role = sections[idx].lower()
+        role = "user" if raw_role == "user" else "assistant"
+        ts = sections[idx + 1] or None
+        body = sections[idx + 2].strip()
+        if body:
+            messages.append(Message(id=f"msg-prev-{msg_num}", role=role, content=body, timestamp=ts))
+            msg_num += 1
+        idx += 3
+    return messages
+
+
+def _merge_messages(existing: list[Message], incoming: list[Message]) -> list[Message]:
+    """Merge existing transcript messages with incoming messages, preserving full history."""
+    if not existing:
+        return incoming
+    if not incoming:
+        return existing
+    merged = list(existing)
+    existing_contents = [m.content.strip() for m in existing]
+    for inc in incoming:
+        if inc.content.strip() in existing_contents:
+            continue
+        merged.append(inc)
+        existing_contents.append(inc.content.strip())
+    return merged
+
+
 def commit_snapshot(conv: Conversation) -> None:
-    """Write + commit one transcript. No-op if the file is unchanged."""
+    """Write + commit one transcript. Merges new turns into existing file if present."""
     rel = rel_path(conv)
     path = GIT_DIR / rel
     path.parent.mkdir(parents=True, exist_ok=True)
 
     now_est = datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M:%S %Z")
     created_at = None
+    existing_messages: list[Message] = []
 
     if path.exists():
         try:
@@ -81,6 +118,7 @@ def commit_snapshot(conv: Conversation) -> None:
             m = re.search(r'^created_at:\s*(.+)$', old_text, re.MULTILINE)
             if m:
                 created_at = m.group(1).strip().strip('"\'')
+            existing_messages = _parse_existing_messages(old_text)
         except Exception:
             pass
 
@@ -91,6 +129,11 @@ def commit_snapshot(conv: Conversation) -> None:
             created_at = now_est
 
     updated_at = now_est
+
+    # Merge incoming messages with any existing messages in the thread
+    merged_messages = _merge_messages(existing_messages, conv.messages)
+    conv.messages = merged_messages
+
     rendered_text = render(conv, created_at=created_at, updated_at=updated_at)
     path.write_text(rendered_text, encoding="utf-8", newline="\n")
 
@@ -100,6 +143,7 @@ def commit_snapshot(conv: Conversation) -> None:
         return  # identical to what is already committed
     _check(_git("commit", "-m", f"{conv.platform}: {conv.title} ({conv.id[:8]})", "--", full),
            "git commit")
+
 
 
 

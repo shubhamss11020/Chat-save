@@ -1,0 +1,26 @@
+# MCP server role: receives transcripts from the capture agent and commits them to GitHub.
+services:
+  - type: web
+    name: chat-save
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: CHATSAVE_CAPTURE      # no local Claude files here; the agent runs on your PC
+        value: "0"
+      - key: CHATSAVE_REPO_DIR     # working clone of the archive repo
+        value: /tmp/chat-data
+      - key: CHATSAVE_STORAGE
+        value: /tmp/chat-storage
+      - key: CHATSAVE_GIT_NAME
+        value: chat-save
+      - key: CHATSAVE_GIT_EMAIL
+        value: chat-save@users.noreply.github.com
+      - key: CHATSAVE_GIT_URL      # repo to push to; a private repo needs credentials in the URL
+        sync: false
+      - key: MCP_AUTH_TOKEN
+        sync: false

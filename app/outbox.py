@@ -1,35 +1,42 @@
-"""Background outbox worker: pending snapshots -> git commits -> one push per batch."""
+"""Background outbox worker: pending snapshots -> MCP server (or local Git) -> completed."""
 import logging
+import threading
 
-from . import gitstore, state
-from .config import BATCH_SIZE
+from . import gitstore, mcp_client, state
+from .config import BATCH_SIZE, MCP_URL
 
 log = logging.getLogger("chatsave")
+_drain_lock = threading.Lock()  # hook events and the periodic tick must not claim twice
+
+
+def _deliver(convs) -> dict:
+    return mcp_client.save_batch(convs) if MCP_URL else gitstore.save_batch(convs)
 
 
 def drain() -> int:
-    """Process due items. Returns number completed. Failures stay queued with backoff."""
+    """Deliver due items. Returns number completed. Failures stay queued with backoff."""
+    with _drain_lock:
+        return _drain()
+
+
+def _drain() -> int:
     done = 0
     while True:
         batch = state.claim(BATCH_SIZE)
         if not batch:
             return done
-        ok: list[int] = []
         try:
-            gitstore.prepare()
-            for item_id, conv in batch:
-                try:
-                    gitstore.commit_snapshot(conv)
-                    ok.append(item_id)
-                except Exception as e:
-                    log.exception("commit failed for %s", conv.id)
-                    state.fail([item_id], str(e))
-            if ok:
-                gitstore.push()  # commits already exist locally; a failed push retries safely
-                state.complete(ok)
-                done += len(ok)
-                log.info("saved %d conversation(s)", len(ok))
-        except Exception as e:
-            log.warning("batch failed, will retry: %s", e)
-            state.fail(ok or [i for i, _ in batch], str(e))
+            result = _deliver([c for _, c in batch])
+        except Exception as e:  # server/Git unreachable: nothing is lost, retry later
+            log.warning("delivery failed, will retry: %s", e)
+            state.fail([i for i, _ in batch], str(e))
             return done
+        saved = set(result.get("saved", []))
+        failed = result.get("failed", {})
+        ok = [i for i, c in batch if c.id in saved]
+        for i, c in batch:
+            if c.id not in saved:
+                state.fail([i], failed.get(c.id, "not saved"))
+        state.complete(ok)
+        done += len(ok)
+        log.info("saved %d conversation(s) via %s", len(ok), "MCP" if MCP_URL else "Git")

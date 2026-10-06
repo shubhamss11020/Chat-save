@@ -2,9 +2,12 @@
 import re
 import shutil
 import subprocess
+import threading
 
-from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR
+from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT
 from .models import Conversation
+
+_lock = threading.Lock()  # one git operation at a time (agent worker + MCP requests)
 
 
 class GitError(RuntimeError):
@@ -70,7 +73,14 @@ def prepare() -> None:
     if not shutil.which("git"):
         raise GitError("git is not installed")
     if not (REPO_DIR / ".git").exists():
-        _check(_git("init", "-b", GIT_BRANCH), "git init")
+        if GIT_REMOTE_URL and REPO_DIR.resolve() != ROOT.resolve():
+            # hosted server: its working copy is a clone of the archive repo
+            REPO_DIR.parent.mkdir(parents=True, exist_ok=True)
+            _check(subprocess.run(["git", "clone", GIT_REMOTE_URL, str(REPO_DIR)],
+                                  capture_output=True, text=True, timeout=300), "git clone")
+        else:
+            REPO_DIR.mkdir(parents=True, exist_ok=True)
+            _check(_git("init", "-b", GIT_BRANCH), "git init")
     if GIT_REMOTE_URL:
         cur = _git("remote", "get-url", "origin")
         if cur.returncode:
@@ -85,3 +95,21 @@ def push() -> None:
         return
     _git("pull", "--rebase", "--autostash", "origin", GIT_BRANCH)  # best effort (new repo: no-op)
     _check(_git("push", "-u", "origin", f"HEAD:{GIT_BRANCH}"), "git push")
+
+
+def save_batch(convs: list[Conversation]) -> dict:
+    """Commit every snapshot, then push once. Per-conversation commit errors are reported
+    in 'failed'; a push failure raises so the whole batch is retried (commits are idempotent).
+    """
+    with _lock:
+        prepare()
+        saved, failed = [], {}
+        for c in convs:
+            try:
+                commit_snapshot(c)
+                saved.append(c.id)
+            except Exception as e:
+                failed[c.id] = str(e)
+        if saved:
+            push()
+        return {"saved": saved, "failed": failed}

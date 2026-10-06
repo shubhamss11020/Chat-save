@@ -5,14 +5,16 @@ from contextlib import asynccontextmanager
 from fastapi import BackgroundTasks, FastAPI
 
 from . import capture, outbox, state
-from .config import GIT_DIR, RECONCILE_SECONDS
-from .models import Conversation
-from .models import ConversationEvent
+from .auth import TokenAuth
+from .config import CAPTURE, RECONCILE_SECONDS
+from .mcp_server import mcp
+from .models import Conversation, ConversationEvent
 from .sources.claude_code import ClaudeSource
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("chatsave")
 controller = capture.CaptureController({"claude": ClaudeSource()})
+mcp_app = mcp.streamable_http_app()  # also creates mcp.session_manager
 
 
 async def _loop(fn, seconds: float):
@@ -31,19 +33,21 @@ def _tick():
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    GIT_DIR.mkdir(parents=True, exist_ok=True)
     state.recover()
-    task = asyncio.create_task(_loop(_tick, RECONCILE_SECONDS))
-    yield
-    task.cancel()
+    task = asyncio.create_task(_loop(_tick, RECONCILE_SECONDS)) if CAPTURE else None
+    async with mcp.session_manager.run():
+        yield
+    if task:
+        task.cancel()
 
 
-app = FastAPI(title="Chat-Save (capture only)", lifespan=lifespan)
+app = FastAPI(title="Chat-Save", lifespan=lifespan)
+app.add_middleware(TokenAuth)
 
 
 @app.get("/health")
 def health():
-    return {"ok": True}
+    return {"ok": True, "capture": CAPTURE}
 
 
 @app.get("/status")
@@ -76,3 +80,6 @@ def save_conversation(conv: Conversation, bg: BackgroundTasks):
 def reconcile_now(bg: BackgroundTasks):
     bg.add_task(_tick)
     return {"started": True}
+
+
+app.mount("/", mcp_app)  # serves /mcp (save_chat_transcript); keep last so API routes win

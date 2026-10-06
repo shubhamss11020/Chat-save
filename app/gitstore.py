@@ -4,9 +4,13 @@ import shutil
 import subprocess
 import threading
 
-from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, USERNAME
 from .models import Conversation
 
+EASTERN = ZoneInfo("America/New_York")
 _lock = threading.Lock()  # one git operation at a time (agent worker + MCP requests)
 
 
@@ -35,19 +39,24 @@ def _q(v: str) -> str:
     return '"' + v.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ") + '"'
 
 
-def render(conv: Conversation) -> str:
+def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> str:
     uname = conv.username or USERNAME or "user"
+    c_at = created_at or conv.created_at or ""
+    u_at = updated_at or conv.updated_at or ""
     out = ["---",
            f"conversation_id: {conv.id}",
            f"platform: {conv.platform}",
            f"username: {_q(uname)}",
            f"title: {_q(conv.title)}",
-           f"created_at: {conv.created_at or ''}",
-           f"updated_at: {conv.updated_at or ''}",
+           f"created_at: {_q(c_at)}",
+           f"updated_at: {_q(u_at)}",
            "---", "", f"# {conv.title}", ""]
     for m in conv.messages:
         who = {"user": "User", "assistant": "Claude"}.get(m.role, m.role.title())
-        out += [f"## {who}" + (f" ({m.timestamp})" if m.timestamp else ""), "", m.content, ""]
+        t = m.timestamp
+        if not t or "00:00:00" in t:
+            t = u_at
+        out += [f"## {who}" + (f" ({t})" if t else ""), "", m.content, ""]
     return "\n".join(out)
 
 
@@ -57,19 +66,41 @@ def rel_path(conv: Conversation) -> str:
     return f"{_slug(uname)}/{conv.platform}/{_slug(conv.id)}.md"
 
 
-
 def commit_snapshot(conv: Conversation) -> None:
     """Write + commit one transcript. No-op if the file is unchanged."""
     rel = rel_path(conv)
     path = GIT_DIR / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(render(conv), encoding="utf-8", newline="\n")
+
+    now_est = datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M:%S %Z")
+    created_at = None
+
+    if path.exists():
+        try:
+            old_text = path.read_text(encoding="utf-8")
+            m = re.search(r'^created_at:\s*(.+)$', old_text, re.MULTILINE)
+            if m:
+                created_at = m.group(1).strip().strip('"\'')
+        except Exception:
+            pass
+
+    if not created_at or "00:00:00" in created_at:
+        if conv.created_at and "00:00:00" not in conv.created_at:
+            created_at = conv.created_at
+        else:
+            created_at = now_est
+
+    updated_at = now_est
+    rendered_text = render(conv, created_at=created_at, updated_at=updated_at)
+    path.write_text(rendered_text, encoding="utf-8", newline="\n")
+
     full = f"raw_queries/{rel}"
     _check(_git("add", "--", full), "git add")
     if _git("diff", "--cached", "--quiet", "--", full).returncode == 0:
         return  # identical to what is already committed
     _check(_git("commit", "-m", f"{conv.platform}: {conv.title} ({conv.id[:8]})", "--", full),
            "git commit")
+
 
 
 def prepare() -> None:

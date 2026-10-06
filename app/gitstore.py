@@ -205,3 +205,71 @@ def save_batch(convs: list[Conversation]) -> dict:
         if saved:
             push()
         return {"saved": saved, "failed": failed}
+
+
+def search_transcripts(query: str, user: str = "") -> str:
+    """Search saved markdown transcripts by keyword, title, or content."""
+    with _lock:
+        prepare()
+        if not GIT_DIR.exists():
+            return "No transcripts saved yet."
+        u = _normalize_username(user) if user else ""
+        target_dir = GIT_DIR / u if u and u != "user" else GIT_DIR
+        if not target_dir.exists():
+            return f"No transcripts found for user '{user}'."
+        files = sorted(target_dir.rglob("*.md"), reverse=True)
+        if not files:
+            return "No transcripts found."
+        q = query.lower()
+        results = []
+        for path in files:
+            try:
+                content = path.read_text(encoding="utf-8")
+                lines = content.splitlines()
+                matches = []
+                for i, line in enumerate(lines):
+                    if q in line.lower():
+                        start = max(0, i - 1)
+                        end = min(len(lines), i + 3)
+                        matches.append("\n".join(lines[start:end]))
+                if matches:
+                    rel = path.relative_to(REPO_DIR)
+                    results.append(f"### {rel}\n" + "\n---\n".join(matches[:3]))
+            except Exception:
+                continue
+        if not results:
+            return f"No results for '{query}'."
+        return f"Total results for '{query}': {len(results)}\n\n" + "\n\n".join(results[:10])
+
+
+def list_transcripts(user: str = "") -> str:
+    """List all saved markdown transcripts, newest first."""
+    with _lock:
+        prepare()
+        if not GIT_DIR.exists():
+            return "No transcripts saved yet."
+        u = _normalize_username(user) if user else ""
+        target_dir = GIT_DIR / u if u and u != "user" else GIT_DIR
+        if not target_dir.exists():
+            return f"No transcripts found for user '{user}'."
+        files = sorted(target_dir.rglob("*.md"), reverse=True)
+        if not files:
+            return "No transcripts saved yet."
+        lines = []
+        for f in files[:100]:
+            rel = str(f.relative_to(REPO_DIR))
+            lines.append(f"- [{f.stem}]({rel})")
+        return f"Total saved transcripts: {len(files)}\n\n" + "\n".join(lines)
+
+
+def get_transcript(file_path: str) -> str:
+    """Read a transcript by relative path."""
+    with _lock:
+        prepare()
+        p = REPO_DIR / file_path if not file_path.startswith(str(REPO_DIR)) else Path(file_path)
+        if not p.exists():
+            p = GIT_DIR / file_path
+        if not p.exists():
+            return f"File not found: {file_path}"
+        return p.read_text(encoding="utf-8")
+

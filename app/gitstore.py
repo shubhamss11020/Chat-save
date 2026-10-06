@@ -22,6 +22,17 @@ def _slug(s: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]+", "-", s).strip("-")[:80] or "unknown"
 
 
+def _normalize_username(uname: str) -> str:
+    """Normalize username into canonical lowercase folder name. Defaults to 'shubham'."""
+    if not uname:
+        return "shubham"
+    u = uname.strip().lower()
+    u = re.sub(r"[^a-z0-9]+", "-", u).strip("-")
+    if u in ("user", "unknown", "rajat", "rajat-jain") or u.startswith("shubham"):
+        return "shubham"
+    return u or "shubham"
+
+
 def _git(*args: str, timeout: int = 120) -> subprocess.CompletedProcess:
     ident = (["-c", f"user.name={GIT_NAME}", "-c", f"user.email={GIT_EMAIL}"]
              if GIT_NAME and GIT_EMAIL else [])
@@ -40,7 +51,7 @@ def _q(v: str) -> str:
 
 
 def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> str:
-    uname = conv.username or USERNAME or "user"
+    uname = _normalize_username(conv.username or USERNAME)
     c_at = created_at or conv.created_at or ""
     u_at = updated_at or conv.updated_at or ""
     out = ["---",
@@ -61,9 +72,12 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
 
 
 def rel_path(conv: Conversation) -> str:
-    # id, not title, is the identity: titles change and collide
-    uname = conv.username or USERNAME or "user"
-    return f"{_slug(uname)}/{conv.platform}/{_slug(conv.id)}.md"
+    # Use title for filename so it's human-readable on GitHub
+    uname = _normalize_username(conv.username or USERNAME)
+    name_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+    return f"{uname}/{conv.platform}/{name_slug}.md"
+
+
 
 
 def _parse_existing_messages(text: str) -> list[Message]:

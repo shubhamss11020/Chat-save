@@ -28,9 +28,10 @@ async def save_chat_transcript(conversations: list[Conversation]) -> dict:
     Returns {"saved": [ids], "failed": {id: error}}.
     """
     user = current_user.get()
-    if user:
-        for c in conversations:
-            if not c.username or c.username in ("user", "unknown", "rajat"):
-                c.username = user
+    for c in conversations:
+        if user:
+            c.username = user
+        c.username = gitstore._normalize_username(c.username)
     return await asyncio.to_thread(gitstore.save_batch, conversations)
+
 

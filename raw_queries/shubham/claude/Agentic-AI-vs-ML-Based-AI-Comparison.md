@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Agentic AI vs ML-Based AI Comparison"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-07 09:29:02 EDT"
+updated_at: "2026-10-07 09:31:26 EDT"
 ---
 
 # Agentic AI vs ML-Based AI Comparison
@@ -295,3 +295,172 @@ Or if you want to shift gears entirely, I can help with:
 - Anything else on your mind
 
 What sounds interesting?
+
+## User (2026-10-07T00:00:08Z)
+
+I also hear about forward deployed engineers right now the trend is heavy and every one is focused towards fde why there is current change in the industry about fde
+
+## Claude (2026-10-07T00:00:09Z)
+
+**Forward Deployed Engineers (FDE) are becoming a trend because AI/software is fundamentally changing how companies operate—and the old model isn't scaling fast enough.**
+
+Here's what's happening:
+
+---
+
+## **What is an FDE?**
+
+**Traditional model:**
+```
+Customer → Sales → Support Team → Engineering → Fix/Feature
+                    (Middleman delays & miscommunication)
+```
+
+**FDE model:**
+```
+Customer ↔ FDE Engineer ↔ Product/Engineering
+         (Direct relationship, embedded in customer's world)
+```
+
+An FDE is:
+- An engineer **embedded directly with a customer** (or customer segment)
+- Acts as a **bridge** between customer needs and engineering
+- Handles **technical implementation, customization, problem-solving**
+- Understands the customer's business deeply
+
+---
+
+## **Why the Industry is Shifting to FDE Now**
+
+### **1. AI/LLM Adoption Explosion**
+- Customers need **rapid, custom implementations** of AI
+- No two AI projects are identical—requires bespoke solutions
+- Old support model can't keep pace with innovation speed
+- **FDE can:** Quickly prototype, iterate, deploy custom solutions in real-time
+
+### **2. Complexity of Integration**
+- Integrating Claude/AI into enterprise systems is **non-trivial**
+- Needs technical expertise + business understanding simultaneously
+- Can't be solved by sales pitch + generic support docs
+- **FDE bridges this gap:** Technical expertise on-site, aligned with customer success
+
+### **3. Enterprise AI is a Competitive Advantage**
+- Companies implementing AI first gain huge competitive edge
+- Can't afford slow deployment cycles (weeks of back-and-forth)
+- Need **someone who understands their business** implementing AI
+- **FDE model:** Faster time-to-value, fewer communication delays
+
+### **4. Customer Retention & Expansion**
+- FDE becomes the **trusted technical advisor** to the customer
+- Builds deep relationships → easier upsells, expansion
+- Understands what features customers actually need
+- Traditional support = reactive; FDE = proactive and strategic
+
+---
+
+## **Why Now? The Trend Accelerator**
+
+| Factor | Impact |
+|--------|--------|
+| **LLM Maturity** | Claude, GPT-4, etc. are production-ready; companies need to integrate NOW |
+| **Enterprise Adoption** | Fortune 500s pivoting to AI; need expert guidance |
+| **Competitive Pressure** | Companies see competitors using AI; fear of falling behind |
+| **High ACV (Annual Contract Value)** | Enterprise deals are $100K+; worth investing FDE resources |
+| **Custom Requirements** | Each enterprise has unique data, workflows, security needs |
+
+---
+
+## **Real-World FDE Model Examples**
+
+### **Anthropic's Approach** (and others following)
+- **Customer Success Tier 1:** General support
+- **Customer Success Tier 2:** Account managers + sales
+- **FDE Tier:** Dedicated engineer embedded with large customers
+  - Works on actual integration challenges
+  - Builds proof-of-concepts
+  - Advises on AI strategy
+  - Reduces sales cycle friction
+
+### **Who Uses FDEs?**
+- **Startups building AI products** → Embedded engineer from API provider
+- **Enterprises** → Vendor sends FDE to help integrate across org
+- **Consulting/Services firms** → FDE bridges client + vendor relationship
+
+---
+
+## **Why This is Better Than Traditional Support**
+
+| Aspect | Traditional Support | FDE Model |
+|--------|-------------------|----------|
+| **Time to resolution** | Days/weeks | Hours (they're there) |
+| **Problem understanding** | From ticket descriptions | Direct observation |
+| **Solution ownership** | "We'll look into it" | "I'll implement this" |
+| **Business alignment** | Missing | Deep understanding |
+| **Upsell opportunity** | Low | High (sees all use cases) |
+| **Customer stickiness** | Low | High (personal relationship) |
+
+---
+
+## **The Business Case**
+
+**For vendors (like Anthropic, OpenAI, etc.):**
+```
+High-value customers (>$100K/year) 
+  → ROI of assigning $150K/year FDE is huge
+  → Increases retention, upsell, expansion
+  → Becomes competitive moat (hard to switch when FDE is embedded)
+```
+
+**For customers:**
+```
+$500K AI implementation project
+  → Having a vendor FDE reduces risk significantly
+  → Faster deployment = faster ROI
+  → Expert guidance = better architecture decisions
+  → Worth paying premium for
+```
+
+---
+
+## **The Broader Trend**
+
+This is part of a **shift from product-centric to outcome-centric** business models:
+
+- **Old:** "Buy software, figure it out yourself"
+- **New:** "Buy software + expertise to make it work for your business"
+
+It mirrors:
+- **Consulting era** → Custom services
+- **SaaS era** → Self-service software
+- **AI era** → Self-service + Expert guidance (hybrid)
+
+---
+
+## **Challenges of FDE Model**
+
+- **Scaling problem:** Can only serve so many customers with limited FDE headcount
+- **Hiring:** Need engineers who can do coding + customer management
+- **Burnout:** Travel, customer demands, context-switching
+- **Cost:** Expensive to maintain per customer
+- **Geography:** Not all customers can have on-site presence
+
+---
+
+## **The Future**
+
+FDE model likely evolves into:
+1. **Tiered FDE** → Different levels based on contract value
+2. **Hybrid FDE** → Mix of on-site + remote via agents/automation
+3. **AI-Assisted FDE** → Agents/automation handle routine tasks; human FDE does strategic work
+4. **FDE as Service** → Freelance FDE marketplace (already emerging)
+
+---
+
+## **Why You Should Care**
+
+If you're building AI products or services:
+- **FDE strategy is differentiator** → Companies without FDE lose deals
+- **Career opportunity** → FDE roles are well-paid, high-impact
+- **Business model shift** → Service + Software hybrid = better margins + stickier customers
+
+Does this clarify the FDE trend and why it's exploding right now?

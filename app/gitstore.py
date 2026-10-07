@@ -3,12 +3,12 @@ import re
 import shutil
 import subprocess
 import threading
-
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, USERNAME
-from .models import Conversation
+from .models import Conversation, Message
 
 EASTERN = ZoneInfo("America/New_York")
 _lock = threading.Lock()  # one git operation at a time (agent worker + MCP requests)
@@ -78,8 +78,6 @@ def rel_path(conv: Conversation) -> str:
     return f"{uname}/{conv.platform}/{name_slug}.md"
 
 
-
-
 def _parse_existing_messages(text: str) -> list[Message]:
     """Parse existing markdown messages into a list of Message objects."""
     messages = []
@@ -116,11 +114,78 @@ def _merge_messages(existing: list[Message], incoming: list[Message]) -> list[Me
     return merged
 
 
+def _find_existing_thread_file(conv: Conversation) -> Path | None:
+    """Find if a file already exists for this thread by matching id, title, or message content."""
+    uname = _normalize_username(conv.username or USERNAME)
+    search_dirs = [GIT_DIR / uname / conv.platform]
+    legacy_user_dir = GIT_DIR / "user" / conv.platform
+    if legacy_user_dir.exists() and legacy_user_dir not in search_dirs:
+        search_dirs.append(legacy_user_dir)
+
+    all_files: list[Path] = []
+    for d in search_dirs:
+        if d.exists():
+            all_files.extend(sorted(d.glob("*.md"), key=lambda f: f.stat().st_mtime, reverse=True))
+
+    if not all_files:
+        return None
+
+    # 1. Direct slug / filename match
+    target_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+    for f in all_files:
+        if f.stem == target_slug or f.stem == _slug(conv.id):
+            return f
+
+    # 2. Match conversation_id in YAML frontmatter
+    if conv.id:
+        for f in all_files:
+            try:
+                txt = f.read_text(encoding="utf-8")
+                if f'conversation_id: "{conv.id}"' in txt or f'conversation_id: {conv.id}' in txt:
+                    return f
+            except Exception:
+                continue
+
+    # 3. Match message content: check if ANY incoming message snippet is already in the existing file
+    snippets: list[str] = []
+    for m in conv.messages:
+        content_clean = m.content.strip()
+        if len(content_clean) >= 20:
+            snippets.append(content_clean[:80])
+
+    if snippets:
+        for f in all_files:
+            try:
+                txt = f.read_text(encoding="utf-8")
+                for snip in snippets:
+                    if snip in txt:
+                        return f
+            except Exception:
+                continue
+
+    return None
+
+
 def commit_snapshot(conv: Conversation) -> None:
     """Write + commit one transcript. Merges new turns into existing file if present."""
-    rel = rel_path(conv)
-    path = GIT_DIR / rel
-    path.parent.mkdir(parents=True, exist_ok=True)
+    uname = _normalize_username(conv.username or USERNAME)
+    existing_file = _find_existing_thread_file(conv)
+
+    if existing_file:
+        rel = f"{uname}/{conv.platform}/{existing_file.name}"
+        path = GIT_DIR / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if existing_file.resolve() != path.resolve() and existing_file.exists():
+            try:
+                old_rel = existing_file.relative_to(GIT_DIR)
+                existing_file.unlink()
+                _git("rm", "-f", "--", f"raw_queries/{old_rel}")
+            except Exception:
+                pass
+    else:
+        rel = rel_path(conv)
+        path = GIT_DIR / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
 
     now_est = datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M:%S %Z")
     created_at = None
@@ -157,8 +222,6 @@ def commit_snapshot(conv: Conversation) -> None:
         return  # identical to what is already committed
     _check(_git("commit", "-m", f"{conv.platform}: {conv.title} ({conv.id[:8]})", "--", full),
            "git commit")
-
-
 
 
 def prepare() -> None:
@@ -272,4 +335,3 @@ def get_transcript(file_path: str) -> str:
         if not p.exists():
             return f"File not found: {file_path}"
         return p.read_text(encoding="utf-8")
-

@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Agentic AI vs ML-Based AI Comparison"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-07 09:31:26 EDT"
+updated_at: "2026-10-07 09:34:10 EDT"
 ---
 
 # Agentic AI vs ML-Based AI Comparison
@@ -464,3 +464,280 @@ If you're building AI products or services:
 - **Business model shift** → Service + Software hybrid = better margins + stickier customers
 
 Does this clarify the FDE trend and why it's exploding right now?
+
+## User (2026-10-07T00:00:10Z)
+
+I have heard about the gtm engineer what they are doing how the use case of this role
+
+## Claude (2026-10-07T00:00:11Z)
+
+**GTM (Go-To-Market) Engineers are engineers specifically focused on helping products succeed in the market—they solve the "build it perfectly, but customers can't use it" problem.**
+
+Here's what they do:
+
+---
+
+## **What is a GTM Engineer?**
+
+**Traditional model:**
+```
+Engineering → Builds product → Hands off to Sales/Marketing
+             (Engineering doesn't care if it sells)
+
+GTM Engineer model:**
+Engineering ↔ GTM Engineer ↔ Sales/Marketing/Customers
+            (Bridges the gap, owns market success)
+```
+
+A GTM Engineer is:
+- An **engineer who deeply understands the market and customer pain**
+- Focuses on **product-market fit, not just features**
+- Builds tools/solutions to **accelerate customer adoption**
+- Works **across engineering, sales, marketing, and customer success**
+- Owns the **technical implementation of go-to-market strategy**
+
+---
+
+## **What GTM Engineers Actually Do**
+
+### **1. Build Internal Tools for Sales & Support**
+```
+Problems GTM Engineer solves:
+- Sales team: "We need a demo environment that resets every hour"
+  → GTM Engineer builds automated demo infrastructure
+  
+- Customer Success: "Setting up customer instances is manual & slow"
+  → GTM Engineer builds self-service onboarding tool
+  
+- Marketing: "We need proof that our AI reduces latency"
+  → GTM Engineer builds benchmark tool + public benchmarks
+```
+
+### **2. Create Product-Market Fit Tools**
+```
+Examples:
+- Build a CLI tool that makes product adoption 10x faster
+- Create integrations that customers desperately want
+- Develop templates/quickstarts that reduce time-to-value
+- Build dashboard showing ROI to customer finance teams
+```
+
+### **3. Enable Rapid Customer Deployments**
+```
+Problem: Large customer wants to use Claude in their system
+  - Takes 3 months to build custom integration
+  
+GTM Engineer:
+  - Pre-builds common integration patterns
+  - Creates Infrastructure-as-Code templates
+  - Builds automation that reduces setup from weeks to days
+  - Enables FDEs to move faster
+```
+
+### **4. Technical Sales Enablement**
+```
+GTM Engineer builds:
+- Interactive demos (not just slideshows)
+- Technical proof-of-concept (POC) automation
+- Customer sandbox environments
+- Benchmark tools to show value vs. competitors
+- Implementation guides + runbooks
+```
+
+### **5. Product Strategy Input**
+```
+GTM Engineer says:
+"Customers are asking for X feature constantly"
+"Our pricing model doesn't work for Y use case"
+"Competitors have feature Z, we're losing deals"
+
+They bridge product-market feedback loops
+```
+
+---
+
+## **GTM Engineer vs. Other Roles**
+
+| Role | Focus | Scope |
+|------|-------|-------|
+| **Software Engineer** | Build features for users | What product does |
+| **Product Manager** | Define strategy & roadmap | What to build |
+| **Sales Engineer** | Answer customer questions | Explain existing product |
+| **FDE** | Embedded with one customer | Deep integration with specific customer |
+| **GTM Engineer** | How product succeeds in market | All of above, systematized |
+
+**Key difference:**
+- Sales Engineer = "Can this product do X?" (reactive)
+- GTM Engineer = "How do we make X so easy that customers adopt it immediately?" (proactive, scalable)
+
+---
+
+## **Real-World Use Cases**
+
+### **Use Case 1: Claude API Adoption**
+```
+Problem:
+- Developers want to use Claude but integration is complex
+- Each developer builds their own solution (inefficient)
+
+GTM Engineer:
+- Creates SDK examples in 10+ languages
+- Builds starter templates (customer service bot, RAG, etc.)
+- Automates benchmarking (show performance vs GPT-4)
+- Creates playground tool for quick experimentation
+- Result: Developer adoption goes up 5x, sales velocity increases
+```
+
+### **Use Case 2: Enterprise AI Implementation**
+```
+Problem:
+- Customer wants to roll out Claude across organization
+- Needs infrastructure, security, monitoring, logging
+- Manual setup takes 3 months
+
+GTM Engineer:
+- Pre-builds VPC setup with Terraform
+- Creates admin dashboard for usage tracking
+- Implements cost allocation per department
+- Builds guardrails (token limits, content policies)
+- Result: Enterprise deployment in 2 weeks instead of 3 months
+```
+
+### **Use Case 3: Competitive Win**
+```
+Problem:
+- Losing deals to competitor who has better tooling
+
+GTM Engineer:
+- Builds comparison dashboard (shows Claude advantage)
+- Creates cost calculator (shows ROI vs competitor)
+- Builds migration script (easy to switch from competitor)
+- Result: Competitor's stickiness is reduced, easier to win deals
+```
+
+### **Use Case 4: Marketing Proof Points**
+```
+Problem:
+- Marketing needs technical proof that Claude is faster
+
+GTM Engineer:
+- Builds benchmark suite comparing Claude vs competitors
+- Automates benchmark runs and reporting
+- Creates public benchmark website
+- Result: Sales has credible, defensible claim about superiority
+```
+
+---
+
+## **Why GTM Engineers Are Emerging Now**
+
+### **1. AI Product Complexity**
+- Integrating Claude/LLMs is **non-trivial** for most orgs
+- Traditional "buy product, use it" model doesn't work
+- Customers need **technical tooling to succeed**
+- Example: Selling Slack is easy; selling Claude API to enterprise requires orchestration
+
+### **2. Velocity as Competitive Advantage**
+```
+Scenario: Two companies sell similar products
+Company A: Customer deployment = 3 months (complex manual setup)
+Company B: Customer deployment = 2 weeks (GTM Engineer built automation)
+
+Company B wins deals faster, higher close rate, faster expansion
+```
+
+### **3. Sales Cycle Acceleration**
+```
+Traditional:
+Sales Demo → Technical POC (2 weeks) → Negotiation → Implementation (3 months)
+
+With GTM Engineer:
+Sales Demo → Click "Deploy" button → Customer sees value in 1 hour → Negotiation
+(Compression = faster sales, higher conversion)
+```
+
+### **4. Customer Success at Scale**
+- FDEs can only serve so many customers (expensive)
+- GTM Engineer builds **scalable tooling** for self-service success
+- Customers can onboard themselves faster
+- Reduces need for 1:1 support
+
+---
+
+## **GTM Engineer Responsibilities**
+
+**Technical:**
+- Build internal tools (dashboards, CLI, infrastructure templates)
+- Automate customer deployments
+- Create benchmarking/comparison tools
+- Develop SDKs, libraries, quickstarts
+
+**Cross-functional:**
+- Work with sales to enable faster closures
+- Partner with marketing for proof points
+- Collaborate with product on market feedback
+- Support customer success with automation
+
+**Business-minded:**
+- Understand customer pain points
+- Measure impact on sales velocity, conversion, expansion
+- Prioritize based on market impact (not just engineering complexity)
+- Own metrics like "time-to-first-value" and "deployment time"
+
+---
+
+## **How GTM Engineer Differs from FDE**
+
+| Aspect | FDE | GTM Engineer |
+|--------|-----|-------------|
+| **Scope** | One customer | All customers / market |
+| **Time** | Long-term (stays with customer) | Project-based (builds once, scales) |
+| **Output** | Custom integration for customer | Reusable tools for entire org |
+| **Impact** | Deep, customer-specific | Broad, amplified through sales/marketing |
+| **Scaling** | Doesn't scale (1 FDE = 1 customer) | Scales (1 tool = 1000 customers) |
+
+---
+
+## **GTM Engineer Career Path**
+
+**Often recruited from:**
+- Product engineers who understand market
+- Sales engineers who can code
+- DevOps/infrastructure engineers who want impact visibility
+- Startup founders (they understand GTM)
+
+**Skills needed:**
+- Strong engineering fundamentals
+- Business/market intuition
+- Communication (can work across teams)
+- Systems thinking (sees big picture, not just code)
+- Obsession with customer problems
+
+---
+
+## **The Evolution**
+
+**2023:** GTM Engineer = "Sales engineer who codes"
+**2024:** GTM Engineer = "Dedicated role for market acceleration"
+**2025:** GTM Engineer = "AI-powered role" (agents handle routine tooling; human GTM Engineer focuses on strategy)
+
+---
+
+## **Why You Should Care**
+
+If you're building AI products:
+- **GTM Engineers are force multipliers** → 1 GTM Engineer can accelerate 10 sales reps
+- **Career opportunity** → GTM roles paying $200K+ (senior engineer + sales understanding)
+- **Product strategy** → Companies with GTM Engineers ship features customers actually adopt faster
+- **Competitive advantage** → Companies without GTM Engineers lose market share (customers can't succeed with product)
+
+---
+
+**Quick comparison of emerging roles:**
+```
+FDE: "I live with one customer, I solve their integration"
+GTM Engineer: "I build tools so 100 customers can self-serve"
+Agentic AI: "I'm an agent that helps multiple FDEs/GTM Engineers"
+```
+
+Does this clarify what GTM Engineers do and why they're crucial?

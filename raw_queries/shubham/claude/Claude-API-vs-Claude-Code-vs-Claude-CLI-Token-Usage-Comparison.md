@@ -2,12 +2,12 @@
 conversation_id: claude-token-comparison-20261007
 platform: claude
 username: "shubham"
-title: "Claude API vs Claude Code vs Claude CLI: Token Usage Comparison"
+title: "Claude API vs Claude Code vs Claude CLI vs Codex: Complete Token Usage & Pricing Comparison"
 created_at: "2026-10-07 08:27:37 EDT"
-updated_at: "2026-10-07 08:32:04 EDT"
+updated_at: "2026-10-07 08:33:51 EDT"
 ---
 
-# Claude API vs Claude Code vs Claude CLI: Token Usage Comparison
+# Claude API vs Claude Code vs Claude CLI vs Codex: Complete Token Usage & Pricing Comparison
 
 ## User (2026-10-07 08:27:37 EDT)
 
@@ -177,3 +177,89 @@ which claude api is a winner here comapre to both
 
 ## **Bottom Line:**
 **Claude API is the token & cost winner** by 2-4x margin. Use it for anything production-facing or cost-conscious.
+
+## User (2026-10-07 08:33:51 EDT)
+
+make same comparison for codex
+
+## Claude (2026-10-07 08:33:51 EDT)
+
+## **OpenAI Codex Added to Comparison** 🔥
+
+Here's the **full 4-way breakdown** including Codex:
+
+---
+
+### **Token Burn Ranking** (Most to Least Efficient):
+
+1. **🏆 OpenAI Codex** — **MOST EFFICIENT** (≈1/3 the tokens)
+2. **Claude API** — **EFFICIENT** (clean & lean)
+3. **Claude Code (Web/Desktop)** — **MODERATE** (3-4x more than Codex)
+4. **Claude Code CLI** — **HEAVIEST** (combines CLI overhead + Claude's verbosity)
+
+---
+
+### **Real-World Token Comparison Table:**
+
+| Task | Claude API | Codex | Claude Code | Claude CLI |
+|------|-----------|-------|-------------|-----------|  
+| **Simple completion** | 5K | 2K | 8-12K | 10-15K |
+| **File refactor** | 25K | 8K | 40-60K | 50-100K |
+| **Job scheduler** | 72K | 23K | 235K | 300K+ |
+| **Multi-file project** | 50K | 15K | 100-200K | 150-300K |
+
+**Real benchmark:** Same task = Codex 72,579 tokens vs Claude Code 234,772 tokens (3.2x difference)
+
+---
+
+### **Cost Per Task Comparison:**
+
+| Task | Codex Plus ($20) | Claude Pro ($20) | Codex API | Claude API |
+|------|-----------------|-----------------|-----------|----------|
+| Simple code completion | ✅ **Free** | ✅ **Free** | ~$0.15 | ~$0.40 |
+| File refactor | ✅ **Free** | ✅ **Free** | ~$0.50 | ~$1.50 |
+| Job scheduler task | ✅ **Free** | ❌ **Over limit** | ~$1.40 | ~$4.00 |
+| Heavy sessions | ✅ **More headroom** | ❌ **Hits limits** | **Winner** | Expensive |
+
+---
+
+### **The Showdown: Feature Comparison**
+
+| Aspect | Claude API | Codex | Claude Code | CLI |
+|--------|-----------|-------|-------------|-----|
+| **Token efficiency** | ✅ Good | 🏆 **BEST (4x better)** | ⚠️ Heavy | ⚠️ Heavy |
+| **Code quality** | — | Good | 🏆 **BEST (67% prefer)** | Good |
+| **Token overflow** | Pay per token | Rarely hits limit | Hits limits fast | Hits limits fast |
+| **Speed** | Varies | ⚠️ Slower reasoning | ✅ Interactive | ✅ Fast feedback |
+| **Automation** | ✅ Excellent | 🏆 **BEST (sandboxed)** | Good | Good |
+| **Pricing at $20 tier** | N/A | 🏆 **BEST (5-10x more sessions)** | Hits limits @ 10-20 sessions | Hits limits fast |
+
+---
+
+### **📊 Winner By Use Case:**
+
+| Use Case | Winner | Why |
+|----------|--------|-----|
+| **Maximum token efficiency** | 🏆 **Codex** | 1/3 the tokens of Claude |
+| **Best code quality** | 🏆 **Claude Code** | 67% rated cleaner/more idiomatic |
+| **$20/month budget** | 🏆 **Codex** | 5-10x more sessions before limit |
+| **Complex multi-file refactoring** | 🏆 **Claude Code** | Deep reasoning worth the token cost |
+| **Production automation** | 🏆 **Claude API** | Zero overhead, transparent billing |
+| **Fast execution & sandboxing** | 🏆 **Codex** | Asynchronous, doesn't consume tokens locally |
+| **Volume work (100+ tasks/month)** | 🏆 **Codex API** | Most cost-efficient long-term |
+
+---
+
+### **TL;DR - The Verdict:**
+
+**Codex is the token efficiency champion** — uses **3-4x fewer tokens** than Claude Code for the same task.
+
+At **$20/month:**
+- **Codex Plus:** 50-80 sessions before limit
+- **Claude Pro:** 10-20 sessions before limit
+
+**But context matters:**
+- **Use Codex** if you want speed, efficiency, and token savings
+- **Use Claude Code** if you need superior code quality (worth the token overhead)
+- **Use Claude API** if you're building products and need transparent, scalable billing
+- **Avoid CLI** unless you like paying 2-4x more for convenience

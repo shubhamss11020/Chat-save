@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:35:30 EDT"
+updated_at: "2026-10-07 11:36:16 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -90,3 +90,11 @@ when was she born?
 ## Claude (2026-10-07 11:35:30 EDT)
 
 Droupadi Murmu was born on June 20, 1958, in Uparbeda village in Mayurbhanj district, Odisha, India.
+
+## User (2026-10-07 11:36:16 EDT)
+
+what is the national anthem of India?
+
+## Claude (2026-10-07 11:36:16 EDT)
+
+The national anthem of India is "Jana Gana Mana," written by Rabindranath Tagore. It was adopted as the official national anthem of India on January 26, 1950.

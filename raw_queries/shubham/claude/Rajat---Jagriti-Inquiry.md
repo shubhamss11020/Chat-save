@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:34:25 EDT"
+updated_at: "2026-10-07 11:35:30 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -82,3 +82,11 @@ what is the president of india?
 ## Claude (2026-10-07 11:34:25 EDT)
 
 Droupadi Murmu is the current President of India. She is the 15th President, having assumed office on July 25, 2022, and made history as the first tribal woman to hold this position.
+
+## User (2026-10-07 11:35:30 EDT)
+
+when was she born?
+
+## Claude (2026-10-07 11:35:30 EDT)
+
+Droupadi Murmu was born on June 20, 1958, in Uparbeda village in Mayurbhanj district, Odisha, India.

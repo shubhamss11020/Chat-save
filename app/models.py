@@ -1,26 +1,39 @@
+"""Canonical domain models for Chat-Save."""
 from typing import Literal, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Message(BaseModel):
     id: str
-    role: Literal["user", "assistant", "tool"]
+    conversation_id: Optional[str] = ""
+    sequence: Optional[int] = 0
+    role: Literal["user", "assistant", "tool", "system"] = "user"
     content: str
     timestamp: Optional[str] = None
+    content_hash: Optional[str] = None
 
 
 class Conversation(BaseModel):
     id: str
-    title: str = "Untitled conversation"
-    username: Optional[str] = ""
     platform: Literal["chatgpt", "claude"] = "claude"
+    external_conversation_id: Optional[str] = None
+    user_id: Optional[str] = "shubham"
+    username: Optional[str] = "shubham"
+    title: str = "Untitled conversation"
     created_at: Optional[str] = ""
     updated_at: Optional[str] = ""
-    messages: list[Message]
-
+    last_message_sequence: Optional[int] = 0
+    status: Optional[str] = "active"
+    messages: list[Message] = Field(default_factory=list)
 
 
 class ConversationEvent(BaseModel):
-    event: str = "conversation.updated"
-    platform: Literal["chatgpt", "claude"]
-    thread_id: str
+    event_type: str = "conversation.updated"
+    platform: Literal["chatgpt", "claude"] = "claude"
+    conversation_id: str
+    message_id: Optional[str] = None
+    turn_number: Optional[int] = None
+    role: Literal["user", "assistant", "tool", "system"] = "user"
+    content: str = ""
+    created_at: Optional[str] = None
+    thread_id: Optional[str] = None  # alias for backward compat

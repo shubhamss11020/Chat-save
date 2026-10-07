@@ -1,6 +1,6 @@
-"""Capture controller: hook events + periodic/startup reconciliation -> hash -> outbox."""
-import hashlib
+"""Capture controller: scans sources, hashes, and performs atomic transactional persistence into SQLite."""
 import logging
+from typing import Optional
 
 from . import state
 from .models import Conversation
@@ -9,42 +9,45 @@ from .sources.base import ConversationSource
 log = logging.getLogger("chatsave")
 
 
-def content_hash(conv: Conversation) -> str:
-    """SHA-256 of the complete normalized snapshot (identity + title + every message)."""
-    h = hashlib.sha256(f"{conv.platform}\0{conv.id}\0{conv.title}".encode())
-    for m in conv.messages:
-        h.update(f"\0{m.id}\0{m.role}\0{m.content}".encode())
-    return h.hexdigest()
-
-
 def enqueue_snapshot(conv: Conversation) -> bool:
-    return state.enqueue(conv, content_hash(conv))
+    """Atomic transactional persistence of conversation + messages + outbox."""
+    return state.save_conversation_atomic(conv)
 
 
 class CaptureController:
     def __init__(self, sources: dict[str, ConversationSource]):
         self.sources = sources
 
-    def capture(self, platform: str, thread_id: str, sig: str | None = None) -> bool:
-        """Read one full transcript and queue it if it changed. Safe to call repeatedly."""
-        src = self.sources.get(platform)
-        conv = src.get_conversation(thread_id) if src else None
+    def capture(self, source_name: str, thread_id: str, sig: Optional[str] = None) -> bool:
+        """Fetch full conversation from source and save transactionally into SQLite."""
+        src = self.sources.get(source_name)
+        if not src:
+            return False
+        conv = src.get_conversation(thread_id)
         if not conv:
             return False
-        queued = enqueue_snapshot(conv)
+        
+        saved = enqueue_snapshot(conv)
         if sig is not None:
-            state.set_sig(platform, thread_id, sig)
-        return queued
+            state.set_sig(source_name, thread_id, sig)
+        return saved
 
     def reconcile(self) -> int:
-        """Find threads changed since the last scan (incl. while the agent was down)."""
+        """Scan all configured sources for updated threads and save any changes transactionally."""
         n = 0
-        for name, src in self.sources.items():
-            for thread_id, sig in src.scan().items():
-                if state.get_sig(name, thread_id) == sig:
+        for source_name, src in self.sources.items():
+            try:
+                scanned_map = src.scan()
+            except Exception:
+                log.exception("Scan failed for source %s", source_name)
+                continue
+
+            for thread_id, sig in scanned_map.items():
+                if state.get_sig(source_name, thread_id) == sig:
                     continue
                 try:
-                    n += self.capture(name, thread_id, sig)
+                    if self.capture(source_name, thread_id, sig):
+                        n += 1
                 except Exception:
-                    log.exception("capture failed for %s/%s", name, thread_id)
+                    log.exception("Capture failed for %s/%s", source_name, thread_id)
         return n

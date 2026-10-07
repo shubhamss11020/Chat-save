@@ -10,10 +10,15 @@ from .config import CAPTURE, RECONCILE_SECONDS
 from .mcp_server import mcp
 from .models import Conversation, ConversationEvent
 from .sources.claude_code import ClaudeSource
+from .sources.claude_desktop import ClaudeDesktopSource
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("chatsave")
-controller = capture.CaptureController({"claude": ClaudeSource()})
+
+controller = capture.CaptureController({
+    "claude": ClaudeSource(),
+    "claude_desktop": ClaudeDesktopSource()
+})
 mcp_app = mcp.streamable_http_app()  # also creates mcp.session_manager
 
 
@@ -33,7 +38,15 @@ def _tick():
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    # 1. Startup Recovery: reset any processing records back to pending
     state.recover()
+    # 2. Initial Reconcile & Outbox Drain
+    if CAPTURE:
+        try:
+            await asyncio.to_thread(_tick)
+        except Exception:
+            log.exception("Startup reconciliation failed")
+    # 3. Start periodic background capture & drain loop
     task = asyncio.create_task(_loop(_tick, RECONCILE_SECONDS)) if CAPTURE else None
     async with mcp.session_manager.run():
         yield
@@ -52,12 +65,13 @@ def health():
 
 @app.get("/status")
 def status():
-    """Outbox counts and the latest errors (what is still waiting to be saved)."""
+    """Canonical counts and outbox queue status."""
     return state.stats()
 
 
 def _handle_event(ev: ConversationEvent):
-    controller.capture(ev.platform, ev.thread_id)
+    thread_id = ev.conversation_id or ev.thread_id or "unknown"
+    controller.capture(ev.platform, thread_id)
     outbox.drain()
 
 
@@ -70,7 +84,7 @@ def post_event(ev: ConversationEvent, bg: BackgroundTasks):
 
 @app.post("/conversations")
 def save_conversation(conv: Conversation, bg: BackgroundTasks):
-    """Manual fallback: push a full normalized transcript. Idempotent."""
+    """Save/update canonical conversation and drain outbox."""
     queued = capture.enqueue_snapshot(conv)
     bg.add_task(outbox.drain)
     return {"queued": queued}
@@ -82,4 +96,4 @@ def reconcile_now(bg: BackgroundTasks):
     return {"started": True}
 
 
-app.mount("/", mcp_app)  # serves /mcp (save_chat_transcript); keep last so API routes win
+app.mount("/", mcp_app)  # serves /mcp; keep last so API routes win

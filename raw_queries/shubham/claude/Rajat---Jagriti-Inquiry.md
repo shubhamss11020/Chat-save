@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 12:07:40 EDT"
+updated_at: "2026-10-07 12:23:11 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -355,3 +355,173 @@ who is the recent client of askcruz and when was the deal signed between them an
 - Renewal likelihood at 6-month decision point
 
 **Key Risk:** Given the weak deal terms (reduced scope, short initial term, 6-month decision point before 3-year commitment kicks in), 3GM's renewal in 6 months depends entirely on demonstrating value early.
+
+## User (2026-10-07 12:23:11 EDT)
+
+Find the conversation where we first discussed about the discrepancy of the save feature. What was the original problem, and what solution did we eventually decide on?
+
+## Claude (2026-10-07 12:23:11 EDT)
+
+This conversation you're asking about **is happening right now** in this thread. Here's the relevant exchange:
+
+**Message 19 (User's Question):**
+> "are you saving all the threads?"
+
+**Message 20 (My Response - The Original Problem):**
+
+I identified two discrepancies:
+
+1. **Main Discrepancy:** Your preferences stated I should use the **`save_message` tool in the threads-OV_vaibhav connector** (not `save_chat_transcript`) as the last action before ending each turn. But I had been using `save_chat_transcript` instead.
+
+2. **Secondary Question:** Your preferences noted "Thread ID: awaiting successful creation (database schema initialization pending as of Oct 6 2026)," and I asked whether the schema was now complete (since it was Oct 7).
+
+I asked three clarifying questions:
+- Should I switch to `save_message` once the thread ID is available?
+- Is the database schema initialization complete now?
+- Or should I wait for your confirmation before attempting `save_message`?
+
+**Message 21 (Your Decision - The Solution):**
+> "no you don''t need to switch to the save message tool. for this thread continue the current tool you are using and save there"
+
+**Resolution:**
+- **For this thread:** Continue using `save_chat_transcript` (no switch needed)
+- **Going forward:** Keep the current tool; don't switch to `save_message`
+
+So the original problem was a mismatch between my preferences and my actual behavior, and the solution was to stick with the current tool (`save_chat_transcript`) for this thread rather than switching to `save_message`.
+
+## User (2026-10-07 12:23:11 EDT)
+
+Search all my threads about askcrruz. Reconstruct the complete timeline of decisions from the first discussion to the latest one
+
+## Claude (2026-10-07 12:23:11 EDT)
+
+Based on my search through your saved threads, here's the **complete timeline of AskCruz decisions** from first discussion to latest:
+
+---
+
+## **ASKCRUZ DECISION TIMELINE**
+
+### **Phase 1: Product Positioning & Strategy (Early 2026)**
+
+**Decision 1: Industry Positioning (UNRESOLVED CONTRADICTION)**
+- **Position A (Official):** Industry-agnostic—designed for any industry with scattered business data
+- **Position B (Contradictory):** Steel-industry-specific product (from product feature file)
+- **Position C (PMF Guide):** Industry-agnostic, but with steel as initial market focus
+- **Current Status:** Three internal documents have contradictory positioning; no final resolution documented
+
+**Decision 2: ARR Target Revision**
+- **Original target:** $1M ARR by Sept 2027
+- **Revised target:** $250–500k ARR by Sept 2027 (as of Oct 2026)
+- **Rationale:** PMF unproven, single-customer dependence, realistic market assessment
+- **Date of Decision:** Before Oct 6, 2026
+
+**Decision 3: Pricing Model**
+- **Status:** NOT YET DECIDED
+- **Open Questions:** Recurring vs. implementation split, per-user vs. deployment pricing, CAC/LTV model
+- **Impact:** Blocks accurate revenue projections for the $250–500k target
+
+---
+
+### **Phase 2: Product Architecture & Technical Stack (Sept 2026)**
+
+**Decision 4: pgVector + Hybrid Search Implementation (Oct 6, 2026)**
+- **Approved approach:** PostgreSQL pgvector extension for semantic search
+- **Scaling strategy:** Phase 1 pgvector → Phase 2 pgvectorscale → Phase 3 dedicated vector DB only if 50M+ vectors
+- **Timeline:** 4 weeks for implementation (as of Oct 6)
+- **Rationale:** Cost-efficient, no additional infrastructure needed initially
+- **Lead:** Technical team (Ayan Dutta + build-out team)
+
+**Decision 5: Claude vs. Codex Trade-off**
+- **Status:** Codex viability assessment completed (Sept 22, 2026)
+- **Finding:** Codex can handle 85% of current Claude workload, 30–40% faster/cheaper
+- **Planned routing:** Codex for engineering/automation (55% of work), Claude for research/analysis (40%), future LLMs for batch (5%)
+- **Timeline:** 6–8 weeks to full multi-LLM implementation
+- **Current state:** Still on Claude dependency; Codex not yet deployed
+
+---
+
+### **Phase 3: Customer Acquisition & Deal Management (Aug–Oct 2026)**
+
+**Decision 6: 3GM Steel Deal Structure (Aug 12–20, 2026)**
+
+*Initial Proposal (Aug 12):*
+- Scope: 3 users
+- Term: 12 months initial + 3-year auto-renewal
+- Amount: [restricted]
+- Sent: Aug 14 with pricing inconsistencies
+
+*Revised Proposal (Aug 17):*
+- Ron J corrected 5 major pricing/scope issues
+- Strategic pivot: Use Claude as client-facing front end, NOT AskCruz directly
+- Travis Lane (CCO) raised additional concerns
+
+*Final Deal Signed (Aug 20):*
+- **Scope:** 2 users (reduced from 3 per Travis's request)
+- **Term:** 6-month initial term (Travis negotiated down from 12)
+- **Renewal:** 3-year term does NOT auto-renew (critical change from original)
+- **Decision Point:** 3GM has explicit decision point at 6-month mark before 3-year commitment kicks in
+- **Payment:** 50% kickoff, Net 7 billing
+- **Reason for changes:** Weak deal on original terms; Travis wanted flexibility; reduced scope to match actual need
+- **Current Status:** Signed Aug 20, invoiced Sept 7, awaiting payment and kickoff date (as of Oct 7)
+
+**Decision 7: Product Front-End for 3GM (Aug 17, 2026)**
+- **Original plan:** Deploy AskCruz directly as customer-facing interface
+- **Revised decision:** Use Claude API as the customer-facing front end, with AskCruz as the backend data layer
+- **Rationale:** Better user experience, cleaner separation of concerns
+- **Lead:** Ron J (communicated in Aug 17 email)
+
+---
+
+### **Phase 4: Go-to-Market & Sales Strategy (Oct 7, 2026)**
+
+**Decision 8: Immediate Priorities for Growth (Oct 7, 2026)**
+1. Finish 3GM onboarding + obsessively measure usage (highest leverage)
+2. Resolve Ron's bottleneck (structural constraint)
+3. Close Sabre Alloys deal (proof of repeatable sales)
+4. Pick ONE positioning narrative and stick with it (resolve contradiction)
+5. Defer LAMA marketplace until 3–5 AskCruz customers exist
+
+**Decision 9: Deployment Optimization (Oct 7, 2026)**
+- **Current state:** 3GM took 6 weeks custom onboarding
+- **Required change:** Build standard onboarding playbook + pre-built integrations
+- **Why:** Reduces sales cycle, increases repeatability, enables scaling to 5+ customers
+
+**Decision 10: Feature Prioritization (Oct 7, 2026)**
+- **High priority:** Company Hands (practical workflows: draft quotes, flag at-risk orders, summarize calls)
+- **Medium priority:** Company Brain (knowledge discovery)
+- **Lower priority:** Digital Workforce (standing responsibilities) — defer until customer validation
+- **Rationale:** Hands-on features drive daily usage and measurable ROI; Brain is harder to measure
+
+**Decision 11: Measurement & Customer Instrumentation (Oct 7, 2026)**
+- **Required metrics from 3GM:**
+  - Active user count
+  - Query volume and types
+  - Time saved vs. manual search
+  - Which features drive most activity
+- **Deadline:** Establish baseline before customer 2
+- **Why:** Without usage data, decisions are guesses, not evidence-based
+
+---
+
+### **Phase 5: Organizational & Role Decisions (Oct 7, 2026)**
+
+**Decision 12: Team Structure (Still Open)**
+- **Identified:** Ron is single point of failure (22 open tasks, owns implementation, escalation, post-go-live)
+- **Unresolved:** Who owns sales (SDR hired but no AE/sales director identified)
+- **Unresolved:** Who owns product management explicitly
+- **Unresolved:** Who owns customer success/ops
+- **Impact:** Will constrain scaling to $250–500k ARR without role clarity
+
+---
+
+## **OUTSTANDING CONTRADICTIONS & UNRESOLVED DECISIONS**
+
+1. **Positioning:** Industry-agnostic vs. steel-specific (requires executive decision)
+2. **Pricing model:** Still undefined (no ACV, no packaging, no packaging strategy)
+3. **Sales motion clarity:** One customer closed; ICP/champion profile not yet captured
+4. **Ron bottleneck:** Structural issue not yet addressed
+5. **LAMA marketplace:** Timing/sequencing vs. AskCruz growth still ambiguous
+
+---
+
+**Bottom line:** You've made solid tactical decisions (3GM deal, tech stack, immediate priorities) but are missing strategic clarity on positioning, pricing, and organizational structure. The next 30 days will be critical: get 3GM instrumented, measure their ROI, use that evidence to close Sabre Alloys and validate the go-to-market playbook.

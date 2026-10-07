@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:36:16 EDT"
+updated_at: "2026-10-07 11:36:58 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -98,3 +98,19 @@ what is the national anthem of India?
 ## Claude (2026-10-07 11:36:16 EDT)
 
 The national anthem of India is "Jana Gana Mana," written by Rabindranath Tagore. It was adopted as the official national anthem of India on January 26, 1950.
+
+## User (2026-10-07 11:36:58 EDT)
+
+who is Rabindranath tagore?
+
+## Claude (2026-10-07 11:36:58 EDT)
+
+Rabindranath Tagore (1861–1941) was a Bengali polymath—poet, philosopher, musician, painter, and educationalist—who became one of the most influential figures in modern Indian history. He was the first non-European to win the Nobel Prize in Literature in 1913, recognized primarily for his poetry collection "Gitanjali."
+
+Beyond his literary work, Tagore:
+- Wrote "Jana Gana Mana," which became India's national anthem
+- Founded Shantiniketan, an experimental educational institution emphasizing holistic learning
+- Advocated for social reform, women's education, and Indian independence
+- Made significant contributions to Bengali literature and culture during the Indian Renaissance
+
+His work bridged Eastern and Western intellectual traditions, and he remains a towering figure in global literature and Indian cultural history.

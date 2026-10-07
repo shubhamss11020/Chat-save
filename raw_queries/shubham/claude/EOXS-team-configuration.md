@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "EOXS team configuration"
 created_at: "2026-10-07 10:48:26 EDT"
-updated_at: "2026-10-07 11:34:00 EDT"
+updated_at: "2026-10-07 11:36:22 EDT"
 ---
 
 # EOXS team configuration
@@ -118,3 +118,33 @@ I don't have any information about "ayan" in my memory. Could you clarify what y
 - **Something else entirely**?
 
 With more context, I can help you pull the relevant information.
+
+## User (2026-10-07T00:00:01Z)
+
+try to fetch from internal team
+
+## Claude (2026-10-07T00:00:01Z)
+
+Here's what I found about **Ayan Dutta** in the internal system:
+
+## **Key Role & Responsibilities**
+
+**Ayan Dutta** (`ayan@eoxsteam.com`) is an EOXS internal implementation lead with several key functions:
+
+### **Primary Initiatives (As of Late Aug 2026)**
+
+1. **AskCru Functional Team Access Rollout** — His first major implementation project managing client-employee access provisioning. Rajat Jain explicitly assigned him ownership of rolling out full AskCru access to EOXS's functional team members, describing it as "Ayan's first implementation where you will be giving access to employees of the client."
+
+2. **Internal Systems & CRM Data Quality** — Ayan confirmed and addressed CRM data-fragmentation issues. The system was only fetching contact/activity data from the CRM module, causing stale or duplicated records. He agreed to update the system to pull from all relevant modules.
+
+3. **AskCruz Ingestion & Citation-Review** — Ayan was documented (Sep 8, 2026) walking the internal team through the design of AskCruz's email ingestion and citation pipeline, indicating involvement in product architecture and data handling.
+
+### **Org Status (Sep 5, 2026)**
+
+During an impromptu zoom meeting, there was discussion of an organizational restructure affecting Ayan's team, with his direct reports potentially being reassigned to Ron J. This suggests Ayan was managing a small team prior to restructuring.
+
+### **Track Record**
+
+- **Learning curve**: Rajat Jain coached Ayan extensively before the AskCru rollout, noting he'd likely miss "one nuance" but withholding details to see if Ayan would discover it independently — suggesting a mentorship dynamic and first-time hands-on implementation lead role.
+
+Would you like me to pull more details on any specific aspect of Ayan's work?

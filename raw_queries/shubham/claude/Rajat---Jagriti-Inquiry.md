@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:36:58 EDT"
+updated_at: "2026-10-07 11:38:11 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -114,3 +114,30 @@ Beyond his literary work, Tagore:
 - Made significant contributions to Bengali literature and culture during the Indian Renaissance
 
 His work bridged Eastern and Western intellectual traditions, and he remains a towering figure in global literature and Indian cultural history.
+
+## User (2026-10-07 11:38:11 EDT)
+
+list the names of some freedom fighters of India
+
+## Claude (2026-10-07 11:38:11 EDT)
+
+Here are some notable freedom fighters of India:
+
+1. **Mahatma Gandhi** – Led the non-violent independence movement and civil disobedience campaigns
+2. **Jawaharlal Nehru** – First Prime Minister; key independence leader and founder of modern India
+3. **Sardar Vallabhbhai Patel** – Unified Indian states after independence; known as the "Iron Man of India"
+4. **Subhas Chandra Bose** – Advocated armed struggle; led the Indian National Army
+5. **Bhagat Singh** – Revolutionary freedom fighter; executed in 1931
+6. **Bal Gangadhar Tilak** – Early nationalist leader; advocate of Swaraj (self-rule)
+7. **Lala Lajpat Rai** – Nationalist leader; protested against British colonial policies
+8. **Muhammad Ali Jinnah** – Leader of the All-India Muslim League; founder of Pakistan
+9. **Rammohan Roy** – Social reformer; pioneer of the Indian Renaissance
+10. **Keshab Chandra Sen** – Social and religious reformer
+11. **Dadabhai Naoroji** – Early nationalist; advocated for Indian rights in British Parliament
+12. **Annie Besant** – Theosophist and political activist; president of Indian National Congress
+13. **Sarojini Naidu** – Poet and independence activist; first woman governor of India
+14. **Kasturba Gandhi** – Wife of Gandhi; active in independence movement
+15. **Chandrasekhar Azad** – Revolutionary; fought against British rule
+16. **Bankim Chandra Chattopadhyay** – Author and nationalist whose works inspired independence movement
+
+These figures represent various approaches—from non-violent resistance to armed struggle—in India's long fight for independence, which culminated in 1947.

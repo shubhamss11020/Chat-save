@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "How to Improve AskCruz for $250–500k ARR Target"
 created_at: "2026-10-07 11:18:50 EDT"
-updated_at: "2026-10-07 11:18:50 EDT"
+updated_at: "2026-10-07 11:21:55 EDT"
 ---
 
 # How to Improve AskCruz for $250–500k ARR Target
@@ -204,3 +204,46 @@ After 3GM, capture: industry, company size, data-fragmentation score, primary bu
 - Don't build features without customer validation
 
 **Bottom line:** Your constraint isn't the product. It's customer traction + measurement. Get 3GM live, measure hard, use that to land customer 2. Then iterate.
+
+## User (2026-10-07 11:21:55 EDT)
+
+give me the list of employees working in askcruz team
+
+## Claude (2026-10-07 11:21:55 EDT)
+
+Based on the connectors, here's the **AskCruz team** that I can identify:
+
+### **Core Team**
+
+| Person | Role | Notes |
+|--------|------|-------|
+| **Ron** | Product/Implementation Lead | Manages daily task board, escalations, customer implementation. Critical operational bottleneck for deliverables. |
+| **Ayan Dutta** | Engineering/Technical Lead | Manages team access rollout, technical architecture discussions, email ingestion/citation-review pipeline design. |
+| **Jaskeerat** | Frontend Engineer | Owns the Cruz chat interface/frontend codebase (mentioned in self-knowledge doc as internal ownership). |
+| **Sebastian Roa Viertel** | Sales Development Representative (SDR) | Engaged starting 2026-08-27, working through his own company (SRV Consulting) as independent contractor. |
+
+### **Supporting/Involved**
+
+| Person | Role | Context |
+|--------|------|----------|
+| **Aryan Bakshi** | (role unclear) | Involved in administrative/payment flow setup, participated in Claude/MCP rollout. |
+| **Build-out team** | Backend/Database/Pipelines | Owns server, database, automated pipelines (mentioned in architecture but no individual names documented). |
+| **Lawrence Tabachnick** | Advisor/Content Strategy | External advisor, not employee—led content/marketing strategy session on messaging. |
+
+---
+
+### **What's Missing**
+
+The documentation doesn't have a formal org chart. Based on the evidence:
+- **No dedicated product manager** explicitly named
+- **No dedicated sales lead** (Sebastian is SDR, but no AE/sales director visible)
+- **No dedicated ops/customer success** manager identified
+- The "build-out team" for backend/DB/pipelines isn't broken down by individual ownership
+
+### **Key Bottleneck**
+
+**Ron** is a single point of failure—he's handling product, implementation, escalations, and customer readiness across all work. This was flagged in your profile as a structural constraint for EOXS broadly, and it applies directly to AskCruz.
+
+---
+
+Do you want me to dig deeper on any of these people or map out the missing roles you need to fill to hit the $250–500k ARR target?

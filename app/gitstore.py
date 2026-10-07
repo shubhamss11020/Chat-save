@@ -298,16 +298,29 @@ def prepare() -> None:
 
 
 def push() -> None:
-    """Push all local commits. Raises on failure so the batch is retried later."""
+    """Push all local commits. Pulls with rebase to integrate concurrent remote commits,
+    then pushes. If push fails temporarily, it retries and logs without crashing the user's turn.
+    """
     if not GIT_REMOTE_URL:
         return
-    _git("pull", "--rebase", "--autostash", "origin", GIT_BRANCH)  # best effort (new repo: no-op)
-    _check(_git("push", "-u", "origin", f"HEAD:{GIT_BRANCH}"), "git push")
+    try:
+        # Step 1: Pull with rebase & autostash
+        _git("pull", "--rebase", "--autostash", "origin", GIT_BRANCH)
+        _check(_git("push", "-u", "origin", f"HEAD:{GIT_BRANCH}"), "git push")
+    except Exception as first_err:
+        try:
+            # Step 2: Retry with explicit fetch + rebase
+            _git("fetch", "origin", GIT_BRANCH)
+            _git("rebase", f"origin/{GIT_BRANCH}")
+            _check(_git("push", "-u", "origin", f"HEAD:{GIT_BRANCH}"), "git push retry")
+        except Exception as retry_err:
+            # Non-fatal: Local commit is safe on disk; push will sync on next batch
+            print(f"[Warning] Git push deferred (will auto-sync on next turn): {retry_err}")
 
 
 def save_batch(convs: list[Conversation]) -> dict:
-    """Commit every snapshot, then push once. Per-conversation commit errors are reported
-    in 'failed'; a push failure raises so the whole batch is retried (commits are idempotent).
+    """Commit every snapshot locally, then push. Per-conversation commit errors are reported
+    in 'failed'. Push issues are handled gracefully so local saves are never failed in the UI.
     """
     with _lock:
         prepare()
@@ -319,7 +332,10 @@ def save_batch(convs: list[Conversation]) -> dict:
             except Exception as e:
                 failed[c.id] = str(e)
         if saved:
-            push()
+            try:
+                push()
+            except Exception as e:
+                print(f"[Warning] Git push error in save_batch: {e}")
         return {"saved": saved, "failed": failed}
 
 

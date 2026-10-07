@@ -11,9 +11,13 @@ from .models import Conversation, Message
 mcp = FastMCP(
     "chat-save",
     instructions=(
-        "MANDATORY TRANSCRIPT VAULT: Call save_chat_transcript at the end of every response.\n"
-        "Pass either conversations list or thread_name and content markdown.\n"
-        "You can also use search_chat_transcripts to find past conversations."
+        "MANDATORY TRANSCRIPT VAULT INSTRUCTIONS:\n"
+        "1. ALWAYS call save_chat_transcript at the end of every response.\n"
+        "2. THREAD CONTINUITY (CRITICAL): When continuing an ongoing conversation thread (even after hours or days), you MUST:\n"
+        "   - Retain the EXACT SAME `id` and `title` for the conversation established on the first turn.\n"
+        "   - NEVER create a new conversation ID or new title for follow-up questions within the same chat.\n"
+        "3. FULL CONVERSATION HISTORY: When calling save_chat_transcript, include ALL previous turns (all user prompts and assistant replies in chronological order) in the `messages` array, not just the latest turn.\n"
+        "4. You can also use search_chat_transcripts to find past conversations."
     ),
     stateless_http=True,
     json_response=True,
@@ -34,8 +38,11 @@ async def save_chat_transcript(
 ) -> dict:
     """Save or update full conversation transcripts into the Git archive.
 
-    Accepts structured JSON: save_chat_transcript(conversations=[...])
-    OR simple text/markdown: save_chat_transcript(thread_name="...", content="...")
+    CRITICAL RULES:
+    - In an ongoing chat thread, ALWAYS use the same persistent `id` and `title`.
+    - In `messages`, provide the COMPLETE conversation history from turn 1 to current turn.
+    - Accepts structured JSON: save_chat_transcript(conversations=[...])
+    - OR simple text/markdown: save_chat_transcript(thread_name="...", content="...")
     """
     user = current_user.get()
     conv_list: list[Conversation] = []

@@ -114,8 +114,31 @@ def _merge_messages(existing: list[Message], incoming: list[Message]) -> list[Me
     return merged
 
 
+STOP_WORDS = {
+    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "with",
+    "of", "by", "from", "up", "about", "into", "over", "after", "is", "are", "was",
+    "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "not",
+    "conv", "claude", "gpt", "chat", "thread"
+}
+
+CONTINUATION_PREFIXES = (
+    "similarly", "also", "and", "next", "continue", "now", "what about",
+    "how about", "same for", "do for", "compare with", "another", "as well",
+    "tell me more", "explain further", "why", "how to fix", "fix this",
+    "can you also", "could you", "in addition", "follow up", "following up"
+)
+
+
+def _extract_keywords(text: str) -> set[str]:
+    """Extract significant lowercase keywords from a title or slug."""
+    tokens = re.findall(r"[a-zA-Z0-9]+", text.lower())
+    return {t for t in tokens if len(t) >= 3 and t not in STOP_WORDS}
+
+
 def _find_existing_thread_file(conv: Conversation) -> Path | None:
-    """Find if a file already exists for this thread by matching id, title, or message content."""
+    """Find if a file already exists for this thread by matching id, title, message content,
+    keyword similarity, or continuation context.
+    """
     uname = _normalize_username(conv.username or USERNAME)
     search_dirs = [GIT_DIR / uname / conv.platform]
     legacy_user_dir = GIT_DIR / "user" / conv.platform
@@ -162,6 +185,30 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
                         return f
             except Exception:
                 continue
+
+    # 4. Match by Title Keyword Overlap (e.g. "models", "token", "comparison")
+    incoming_keywords = _extract_keywords(f"{conv.title} {conv.id}")
+    if len(incoming_keywords) >= 2:
+        for f in all_files[:10]:  # check top 10 most recent files
+            file_keywords = _extract_keywords(f.stem)
+            overlap = incoming_keywords & file_keywords
+            if len(overlap) >= 2 and len(overlap) / len(incoming_keywords) >= 0.4:
+                return f
+
+    # 5. Continuation prompt detection (e.g. user typed "similarly did for gpt", "also...", "and...")
+    # If the incoming conversation is a single turn (1-2 messages) and opens with a continuation prefix,
+    # match against the most recently modified transcript file.
+    if len(conv.messages) <= 2 and conv.messages:
+        first_user_msg = ""
+        for m in conv.messages:
+            if m.role == "user":
+                first_user_msg = m.content.strip().lower()
+                break
+        if first_user_msg:
+            is_continuation = any(first_user_msg.startswith(p) for p in CONTINUATION_PREFIXES) or len(first_user_msg.split()) <= 4
+            if is_continuation and all_files:
+                # Most recently modified file is the active thread
+                return all_files[0]
 
     return None
 

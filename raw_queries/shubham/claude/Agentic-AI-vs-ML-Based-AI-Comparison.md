@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Agentic AI vs ML-Based AI Comparison"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-07 09:22:46 EDT"
+updated_at: "2026-10-07 09:26:36 EDT"
 ---
 
 # Agentic AI vs ML-Based AI Comparison
@@ -73,3 +73,61 @@ I'll break down the key differences between agentic AI and traditional ML-based 
 Many modern systems (like Claude with tools) blend both: deep learning for understanding + agentic reasoning for action planning.
 
 Would you like me to dive deeper into any specific aspect?
+
+## User (2026-10-07T00:00:02Z)
+
+fine tunning an model and all things are come under which cateogry
+
+## Claude (2026-10-07T00:00:03Z)
+
+**Fine-tuning falls under the ML-Based AI category.**
+
+Here's why:
+
+## **Fine-Tuning = ML-Based Approach**
+
+**What it involves:**
+- Taking a pre-trained model and training it further on task-specific data
+- Adjusting weights/parameters on new data
+- Still fundamentally about pattern learning and model optimization
+- Examples: Fine-tuning GPT, BERT, or other foundational models
+
+**Characteristics (all ML-based traits):**
+- ✓ **Static behavior**: Once fine-tuned, the model behaves predictably
+- ✓ **Data-driven**: Quality of fine-tuning depends on the dataset
+- ✓ **One-shot inference**: Input → model → output (no iterative reasoning)
+- ✓ **Fast once trained**: Quick predictions at inference time
+- ✓ **Task-specific**: Optimizes for particular use cases
+
+---
+
+## **What Fine-Tuning Does NOT Do**
+
+Fine-tuning is **not** agentic because it doesn't:
+- Make runtime decisions or adapt dynamically
+- Break tasks into steps and iterate
+- Use reasoning or tools
+- Backtrack and retry based on outcomes
+- Show its reasoning process
+
+---
+
+## **Visual Spectrum**
+
+```
+ML-Based ←—————————————————→ Agentic
+
+[Fine-tuning]
+   ↓
+[Pre-trained models]
+   ↓
+[Traditional ML]     [Reasoning Models]     [Autonomous Agents]
+                            ↓
+                    [Claude with Tools]
+```
+
+**Key insight:** Fine-tuning is adapting an ML model to a specific task—it's still training and optimizing patterns. It's not the same as an agent adapting its behavior at runtime through reasoning.
+
+---
+
+Does this clarify where fine-tuning sits in the spectrum?

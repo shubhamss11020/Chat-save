@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Agentic AI vs ML-Based AI Comparison"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-07 09:28:08 EDT"
+updated_at: "2026-10-07 09:29:02 EDT"
 ---
 
 # Agentic AI vs ML-Based AI Comparison
@@ -271,3 +271,27 @@ Most practitioners use frameworks like PyTorch that handle the calculus automati
 ---
 
 Does this clarify why calculus is so central to ML?
+
+## User (2026-10-07T00:00:06Z)
+
+yaa
+
+## Claude (2026-10-07T00:00:07Z)
+
+Great! Glad that made sense. 
+
+If you want to dive deeper, here are some related areas we could explore:
+
+1. **Linear Algebra in ML** — Vectors, matrices, and how they connect to gradients and optimization
+2. **Probability & Statistics** — How uncertainty and distributions play a role in ML
+3. **Loss Functions** — Different types (MSE, Cross-Entropy) and when to use each
+4. **Optimization Algorithms** — SGD, Adam, Momentum, and how they improve on basic gradient descent
+5. **Practical Implementation** — How frameworks like PyTorch/TensorFlow handle all this automatically
+
+Or if you want to shift gears entirely, I can help with:
+- **Building an agentic system** 
+- **Fine-tuning models** for specific tasks
+- **ML project planning**
+- Anything else on your mind
+
+What sounds interesting?

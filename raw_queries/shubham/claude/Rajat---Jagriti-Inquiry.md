@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:39:52 EDT"
+updated_at: "2026-10-07 11:41:02 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -188,3 +188,19 @@ tell me more about Netaji Subhas Chandra Bose
 
 **Historical Assessment**
 Bose remains a polarizing figure in Indian historiography. Nationalists celebrate him as a true revolutionary; others critique his authoritarian leanings and alliance with fascist powers. However, his role in accelerating Indian independence is undeniable, and he's remembered as a symbol of militant resistance to colonialism.
+
+## User (2026-10-07 11:41:02 EDT)
+
+what is the national bird of india?
+
+## Claude (2026-10-07 11:41:02 EDT)
+
+The national bird of India is the **Indian Peafowl**, commonly known as the **Peacock** (*Pavo cristatus*). It was declared the national bird of India in 1963.
+
+The peacock was chosen for several reasons:
+- Its striking beauty and vibrant plumage (iridescent blue and green feathers)
+- Its cultural significance in Indian mythology and art
+- Its widespread presence across the Indian subcontinent
+- Its representation of elegance and grace in Indian culture
+
+The male peacock is particularly famous for its elaborate tail display during courtship, which features hundreds of shimmering feathers with distinctive eyespots.

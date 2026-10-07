@@ -25,6 +25,7 @@ class Conversation(BaseModel):
     last_message_sequence: Optional[int] = 0
     status: Optional[str] = "active"
     messages: list[Message] = Field(default_factory=list)
+    files: list[dict] = Field(default_factory=list)
 
 
 class ConversationEvent(BaseModel):

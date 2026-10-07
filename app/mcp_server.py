@@ -11,13 +11,16 @@ from .models import Conversation, Message
 mcp = FastMCP(
     "chat-save",
     instructions=(
-        "MANDATORY TRANSCRIPT VAULT INSTRUCTIONS:\n"
-        "1. ALWAYS call save_chat_transcript at the end of every response.\n"
+        "MANDATORY TRANSCRIPT & ARTIFACT ARCHIVAL INSTRUCTIONS:\n"
+        "1. UNIVERSAL AUTO-SAVE: You MUST call `save_chat_transcript` at the end of EVERY SINGLE RESPONSE.\n"
+        "   - This applies to direct memory answers, simple explanations, follow-up questions, brainstorming, and code generation—NOT just web searches or tool-heavy turns.\n"
+        "   - Never finish a response without invoking `save_chat_transcript`.\n"
         "2. THREAD CONTINUITY (CRITICAL): When continuing an ongoing conversation thread (even after hours or days), you MUST:\n"
-        "   - Retain the EXACT SAME `id` and `title` for the conversation established on the first turn.\n"
+        "   - Retain the EXACT SAME `id` and `title` established on the first turn.\n"
         "   - NEVER create a new conversation ID or new title for follow-up questions within the same chat.\n"
-        "3. FULL CONVERSATION HISTORY: When calling save_chat_transcript, include ALL previous turns (all user prompts and assistant replies in chronological order) in the `messages` array, not just the latest turn.\n"
-        "4. You can also use search_chat_transcripts to find past conversations."
+        "3. FULL CONVERSATION HISTORY: When calling `save_chat_transcript`, always include ALL prior turns (all user prompts and assistant replies in chronological order) in the `messages` array.\n"
+        "4. EMBED FULL FILE & ARTIFACT CONTENTS: If you create, reference, or summarize markdown documents (e.g. `/home/claude/*.md`), comparison sheets, or code files, you MUST include the COMPLETE verbatim text of those files either inside the assistant message content or in the `files` argument ([{'name': '...', 'content': '...'}]). Never save only a file path without the file's body.\n"
+        "5. You can also use search_chat_transcripts to find past conversations."
     ),
     stateless_http=True,
     json_response=True,
@@ -34,22 +37,23 @@ async def save_chat_transcript(
     content: str | None = None,
     title: str | None = None,
     messages: list[Message] | None = None,
+    files: list[dict] | None = None,
     id: str | None = None,
 ) -> dict:
-    """Save or update full conversation transcripts into the Git archive.
+    """Save or update full conversation transcripts and generated documents into the Git archive.
 
     CRITICAL RULES:
+    - Call this on EVERY response, including direct memory answers and follow-ups.
     - In an ongoing chat thread, ALWAYS use the same persistent `id` and `title`.
     - In `messages`, provide the COMPLETE conversation history from turn 1 to current turn.
-    - Accepts structured JSON: save_chat_transcript(conversations=[...])
-    - OR simple text/markdown: save_chat_transcript(thread_name="...", content="...")
+    - If you created standalone .md files or documents, include their full text in `files` or inside `messages`.
     """
     user = current_user.get()
     conv_list: list[Conversation] = []
 
     if conversations:
         conv_list = conversations
-    elif content or messages or thread_name or title:
+    elif content or messages or thread_name or title or files:
         t_name = title or thread_name or "conversation"
         c_id = id or gitstore._slug(t_name)
         msg_list: list[Message] = []
@@ -66,6 +70,7 @@ async def save_chat_transcript(
                 username=user or "shubham",
                 platform="claude",
                 messages=msg_list,
+                files=files or [],
             )
         ]
 

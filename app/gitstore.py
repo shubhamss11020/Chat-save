@@ -68,6 +68,12 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
         if not t or "00:00:00" in t:
             t = u_at
         out += [f"## {who}" + (f" ({t})" if t else ""), "", m.content, ""]
+    if conv.files:
+        out += ["", "## Generated Documents & Files", ""]
+        for f in conv.files:
+            fname = f.get("name") or f.get("path") or f.get("filename") or "document.md"
+            fcontent = f.get("content") or f.get("body") or ""
+            out += [f"### File: `{fname}`", "", fcontent, ""]
     return "\n".join(out)
 
 

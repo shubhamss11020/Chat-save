@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Claude API vs Claude Code vs Claude CLI: Token Usage Comparison"
 created_at: "2026-10-07 08:27:37 EDT"
-updated_at: "2026-10-07 08:27:37 EDT"
+updated_at: "2026-10-07 08:30:33 EDT"
 ---
 
 # Claude API vs Claude Code vs Claude CLI: Token Usage Comparison
@@ -74,3 +74,57 @@ Claude Code CLI can use either a subscription (Pro/Max) or per-token API billing
 3. **Context Window Doesn't Add Cost:** A 900K-token request bills at the same per-token price as a 9K one—there's no surcharge for long-context usage on current models
 
 For accurate, current rates and to track your actual usage, see the official Claude API pricing documentation at claude.com/pricing.
+
+## User (2026-10-07 08:30:33 EDT)
+
+i want to make an rough estimation which usage more token basically give response in summarized version
+
+## Claude (2026-10-07 08:30:33 EDT)
+
+## Quick Token Usage Estimate
+
+**Token consumption is essentially the SAME for all three** when running identical prompts on the same model.
+
+### What differs is **overhead & context accumulation:**
+
+---
+
+### **Token Burn Ranking** (from lightest to heaviest):
+
+1. **Claude API** — ✅ **Leanest**
+   - Direct calls only
+   - No system overhead
+   - You control context size
+
+2. **Claude Code (Web/Desktop)** — ⚠️ **Moderate**
+   - Reads/writes files → context bloat
+   - Maintains conversation history
+   - Auto-memory feature adds tokens
+
+3. **Claude Code CLI** — ⚠️ **Moderate to Heavy**
+   - Full project context loaded
+   - Git diffs included automatically
+   - Running shell commands = output captured → more tokens
+
+---
+
+### **Real-world Token Costs** (Same Task):
+
+| Task | API | Claude Code | CLI |
+|------|-----|-------------|-----|
+| **Simple code completion** | 5K tokens | 8–12K tokens | 10–15K tokens |
+| **Full file refactor** | 25K tokens | 40–60K tokens | 50–100K tokens |
+| **Multi-file project edit** | 50K tokens | 100–200K tokens | 150–300K tokens |
+
+**Why the difference?**
+- API = only your prompt + response
+- Claude Code = your prompt + file contents + conversation history
+- CLI = your prompt + project files + git status + command output + history
+
+---
+
+### **TL;DR:**
+For the **exact same prompt**, token usage is identical. But in practice:
+- **Use API** for raw efficiency
+- **Use Claude Code** for interactive work (context overhead worth it)
+- **Use CLI** for hands-on dev work (expect 2–4x more tokens than API)

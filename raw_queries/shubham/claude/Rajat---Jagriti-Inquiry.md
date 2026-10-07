@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:58:36 EDT"
+updated_at: "2026-10-07 12:07:40 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -314,3 +314,44 @@ Per your own notes, the $1M ARR target for Sept 2027 was revised down to **$250â
 ---
 
 **What's notably absent from data sources:** Current usage metrics, retention/renewal indicators, and ROI proof from 3GM.
+
+## User (2026-10-07 12:07:40 EDT)
+
+who is the recent client of askcruz and when was the deal signed between them and what is the current status of it
+
+## Claude (2026-10-07 12:07:40 EDT)
+
+**Recent Client:** **3GM Steel**
+
+**Deal Signing Date:** **August 20, 2026**
+
+**Deal Structure:**
+- Scope: 2 users (reduced from original 3-user proposal)
+- Pricing: **[restricted: capital amount] one-time capital / [restricted: monthly amount] monthly**
+- Initial term: **6 months** (Travis negotiated down from 12 months)
+- Renewal: **3-year term does NOT auto-renew**â€” 3GM has an explicit decision point at the 6-month mark (confirmed in writing on August 24, 2026)
+- Payment terms: 50% due at kickoff, Net 7 billing
+- Product: **Company Brain** (using Claude as the client-facing front end, not AskCruz directly)
+
+**Timeline of Deal Progression:**
+- **Aug 12, 2026:** Rajat pitched AskCruz (Company Brain) to Travis Lane (3GM's CCO)
+- **Aug 14, 2026:** Two proposals sent same day with pricing inconsistencies
+- **Aug 17, 2026:** Ron J sent corrected proposal addressing Travis's 5 open items
+- **Aug 19, 2026:** Travis confirmed 3GM moving forward at reduced 2-user scope
+- **Aug 20, 2026:** Rajat sent finalized 2-user proposal; Travis signed same day
+- **Aug 24, 2026:** Rajat confirmed in writing that 3-year term doesn't auto-renew
+- **Sep 4, 2026:** Azure AD authentication issue resolved during implementation
+- **Sep 7, 2026:** Kickoff invoice sent to Travis Lane and Stefan Brown (3GM's CFO)
+
+**Current Status (as of late September 2026):**
+- **Deal is signed and invoiced**
+- **Mid-implementation**
+- Awaiting: 50% kickoff payment from 3GM and formal kickoff date confirmation
+- **Unverified:** Whether payment has been remitted or kickoff date officially set
+
+**Critical Unknowns:**
+- Actual usage depth and frequency
+- ROI being realized
+- Renewal likelihood at 6-month decision point
+
+**Key Risk:** Given the weak deal terms (reduced scope, short initial term, 6-month decision point before 3-year commitment kicks in), 3GM's renewal in 6 months depends entirely on demonstrating value early.

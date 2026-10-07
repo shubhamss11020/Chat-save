@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Rajat - Jagriti & AskCruz Status"
 created_at: "2026-10-07 11:22:46 EDT"
-updated_at: "2026-10-07 11:50:01 EDT"
+updated_at: "2026-10-07 11:58:36 EDT"
 ---
 
 # Rajat - Jagriti & AskCruz Status
@@ -255,3 +255,62 @@ I should have been more proactive in discovering and fetching from all available
 **Secondary issue:** Your first question was **"what do you know about jagriti?"** and I never got clarification on what that is. Should I have proactively searched EOXS data sources (customers, projects, people) for "jagriti" rather than just asking you to clarify?
 
 Which of these should I be doing differently going forward?
+
+## User (2026-10-07 11:58:36 EDT)
+
+what is askcruz?
+
+## Claude (2026-10-07 11:58:36 EDT)
+
+Based on data from the AskCruz vault and internal sources, here's what AskCruz is:
+
+## **Core Definition**
+
+AskCruz is an **industry-agnostic AI agent** that connects a company's scattered business data, structures it into usable organizational knowledge, and lets employees access it through a single conversational interface.
+
+**Core Problem It Solves:** Fragmented business data and organizational knowledge—spread across email, spreadsheets, operational systems, project tools, and call records—where employees know information exists but struggle to find or reconstruct it.
+
+## **Four Core Capabilities (Product Pillars)**
+
+1. **Company Brain** – Provides shared working knowledge: who does what, pricing logic, customer history/expectations, past commitments, company vocabulary
+2. **Company Hands** – Helps perform practical work: draft quotes, flag at-risk orders, summarize calls, prepare account context (explicitly NOT autonomous decision-making)
+3. **Digital Workforce** – Standing responsibilities that watch/follow/report on defined business conditions (e.g., watch an order queue) rather than one-time answers
+4. **Company Personalization** – Reflects a company's specific vocabulary, pricing logic, tolerances, and customer expectations
+
+## **Data Access** (Client-Facing Capabilities)
+
+- Email (Gmail, Zoho)
+- Call & Meeting Data (Fireflies, Fathom)
+- Client/Implementation Data (Odoo, implementation boards)
+- Employee Information (HR sources)
+- Internal Knowledge & Documents (policies, procedures, reference docs)
+- Cross-Source Knowledge & Business Context
+
+## **Product Status & Traction**
+
+- **Current Version:** 1.0 live; internal pilot at EOXS + first external customer in mid-implementation
+- **Data Completeness:** 94%
+- **First External Customer:** 3GM Steel (deal confirmed mid-August 2026; 2-user scope, shorter initial term negotiated)
+- **Pipeline:** Sabre Alloys (in pipeline since August; no closure as of early October)
+- **Product-Market Fit:** Unproven with single customer; early signals present but no proof of broad, repeatable PMF yet
+
+## **Market Positioning** (Contradiction Flagged)
+
+**Official positioning:** Industry-agnostic—designed for any industry with scattered business data.
+
+**BUT:** Internal product feature file contradicts this by framing AskCruz as "a company-specific AI product for steel businesses." This positioning contradiction is documented and unresolved.
+
+## **Key Unknowns**
+
+- 3GM's actual usage depth, ROI, and renewal likelihood
+- Pricing strategy (recurring vs. implementation split not established)
+- Sales-cycle length, CAC, conversion rates, expansion potential
+- Unit economics
+
+## **Strategic Context**
+
+Per your own notes, the $1M ARR target for Sept 2027 was revised down to **$250–500k ARR** due to PMF being unproven and single-customer dependence. You're going full-time on AskCruz while keeping EOXS in stable/support-only mode.
+
+---
+
+**What's notably absent from data sources:** Current usage metrics, retention/renewal indicators, and ROI proof from 3GM.

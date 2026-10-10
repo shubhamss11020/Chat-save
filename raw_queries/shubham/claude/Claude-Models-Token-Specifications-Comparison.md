@@ -1,13 +1,13 @@
 ---
-conversation_id: conv-claude-models-token-comparison-2026-10-07
+conversation_id: test-conv-ext-123
 platform: claude
 username: "shubham"
-title: "Claude Models Token & Specifications Comparison"
+title: "Debugging Kubernetes Networking"
 created_at: "2026-10-07 08:40:48 EDT"
-updated_at: "2026-10-07 08:40:48 EDT"
+updated_at: "2026-10-10 10:33:40 EDT"
 ---
 
-# Claude Models Token & Specifications Comparison
+# Debugging Kubernetes Networking
 
 ## User (2026-10-07 08:40:48 EDT)
 
@@ -245,3 +245,11 @@ A comprehensive markdown document has been created at `/home/claude/claude_model
 - Token counting examples
 
 For the most current information, visit https://platform.claude.com
+
+## User (2026-10-10 10:33:40 EDT)
+
+Why is my service returning 503?
+
+## Claude (2026-10-10 10:33:40 EDT)
+
+A 503 Service Unavailable typically indicates no healthy endpoints.

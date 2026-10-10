@@ -1,3 +1,4 @@
+import base64
 import os
 import re
 import shutil
@@ -68,7 +69,10 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
            f"created_at: {_q(c_at)}",
            f"updated_at: {_q(u_at)}",
            "---", "", f"# {conv.title}", ""]
-    for m in conv.messages:
+    name_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+    files_folder = f"{name_slug}_files"
+
+    for idx, m in enumerate(conv.messages, start=1):
         content = m.content.strip() if m.content else ""
         if not content:
             continue
@@ -77,12 +81,44 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
         if not t or "00:00:00" in t:
             t = u_at
         out += [f"## {who}" + (f" ({t})" if t else ""), "", content, ""]
-    if conv.files:
+
+        # Attachments belonging to this turn
+        turn_attachments = [
+            f for f in (conv.files or [])
+            if f.get("is_attachment") and (
+                f.get("turn_sequence") == m.sequence or 
+                f.get("turn_sequence") == idx or 
+                (f.get("role") == m.role and not f.get("turn_sequence"))
+            )
+        ]
+        if turn_attachments:
+            out += ["**Attachments:**"]
+            for att in turn_attachments:
+                att_name = att.get("name") or "attachment"
+                att_path = att.get("path") or f"attachments/{att_name}"
+                rel_link = f"{files_folder}/{att_path}"
+                att_type = (att.get("type") or "").lower()
+                if att_type in ("image", "png", "jpg", "jpeg", "gif", "webp", "svg") or any(att_name.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg")):
+                    out += [f"- ![{att_name}]({rel_link})"]
+                else:
+                    out += [f"- 📎 [{att_name}]({rel_link})"]
+            out += [""]
+
+    # Generated files & artifacts (README.md, scripts, diagrams, etc.)
+    generated_docs = [
+        f for f in (conv.files or [])
+        if f.get("is_artifact") or not f.get("is_attachment")
+    ]
+    if generated_docs:
         out += ["", "## Generated Documents & Files", ""]
-        for f in conv.files:
-            fname = f.get("name") or f.get("path") or f.get("filename") or "document.md"
-            fcontent = f.get("content") or f.get("body") or ""
-            out += [f"### File: `{fname}`", "", fcontent, ""]
+        for f in generated_docs:
+            fname = f.get("name") or f.get("path") or "document.md"
+            fpath = f.get("path") or fname
+            rel_link = f"{files_folder}/{fpath}"
+            fcontent = (f.get("content") or f.get("body") or "").strip()
+            ext = fname.split(".")[-1].lower() if "." in fname else ""
+            lang = {"md": "markdown", "py": "python", "js": "javascript", "ts": "typescript", "sh": "bash", "html": "html", "css": "css", "json": "json"}.get(ext, ext)
+            out += [f"### File: [`{fname}`]({rel_link})", "", f"```{lang}", fcontent, "```", ""]
     return "\n".join(out)
 
 
@@ -304,12 +340,38 @@ def commit_snapshot(conv: Conversation) -> None:
     rendered_text = render(conv, created_at=created_at, updated_at=updated_at)
     path.write_text(rendered_text, encoding="utf-8", newline="\n")
 
+    # Save structured standalone files (README.md, scripts, images, attachments) into companion folder
+    files_dir = path.parent / f"{path.stem}_files"
+    if conv.files:
+        files_dir.mkdir(parents=True, exist_ok=True)
+        for f in conv.files:
+            rel_f = f.get("path") or f.get("name") or "document.md"
+            target_f = files_dir / rel_f
+            target_f.parent.mkdir(parents=True, exist_ok=True)
+            fcontent = f.get("content") or f.get("body") or ""
+            # Handle base64 data URLs for binary image/attachment files
+            if isinstance(fcontent, str) and fcontent.startswith("data:") and ";base64," in fcontent:
+                try:
+                    _, b64 = fcontent.split(";base64,", 1)
+                    target_f.write_bytes(base64.b64decode(b64))
+                    continue
+                except Exception:
+                    pass
+            target_f.write_text(str(fcontent), encoding="utf-8", newline="\n")
+
     full = f"raw_queries/{rel}"
+    full_files = f"raw_queries/{uname}/{conv.platform}/{path.stem}_files"
     _check(_git("add", "--", full), "git add")
-    if _git("diff", "--cached", "--quiet", "--", full).returncode == 0:
+    if files_dir.exists():
+        _check(_git("add", "--", full_files), "git add files")
+
+    if _git("diff", "--cached", "--quiet").returncode == 0:
         return  # identical to what is already committed
-    _check(_git("commit", "-m", f"{conv.platform}: {conv.title} ({conv.id[:8]})", "--", full),
-           "git commit")
+
+    commit_args = ["commit", "-m", f"{conv.platform}: {conv.title} ({conv.id[:8]})", "--", full]
+    if files_dir.exists():
+        commit_args.append(full_files)
+    _check(_git(*commit_args), "git commit")
 
 
 def prepare() -> None:

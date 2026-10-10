@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS conversations (
   created_at TEXT,
   updated_at TEXT,
   last_message_sequence INTEGER DEFAULT 0,
-  status TEXT DEFAULT 'active'
+  status TEXT DEFAULT 'active',
+  files TEXT DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -90,6 +91,11 @@ def conn():
     c.row_factory = sqlite3.Row
     c.executescript(SCHEMA)
     try:
+        c.execute("ALTER TABLE conversations ADD COLUMN files TEXT DEFAULT '[]'")
+        c.commit()
+    except Exception:
+        pass
+    try:
         yield c
         c.commit()
     finally:
@@ -110,6 +116,10 @@ def compute_conversation_hash(conv: Conversation) -> str:
     h = hashlib.sha256(f"{conv.platform}\0{conv.id}\0{conv.title}".encode())
     for m in conv.messages:
         h.update(f"\0{m.id}\0{m.role}\0{m.content}".encode())
+    for f in conv.files or []:
+        fname = f.get("name") or f.get("path") or ""
+        fcontent = str(f.get("content") or "")[:200]
+        h.update(f"\0{fname}\0{fcontent}".encode())
     return h.hexdigest()
 
 
@@ -133,16 +143,18 @@ def save_conversation_atomic(conv: Conversation) -> bool:
         if last_outbox and last_outbox["content_hash"] == conv_hash:
             return False
 
+        files_json = json.dumps(conv.files or [])
         # 1. Upsert conversation
         c.execute(
             """
-            INSERT INTO conversations (id, platform, external_conversation_id, user_id, title, created_at, updated_at, last_message_sequence, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO conversations (id, platform, external_conversation_id, user_id, title, created_at, updated_at, last_message_sequence, status, files)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 title = excluded.title,
                 updated_at = excluded.updated_at,
                 last_message_sequence = excluded.last_message_sequence,
-                user_id = excluded.user_id
+                user_id = excluded.user_id,
+                files = excluded.files
             """,
             (
                 conv.id,
@@ -153,7 +165,8 @@ def save_conversation_atomic(conv: Conversation) -> bool:
                 conv.created_at,
                 conv.updated_at,
                 len(conv.messages),
-                conv.status or "active"
+                conv.status or "active",
+                files_json
             )
         )
 
@@ -232,6 +245,12 @@ def get_canonical_conversation(conversation_id: str) -> Optional[Conversation]:
             for r in msg_rows
         ]
 
+        raw_files = row["files"] if "files" in row.keys() else "[]"
+        try:
+            conv_files = json.loads(raw_files or "[]")
+        except Exception:
+            conv_files = []
+
         return Conversation(
             id=row["id"],
             platform=row["platform"],
@@ -243,7 +262,8 @@ def get_canonical_conversation(conversation_id: str) -> Optional[Conversation]:
             updated_at=row["updated_at"],
             last_message_sequence=row["last_message_sequence"],
             status=row["status"],
-            messages=msgs
+            messages=msgs,
+            files=conv_files
         )
 
 
@@ -448,6 +468,18 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
         m.sequence = idx
         m.content_hash = compute_content_hash(m.content)
 
+    # Merge existing files/attachments with incoming files
+    existing_files = existing.files if existing else []
+    incoming_files = payload.files or []
+    files_map = {f.get("name") or f.get("path"): f for f in existing_files if (f.get("name") or f.get("path"))}
+    for inc_f in incoming_files:
+        k = inc_f.get("name") or inc_f.get("path")
+        if k:
+            if k in files_map and len(str(files_map[k].get("content", ""))) > len(str(inc_f.get("content", ""))):
+                continue
+            files_map[k] = inc_f
+    merged_files = list(files_map.values())
+
     conv = Conversation(
         id=payload.conversation_id,
         platform=payload.platform,
@@ -458,7 +490,8 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
         created_at=existing.created_at if existing and existing.created_at else (payload.captured_at or now_str),
         updated_at=now_str,
         status="active",
-        messages=messages_to_save
+        messages=messages_to_save,
+        files=merged_files
     )
 
     persisted = save_conversation_atomic(conv)

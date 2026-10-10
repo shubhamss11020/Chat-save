@@ -48,6 +48,7 @@ class ExtensionIngestPayload(BaseModel):
     platform: Literal["chatgpt", "claude"] = "claude"
     url: Optional[str] = None
     messages: list[Message] = Field(default_factory=list)
+    files: list[dict] = Field(default_factory=list)
     is_final: bool = True
     captured_at: Optional[str] = None
 

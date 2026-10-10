@@ -105,27 +105,246 @@
     return raw || structured;
   }
 
-  // 5. Extract message sequence from the DOM
-  function extractMessages(convId) {
+  // Helper to convert an image element to a base64 data URL
+  function getImgDataUrl(img) {
+    if (!img) return "";
+    if (img.src && img.src.startsWith("data:image/")) return img.src;
+    try {
+      const w = img.naturalWidth || img.width || 0;
+      const h = img.naturalHeight || img.height || 0;
+      if (w > 0 && h > 0) {
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.min(w, 1200);
+        canvas.height = Math.min(h, 1200);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL("image/png");
+      }
+    } catch (e) {}
+    return img.src || "";
+  }
+
+  // 5. Extract files, artifacts, and attachments from turns and artifact panels
+  function extractFilesAndAttachments(items, convId) {
+    const files = [];
+    const seenFiles = new Set();
+    let userAttachIdx = 1;
+    let assistantMediaIdx = 1;
+
+    // A. Extract attachments from turns (both user and assistant)
+    items.forEach(({ el, role }, itemIdx) => {
+      const turnSeq = itemIdx + 1;
+
+      if (role === "user") {
+        // Look for image uploads in user turn
+        const imgs = el.querySelectorAll("img");
+        imgs.forEach(img => {
+          if ((img.width && img.width < 40) || (img.naturalWidth && img.naturalWidth < 40)) return;
+          const dataUrl = getImgDataUrl(img);
+          if (!dataUrl) return;
+
+          let name = img.alt || "";
+          const match = name.match(/[\w\-.]+\.(?:png|jpe?g|gif|webp)/i);
+          if (match) {
+            name = match[0];
+          } else {
+            name = `user_image_${userAttachIdx}.png`;
+            userAttachIdx++;
+          }
+
+          if (!seenFiles.has(name)) {
+            seenFiles.add(name);
+            files.push({
+              name: name,
+              path: `attachments/${name}`,
+              type: "image",
+              content: dataUrl,
+              role: "user",
+              turn_sequence: turnSeq,
+              is_attachment: true
+            });
+          }
+        });
+
+        // Look for document attachment chips (PDFs, MD files, docs)
+        const fileChips = el.querySelectorAll('[data-testid*="attachment"], [data-testid*="file"], [class*="Attachment"], [class*="FileThumbnail"], [class*="thumbnail"], [class*="file-upload"]');
+        fileChips.forEach(chip => {
+          const chipText = (chip.innerText || chip.textContent || "").trim();
+          const match = chipText.match(/([\w\-.\s]+\.(?:pdf|md|markdown|txt|csv|json|py|ts|js|docx?|xlsx?))/i);
+          if (match) {
+            const rawName = match[1].trim();
+            const safeName = rawName.replace(/\s+/g, "_");
+            if (!seenFiles.has(safeName)) {
+              seenFiles.add(safeName);
+              const ext = safeName.split(".").pop().toLowerCase();
+              files.push({
+                name: safeName,
+                path: `attachments/${safeName}`,
+                type: ext,
+                content: chipText,
+                role: "user",
+                turn_sequence: turnSeq,
+                is_attachment: true
+              });
+            }
+          }
+        });
+      } else if (role === "assistant") {
+        // Look for SVGs (Mermaid diagrams, flowcharts, graphics)
+        const svgs = el.querySelectorAll("svg");
+        svgs.forEach(svg => {
+          const rect = svg.getBoundingClientRect();
+          if (rect.width < 60 || rect.height < 60) return;
+          try {
+            const svgXml = new XMLSerializer().serializeToString(svg);
+            if (svgXml && svgXml.length > 100) {
+              const name = `diagram_${assistantMediaIdx}.svg`;
+              assistantMediaIdx++;
+              if (!seenFiles.has(name)) {
+                seenFiles.add(name);
+                files.push({
+                  name: name,
+                  path: `attachments/${name}`,
+                  type: "svg",
+                  content: svgXml,
+                  role: "assistant",
+                  turn_sequence: turnSeq,
+                  is_attachment: true
+                });
+              }
+            }
+          } catch (e) {}
+        });
+
+        // Look for generated images in assistant turn
+        const imgs = el.querySelectorAll("img");
+        imgs.forEach(img => {
+          if ((img.width && img.width < 50) || (img.naturalWidth && img.naturalWidth < 50)) return;
+          const dataUrl = getImgDataUrl(img);
+          if (!dataUrl) return;
+
+          const name = `assistant_image_${assistantMediaIdx}.png`;
+          assistantMediaIdx++;
+          if (!seenFiles.has(name)) {
+            seenFiles.add(name);
+            files.push({
+              name: name,
+              path: `attachments/${name}`,
+              type: "image",
+              content: dataUrl,
+              role: "assistant",
+              turn_sequence: turnSeq,
+              is_attachment: true
+            });
+          }
+        });
+
+        // Look for code blocks that represent standalone files (e.g. README.md, scripts)
+        const codeBlocks = el.querySelectorAll("pre code, pre, .code-block__code");
+        codeBlocks.forEach(codeEl => {
+          const codeText = (codeEl.innerText || codeEl.textContent || "").trim();
+          if (codeText.length < 20) return;
+
+          let foundName = "";
+          const header = codeEl.closest("pre") ? (codeEl.closest("pre").previousElementSibling || codeEl.closest("pre").querySelector('[class*="header"], [class*="filename"]')) : null;
+          if (header) {
+            const hText = (header.innerText || header.textContent || "").trim();
+            const m = hText.match(/([\w\-.]+\.(?:md|markdown|py|js|ts|json|sh|html|css|yaml|yml|csv|sql|txt))/i);
+            if (m) foundName = m[1];
+          }
+
+          if (!foundName) {
+            const firstLine = codeText.split("\n")[0] || "";
+            const m = firstLine.match(/^(?:#|\/\/|\/\*|<!--)\s*(?:filename:?\s*)?([\w\-.]+\.(?:md|markdown|py|js|ts|json|sh|html|css|yaml|yml|csv|sql|txt))/i);
+            if (m) foundName = m[1];
+          }
+
+          if (!foundName && (codeText.startsWith("# ") || codeText.includes("\n# ")) && (codeText.toLowerCase().includes("readme") || codeText.length > 200)) {
+            foundName = "README.md";
+          }
+
+          if (foundName) {
+            const safeName = foundName.trim();
+            if (!seenFiles.has(safeName)) {
+              seenFiles.add(safeName);
+              const ext = safeName.split(".").pop().toLowerCase();
+              files.push({
+                name: safeName,
+                path: safeName,
+                type: ext,
+                content: codeText,
+                role: "assistant",
+                turn_sequence: turnSeq,
+                is_artifact: true
+              });
+            }
+          }
+        });
+      }
+    });
+
+    // B. Extract from Active Claude Artifact Side Panel / View (if present)
+    const artifactPanels = document.querySelectorAll('[data-testid="artifact-content"], .ant-artifact-view, div[class*="artifact-view"], div[class*="ArtifactView"]');
+    artifactPanels.forEach(panel => {
+      let title = "";
+      const titleEl = document.querySelector('[data-testid*="artifact-title"], [class*="artifact-title"], div[class*="Artifact"] h3, div[class*="Artifact"] [class*="title"]');
+      if (titleEl) {
+        title = (titleEl.innerText || titleEl.textContent || "").trim();
+      }
+      if (!title) title = "README.md";
+
+      const match = title.match(/([\w\-.]+\.(?:md|markdown|py|js|ts|json|sh|html|css|yaml|yml|csv|sql|txt))/i);
+      const filename = match ? match[1] : (title.includes(".") ? title : `${title.replace(/\s+/g, "_")}.md`);
+
+      let content = "";
+      const viewLines = panel.querySelectorAll(".view-line");
+      if (viewLines && viewLines.length > 0) {
+        content = Array.from(viewLines).map(l => l.textContent).join("\n");
+      } else {
+        const code = panel.querySelector("pre, code, textarea");
+        if (code) {
+          content = (code.innerText || code.value || code.textContent || "").trim();
+        } else {
+          content = (panel.innerText || panel.textContent || "").trim();
+        }
+      }
+
+      if (content && content.length > 10 && !seenFiles.has(filename)) {
+        seenFiles.add(filename);
+        const ext = filename.split(".").pop().toLowerCase();
+        files.push({
+          name: filename,
+          path: filename,
+          type: ext,
+          content: content,
+          role: "assistant",
+          is_artifact: true
+        });
+      }
+    });
+
+    return files;
+  }
+
+  // 6. Extract message sequence & files from the DOM
+  function extractConversation(convId) {
     const messages = [];
 
     // Anthropic turn selectors
     const userElements = Array.from(document.querySelectorAll('[data-testid="user-message"], .font-user-message'));
     const assistantElements = Array.from(document.querySelectorAll('[data-testid="assistant-message"], .font-claude-message, .font-claude-response, div.standard-markdown'));
 
-    // Filter out elements that are inside another element in the same list
     const topUsers = userElements.filter(el => !userElements.some(other => other !== el && other.contains(el)));
     const topAssistants = assistantElements.filter(el => !assistantElements.some(other => other !== el && other.contains(el)));
 
     if (topUsers.length === 0 && topAssistants.length === 0) {
-      return messages;
+      return { messages, files: [] };
     }
 
     const items = [];
     topUsers.forEach(el => items.push({ el, role: "user" }));
     topAssistants.forEach(el => items.push({ el, role: "assistant" }));
 
-    // Sort by document position
     items.sort((a, b) => {
       const pos = a.el.compareDocumentPosition(b.el);
       if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
@@ -153,10 +372,11 @@
       seq++;
     });
 
-    return messages;
+    const files = extractFilesAndAttachments(items, convId);
+    return { messages, files };
   }
 
-  // 6. Fast non-blocking streaming check (simple attribute/button check, no :has)
+  // 7. Fast non-blocking streaming check (simple attribute/button check, no :has)
   function checkIsStreaming() {
     const stopBtn = document.querySelector('button[aria-label*="Stop" i], button[data-testid*="stop-button" i]');
     if (stopBtn) return true;
@@ -167,15 +387,15 @@
     return false;
   }
 
-  // 7. Capture and send conversation snapshot
+  // 8. Capture and send conversation snapshot
   async function triggerCapture(force = false) {
     const convId = getConversationId();
     if (!convId || convId === "new") return;
 
-    const messages = extractMessages(convId);
+    const { messages, files } = extractConversation(convId);
     if (!messages || messages.length === 0) return;
 
-    const fullText = messages.map(m => `${m.role}:${m.content}`).join("\n");
+    const fullText = messages.map(m => `${m.role}:${m.content}`).join("\n") + "\n" + (files || []).map(f => `${f.name}:${(f.content || "").slice(0, 100)}`).join("\n");
     const hash = await sha256(fullText);
 
     if (hash === lastCapturedHash && !force) {
@@ -191,6 +411,7 @@
       platform: "claude",
       url: window.location.href,
       messages: messages,
+      files: files,
       is_final: !checkIsStreaming(),
       captured_at: new Date().toISOString()
     };

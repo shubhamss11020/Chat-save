@@ -4,38 +4,12 @@ platform: claude
 username: "shubham"
 title: "Brannon steel and Sabre alloy - Claude"
 created_at: "2026-10-10T14:56:43.755Z"
-updated_at: "2026-10-10 12:30:02 EDT"
+updated_at: "2026-10-10 13:03:35 EDT"
 ---
 
 # Brannon steel and Sabre alloy - Claude
 
-## User (2026-10-10 12:30:02 EDT)
-
-can u give me details about brannon steel
-
-## Claude (2026-10-10 12:30:02 EDT)
-
-Brannon Steel is a customer in the ERP with one open invoice and no active orders. Its sales history is almost entirely cancelled.
-
-Record: Brannon Steel, Brampton (Ontario), active, customer rank 15, no vendor role. Contact: sales@brannonsteel.com, (905) 453-4730. No credit limit set.
-Open balance: one posted invoice, INV/2026/0385, dated 9 Sep 2026, for $1,356.00, fully unpaid.
-Cancelled orders: S00203 ($1,356, 22 Jul), S00196 ($11,390.40, 21 May), S00189 ($4,881.60, 20 May), S00174 ($10,080, 12 Mar), S00155 ($4,320, 7 Jan). Each has a matching cancelled invoice.
-Totals: one posted invoice in the system, first dated 7 Jan 2026 and last 9 Sep 2026.
-
-Things to check:
-
-INV/2026/0385 ($1,356) matches the amount of S00203, which is cancelled. Either the invoice came from a different order or the cancellation didn’t carry through. I couldn’t confirm which from the data I queried.
-The vault (email and wiki) isn’t connected in this session, so I have no negotiation history, disputes or contacts beyond the ERP record. I can’t say why the orders were cancelled.
-The 3GM navigator skill describes tables such as coil/tag and release documents, which don’t appear in this database. The database I queried is “EOXS Team Live” (Odoo 13), and I can’t confirm from here that it is 3GM’s own system.
-A separate partner, David Brannon (Brampton), is also a customer with a $0 credit limit. I haven’t checked whether he’s linked to Brannon Steel.
-
-Sources: ERP res_partner id 502523 (Brannon Steel); ERP res_partner id 502524 (David Brannon); ERP sale_order S00203, S00196, S00189, S00174, S00155 (all cancelled); ERP account_move INV/2026/0385 (posted, unpaid) and cancelled invoices for partner 502523.
-
-## User (2026-10-10 12:30:02 EDT)
-
-can u give me detail about sabre alloy
-
-## Claude (2026-10-10 12:30:02 EDT)
+## Claude (2026-10-10 13:03:35 EDT)
 
 Sabre Alloys is one of your most active customers in the ERP: 78 customer records, orders from January 2024 through October 2026, and about $20,378 open across three invoices.
 
@@ -58,11 +32,11 @@ The vault (email and wiki) still isn’t connected in this session, so I can’t
 
 Sources: ERP res_partner id 353530 (Sabre Alloys); ERP sale_order S00216, S00212, S00208, S00134, S00077, S00062; ERP account_move INV/2026/0409, INV/2026/0349, INV/2026/0379, RINV/2026/0003 and related cancelled invoices for partner 353530.
 
-## User (2026-10-10 12:30:02 EDT)
+## User (2026-10-10 13:03:35 EDT)
 
 \can u give me detail about 3gm
 
-## Claude (2026-10-10 12:30:02 EDT)
+## Claude (2026-10-10 13:03:35 EDT)
 
 I can’t give you details about 3GM from here. Neither connected source holds anything under that name.
 
@@ -75,11 +49,53 @@ If you connect the 3GM Vault and confirm the correct ERP, I can give you the com
 
 Sources: ERP res_company and res_partner (company records, EOXS Team Live); 3GM Vault tool search (no matching tools found).
 
-## User (2026-10-10 12:30:02 EDT)
+## User (2026-10-10 13:03:35 EDT)
 
 ok give me details in md files
 
-## Claude (2026-10-10 12:30:02 EDT)
+## Claude (2026-10-10 13:03:35 EDT)
+
+Claude responded: I've written two markdown files and sent them to you:
+Created 2 files, shared 2 files
+
+Created 2 files, shared 2 files
+
+I’ve written two markdown files and sent them to you:
+
+brannon_steel.md: partner record, the $1,356.00 open invoice, five cancelled orders, and one item to check (the open invoice matches a cancelled order).
+sabre_alloys.md: partner record, three open invoices totalling $20,377.85, recent and stale orders, a $25,000 refund, and items to check.
+
+Both are based on the EOXS Team Live database. I haven’t confirmed it’s 3GM’s system, and the 3GM Vault isn’t connected, so the files have no email or wiki context and can’t explain the cancellations.
+
+Sources: ERP partner records 502523, 502524, 353530, 102595 and 101798; sale orders and invoices listed in each file.
+
+
+Brannon steel
+Document·MD 
+Download
+
+Sabre alloys
+Document·MD 
+Download
+
+Download all
+
+## User (2026-10-10 13:03:35 EDT)
+
+give for 3gm also
+
+## Claude (2026-10-10 13:03:35 EDT)
+
+I’ve sent two files:
+
+3gm_steel.md: the 3GM Steel customer record (Somerset, 45 customer rank), 18 confirmed orders worth $314,849.50 since July 2022, $44,193.75 invoiced in 2026, and no open balance. It also lists six draft orders totalling $81,672.50 that were never confirmed or cancelled, and one order (S00192, $14,276.25) still in the Sale state.
+eoxs_team_overview.md: totals for the whole database (7,041 active customers, 164 confirmed orders, $266,746.65 invoiced in 2026) and the top eight customers. Sabre Alloys is the largest.
+
+I need to correct my earlier replies. I said there was no 3GM record in this database, but I had only searched the company table. 3GM Steel is in the customer table. Whether this database is 3GM’s own system is still unconfirmed, and 3GM appearing as a customer suggests it may not be. The 3GM Vault isn’t connected, so the files have no email or wiki context.
+
+Sources: ERP res_partner 41132 (3GM Steel) and the sale_order records listed in 3gm_steel.md; account_move, sale_order and res_partner totals for eoxs_team_overview.md.
+
+## Claude (2026-10-10 13:03:35 EDT)
 
 Claude responded: I've written two markdown files and sent them to you:
 Creating brannon_steel.md

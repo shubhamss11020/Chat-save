@@ -5,10 +5,16 @@ from contextlib import asynccontextmanager
 from fastapi import BackgroundTasks, FastAPI
 
 from . import capture, outbox, state
-from .auth import TokenAuth
+from .auth import TokenAuth, current_user
 from .config import CAPTURE, RECONCILE_SECONDS
 from .mcp_server import mcp
-from .models import Conversation, ConversationEvent
+from .models import (
+    Conversation,
+    ConversationEvent,
+    ExtensionHeartbeat,
+    ExtensionIngestPayload,
+    ExtensionIngestResponse,
+)
 from .sources.claude_code import ClaudeSource
 from .sources.claude_desktop import ClaudeDesktopSource
 
@@ -88,6 +94,42 @@ def save_conversation(conv: Conversation, bg: BackgroundTasks):
     queued = capture.enqueue_snapshot(conv)
     bg.add_task(outbox.drain)
     return {"queued": queued}
+
+
+@app.post("/api/extension/ingest", response_model=ExtensionIngestResponse)
+def extension_ingest(payload: ExtensionIngestPayload, bg: BackgroundTasks):
+    """Ingest endpoint for managed browser extension.
+    
+    Accepts full or incremental conversation turns captured from Claude Team web UI.
+    Deduplicates and persists atomically, triggers async outbox drain to Git,
+    and returns a save receipt with deduplication status.
+    """
+    effective_user = current_user.get() or payload.user_id or ""
+    receipt = state.ingest_extension(payload, effective_user=effective_user)
+    bg.add_task(outbox.drain)
+    return receipt
+
+
+@app.post("/api/extension/heartbeat")
+def extension_heartbeat(hb: ExtensionHeartbeat):
+    """Health & connection heartbeat reported by browser extensions."""
+    effective_user = current_user.get() or hb.user_id or "user"
+    state.record_heartbeat(
+        client_id=hb.client_id,
+        user_id=effective_user,
+        extension_version=hb.extension_version or "1.0.0",
+        browser=hb.browser or "Chrome",
+        pending_queue_count=hb.pending_queue_count,
+        last_successful_sync=hb.last_successful_sync,
+        last_error=hb.last_error,
+    )
+    return {"ok": True, "client_id": hb.client_id}
+
+
+@app.get("/api/extension/clients")
+def list_extension_clients():
+    """List all reporting browser extensions and their telemetry for monitoring."""
+    return {"clients": state.get_heartbeats()}
 
 
 @app.post("/reconcile")

@@ -30,59 +30,55 @@ mcp = FastMCP(
 )
 
 
-@mcp.tool()
-async def save_chat_transcript(
-    conversations: list[Conversation] | None = None,
-    thread_name: str | None = None,
-    content: str | None = None,
-    title: str | None = None,
-    messages: list[Message] | None = None,
-    files: list[dict] | None = None,
-    id: str | None = None,
-) -> dict:
-    """Save or update full conversation transcripts and generated documents into the Git archive.
-
-    CRITICAL RULES:
-    - Call this on EVERY response, including direct memory answers and follow-ups.
-    - In an ongoing chat thread, ALWAYS use the same persistent `id` and `title`.
-    - In `messages`, provide the COMPLETE conversation history from turn 1 to current turn.
-    - If you created standalone .md files or documents, include their full text in `files` or inside `messages`.
-    """
-    user = current_user.get()
-    conv_list: list[Conversation] = []
-
-    if conversations:
-        conv_list = conversations
-    elif content or messages or thread_name or title or files:
-        t_name = title or thread_name or "conversation"
-        c_id = id or gitstore._slug(t_name)
-        msg_list: list[Message] = []
-        if messages:
-            msg_list = messages
-        elif content:
-            msg_list = gitstore._parse_existing_messages(content)
-            if not msg_list:
-                msg_list = [Message(id="msg-1", role="user", content=content.strip())]
-        conv_list = [
-            Conversation(
-                id=c_id,
-                title=t_name,
-                username=user or "shubham",
-                platform="claude",
-                messages=msg_list,
-                files=files or [],
-            )
-        ]
-
-    for c in conv_list:
-        if user:
-            c.username = user
-        c.username = gitstore._normalize_username(c.username)
-
-    if not conv_list:
-        return {"saved": [], "failed": {"error": "No conversation content provided."}}
-
-    return await asyncio.to_thread(gitstore.save_batch, conv_list)
+# PREVIOUS MCP TOOL IMPLEMENTATION (COMMENTED OUT AS REQUESTED)
+# The system now directly ingests via the REST API and commits to GitHub without LLM tool invocation:
+#
+# @mcp.tool()
+# async def save_chat_transcript(
+#     conversations: list[Conversation] | None = None,
+#     thread_name: str | None = None,
+#     content: str | None = None,
+#     title: str | None = None,
+#     messages: list[Message] | None = None,
+#     files: list[dict] | None = None,
+#     id: str | None = None,
+# ) -> dict:
+#     """Save or update full conversation transcripts and generated documents into the Git archive."""
+#     user = current_user.get()
+#     conv_list: list[Conversation] = []
+#
+#     if conversations:
+#         conv_list = conversations
+#     elif content or messages or thread_name or title or files:
+#         t_name = title or thread_name or "conversation"
+#         c_id = id or gitstore._slug(t_name)
+#         msg_list: list[Message] = []
+#         if messages:
+#             msg_list = messages
+#         elif content:
+#             msg_list = gitstore._parse_existing_messages(content)
+#             if not msg_list:
+#                 msg_list = [Message(id="msg-1", role="user", content=content.strip())]
+#         conv_list = [
+#             Conversation(
+#                 id=c_id,
+#                 title=t_name,
+#                 username=user or "shubham",
+#                 platform="claude",
+#                 messages=msg_list,
+#                 files=files or [],
+#             )
+#         ]
+#
+#     for c in conv_list:
+#         if user:
+#             c.username = user
+#         c.username = gitstore._normalize_username(c.username)
+#
+#     if not conv_list:
+#         return {"saved": [], "failed": {"error": "No conversation content provided."}}
+#
+#     return await asyncio.to_thread(gitstore.save_batch, conv_list)
 
 
 @mcp.tool()

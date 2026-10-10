@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "serverUrl": {
+      "title": "Chat-Save Server URL",
+      "description": "Base URL of the central Chat-Save ingestion server (e.g. https://chat-save.onrender.com or http://localhost:8000)",
+      "type": "string"
+    },
+    "authToken": {
+      "title": "Authentication Token",
+      "description": "Central MCP_AUTH_TOKEN or individual employee secret token",
+      "type": "string"
+    },
+    "userId": {
+      "title": "Employee Username or Email",
+      "description": "Unique identifier for the employee (e.g. alex or alex@company.com)",
+      "type": "string"
+    },
+    "autoSync": {
+      "title": "Automatic Real-Time Sync",
+      "description": "Whether conversations are automatically captured and sent as users chat",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

@@ -10,7 +10,13 @@ _drain_lock = threading.Lock()  # hook events and the periodic tick must not cla
 
 
 def _deliver(convs) -> dict:
-    return mcp_client.save_batch(convs) if MCP_URL else gitstore.save_batch(convs)
+    # PREVIOUS IMPLEMENTATION (COMMENTED OUT):
+    # The outbox previously called the MCP save_chat_transcript tool remotely:
+    # return mcp_client.save_batch(convs) if MCP_URL else gitstore.save_batch(convs)
+    
+    # DIRECT GITHUB REPO FUNCTIONALITY:
+    # Saves rendered markdown directly to raw_queries/<user>/claude/<slug>.md and pushes to Git
+    return gitstore.save_batch(convs)
 
 
 def drain() -> int:

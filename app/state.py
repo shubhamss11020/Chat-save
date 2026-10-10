@@ -11,10 +11,11 @@ import json
 import sqlite3
 import time
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Optional
 
 from .config import STATE_DB, STORAGE, USERNAME
-from .models import Conversation, Message
+from .models import Conversation, ExtensionIngestPayload, Message
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS conversations (
@@ -67,6 +68,17 @@ CREATE TABLE IF NOT EXISTS source_state (
   key TEXT NOT NULL,
   sig TEXT NOT NULL,
   PRIMARY KEY (source, key)
+);
+
+CREATE TABLE IF NOT EXISTS client_heartbeats (
+  client_id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  extension_version TEXT,
+  browser TEXT,
+  pending_queue_count INTEGER DEFAULT 0,
+  last_successful_sync TEXT,
+  last_error TEXT,
+  last_seen REAL NOT NULL
 );
 """
 
@@ -285,11 +297,137 @@ def stats() -> dict:
                 "WHERE last_error IS NOT NULL AND status!='completed' LIMIT 10"
             )
         ]
+        clients = [
+            dict(r) for r in c.execute(
+                "SELECT client_id, user_id, extension_version, browser, pending_queue_count, last_successful_sync, last_error, last_seen "
+                "FROM client_heartbeats ORDER BY last_seen DESC LIMIT 25"
+            )
+        ]
     return {
         "outbox": counts,
         "conversations": total_convs,
         "messages": total_msgs,
-        "errors": errs
+        "errors": errs,
+        "extension_clients": clients
+    }
+
+
+def record_heartbeat(
+    client_id: str,
+    user_id: str,
+    extension_version: str = "1.0.0",
+    browser: str = "Chrome",
+    pending_queue_count: int = 0,
+    last_successful_sync: Optional[str] = None,
+    last_error: Optional[str] = None,
+) -> None:
+    """Record health and connection status from a managed browser extension."""
+    with conn() as c:
+        c.execute(
+            """
+            INSERT INTO client_heartbeats (
+                client_id, user_id, extension_version, browser, pending_queue_count,
+                last_successful_sync, last_error, last_seen
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(client_id) DO UPDATE SET
+                user_id = excluded.user_id,
+                extension_version = excluded.extension_version,
+                browser = excluded.browser,
+                pending_queue_count = excluded.pending_queue_count,
+                last_successful_sync = COALESCE(excluded.last_successful_sync, client_heartbeats.last_successful_sync),
+                last_error = excluded.last_error,
+                last_seen = excluded.last_seen
+            """,
+            (
+                client_id,
+                user_id,
+                extension_version,
+                browser,
+                pending_queue_count,
+                last_successful_sync,
+                last_error,
+                time.time()
+            )
+        )
+
+
+def get_heartbeats() -> list[dict]:
+    """Retrieve all reporting extension clients."""
+    with conn() as c:
+        rows = c.execute(
+            "SELECT * FROM client_heartbeats ORDER BY last_seen DESC"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> dict:
+    """Ingest a conversation turn or snapshot captured by the browser extension.
+    
+    Guarantees:
+    - Atomically updates conversations and messages tables.
+    - Prevents duplicates via content hash and message identity checks.
+    - Queues an outbox event for Git archival only if content actually changed.
+    - Updates client heartbeat metrics with last sync receipt.
+    """
+    user = payload.user_id or effective_user or USERNAME or "shubham"
+    now_str = datetime.now().isoformat()
+    
+    # 1. Merge incoming messages with any previously persisted messages
+    existing = get_canonical_conversation(payload.conversation_id)
+    messages_to_save: list[Message] = []
+    
+    if existing and payload.messages and len(payload.messages) < len(existing.messages):
+        # Incoming payload contains an incremental or partial message set
+        merged = {m.id: m for m in existing.messages}
+        for inc_m in payload.messages:
+            merged[inc_m.id] = inc_m
+        messages_to_save = list(merged.values())
+    elif payload.messages:
+        messages_to_save = payload.messages
+    elif existing:
+        messages_to_save = existing.messages
+    
+    # Ensure sequential turn ordering
+    for idx, m in enumerate(messages_to_save, start=1):
+        m.conversation_id = payload.conversation_id
+        if not m.sequence:
+            m.sequence = idx
+        if not m.content_hash:
+            m.content_hash = compute_content_hash(m.content)
+
+    conv = Conversation(
+        id=payload.conversation_id,
+        platform=payload.platform,
+        external_conversation_id=payload.conversation_id,
+        user_id=user,
+        username=user,
+        title=payload.title or (existing.title if existing else "Untitled conversation"),
+        created_at=existing.created_at if existing and existing.created_at else (payload.captured_at or now_str),
+        updated_at=now_str,
+        status="active",
+        messages=messages_to_save
+    )
+
+    persisted = save_conversation_atomic(conv)
+
+    # 2. Record heartbeat/receipt for this client
+    if payload.client_id:
+        record_heartbeat(
+            client_id=payload.client_id,
+            user_id=user,
+            last_successful_sync=now_str,
+            last_error=None,
+            pending_queue_count=0
+        )
+
+    receipt_hash = hashlib.sha256(f"{conv.id}:{time.time()}:{len(conv.messages)}".encode()).hexdigest()[:16]
+    return {
+        "receipt_id": f"rcpt_{receipt_hash}",
+        "conversation_id": conv.id,
+        "saved_messages": len(conv.messages),
+        "status": "persisted" if persisted else "unchanged",
+        "deduplicated": not persisted,
+        "timestamp": now_str
     }
 
 

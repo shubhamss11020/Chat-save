@@ -55,10 +55,16 @@ Reconciliation catches everything within ~10 s. For immediate capture add to
 The hook reads `MCP_AUTH_TOKEN` from `.env` and fails open: if the agent is down or
 rejects it, reconciliation still covers the conversation.
 
-## Limits
+## Claude Team Real-Time Capture (Browser Extension)
 
-- Only **Claude Code** sessions (`~/.claude/projects`) are readable locally. Chats in the Claude
-  Desktop chat tab and ChatGPT are stored server-side, so no local source exists for them;
-  `ConversationSource` (`app/sources/base.py`) is where one would plug in.
-- The MCP server must be able to **push to GitHub**. That needs a credential on the server
-  (token in `CHATSAVE_GIT_URL` or a deploy key); a public repo can be cloned without one but not pushed to.
+For web conversations on **Claude Team / claude.ai**, use the managed Chrome/Edge extension located in `extension/`:
+1. Load `extension/` as an unpacked extension in Developer Mode.
+2. In Settings, point Server URL to `http://localhost:8000` (or your Render server) and supply `MCP_AUTH_TOKEN`.
+3. The extension captures user prompts and assistant streaming responses directly in real-time, displays an in-page save receipt (`Saved ✓`), queues offline items in `chrome.storage.local` during outages, and automatically ingests into `POST /api/extension/ingest`.
+4. IT admins can deploy and lock configuration across an organization using the Chrome Enterprise Managed Policy schema (`extension/schema.json`).
+
+## Architecture & Sources
+
+- **Claude Code**: Scanned locally from `~/.claude/projects` + Stop hook.
+- **Claude Team (Web)**: Captured in real-time by the managed browser extension (`extension/`).
+- **Git Push**: Transcripts are materialized to `raw_queries/<user>/claude/<conversation-id>.md` and pushed to GitHub.

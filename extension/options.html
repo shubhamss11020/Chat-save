@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat-Save Settings</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #111827;
+      --card-border: #1f2937;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 640px;
+      width: 100%;
+    }
+    header {
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    .card h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+    }
+    .help-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--primary);
+    }
+    input:disabled {
+      background: #111827;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .checkbox-group input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-secondary {
+      background: #374151;
+      color: #e5e7eb;
+    }
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 16px;
+      display: none;
+    }
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+    .alert-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+    .managed-banner {
+      background: rgba(167, 139, 250, 0.12);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: #c4b5fd;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid #1f2937;
+    }
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    code {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: #38bdf8;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Chat-Save Connector Settings</h1>
+      <p class="subtitle">Configure connection to your organization's central Chat-Save ingestion service.</p>
+    </header>
+
+    <div class="managed-banner" id="managedBanner">
+      🏢 <strong>Managed by Organization:</strong> Some or all settings are enforced by enterprise policy.
+    </div>
+
+    <div class="card">
+      <h2>Server Configuration</h2>
+
+      <div class="form-group">
+        <label for="serverUrl">Chat-Save Server URL</label>
+        <input type="text" id="serverUrl" placeholder="http://localhost:8000 or https://chat-save.onrender.com">
+        <p class="help-text">URL of the central Chat-Save service receiving captured transcripts.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="authToken">Auth Token (MCP_AUTH_TOKEN)</label>
+        <div class="input-row">
+          <input type="password" id="authToken" placeholder="Enter server auth token">
+          <button class="btn btn-secondary" id="btnToggleToken" type="button">Show</button>
+        </div>
+        <p class="help-text">Bearer token configured on the server. Leave blank if no auth required.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="userId">Employee Identifier / Username</label>
+        <input type="text" id="userId" placeholder="e.g. shubham or alex@company.com">
+        <p class="help-text">Transcripts are saved under <code>raw_queries/&lt;user&gt;/claude/</code> in Git.</p>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="autoSync" checked>
+        <label for="autoSync" style="margin-bottom: 0;">Automatically capture &amp; sync chats in real-time</label>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btnSave">Save Settings</button>
+        <button class="btn btn-secondary" id="btnTest">Test Connection</button>
+      </div>
+
+      <div class="alert" id="alertBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>Offline Queue Inspector</h2>
+      <p class="subtitle" id="queueSummary">Loading queue...</p>
+
+      <div style="margin-top: 14px; display: flex; gap: 10px;">
+        <button class="btn btn-secondary" id="btnRetryQueue">Retry Outbox</button>
+        <button class="btn btn-danger" id="btnClearQueue">Clear Outbox</button>
+      </div>
+
+      <table id="queueTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>Thread</th>
+            <th>Attempts</th>
+            <th>Next Try</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody id="queueTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

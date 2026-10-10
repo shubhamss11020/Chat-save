@@ -38,3 +38,35 @@ class ConversationEvent(BaseModel):
     content: str = ""
     created_at: Optional[str] = None
     thread_id: Optional[str] = None  # alias for backward compat
+
+
+class ExtensionIngestPayload(BaseModel):
+    client_id: Optional[str] = "unknown"
+    user_id: Optional[str] = None
+    conversation_id: str
+    title: Optional[str] = "Untitled conversation"
+    platform: Literal["chatgpt", "claude"] = "claude"
+    url: Optional[str] = None
+    messages: list[Message] = Field(default_factory=list)
+    is_final: bool = True
+    captured_at: Optional[str] = None
+
+
+class ExtensionHeartbeat(BaseModel):
+    client_id: str
+    user_id: Optional[str] = None
+    extension_version: Optional[str] = "1.0.0"
+    browser: Optional[str] = "Chrome"
+    pending_queue_count: int = 0
+    last_successful_sync: Optional[str] = None
+    last_error: Optional[str] = None
+    active_tab_url: Optional[str] = None
+
+
+class ExtensionIngestResponse(BaseModel):
+    receipt_id: str
+    conversation_id: str
+    saved_messages: int
+    status: str
+    timestamp: str
+    deduplicated: bool = False

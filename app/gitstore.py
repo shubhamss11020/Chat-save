@@ -1,4 +1,4 @@
-"""Git writer: snapshot -> markdown file -> commit (-> push). Knows nothing about capture."""
+import os
 import re
 import shutil
 import subprocess
@@ -33,11 +33,17 @@ def _normalize_username(uname: str) -> str:
     return u or "shubham"
 
 
-def _git(*args: str, timeout: int = 120) -> subprocess.CompletedProcess:
+def _git(*args: str, timeout: int = 15) -> subprocess.CompletedProcess:
     ident = (["-c", f"user.name={GIT_NAME}", "-c", f"user.email={GIT_EMAIL}"]
              if GIT_NAME and GIT_EMAIL else [])
+    env = {
+        **os.environ,
+        "GIT_TERMINAL_PROMPT": "0",
+        "GCM_INTERACTIVE": "never",
+        "GIT_ASKPASS": "echo",
+    }
     return subprocess.run(["git", "-C", str(REPO_DIR), *ident, *args],
-                          capture_output=True, text=True, timeout=timeout)
+                          capture_output=True, text=True, timeout=timeout, env=env)
 
 
 def _check(r: subprocess.CompletedProcess, what: str) -> subprocess.CompletedProcess:

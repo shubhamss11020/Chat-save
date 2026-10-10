@@ -4,12 +4,12 @@ platform: claude
 username: "shubham"
 title: "Brannon steel and Sabre alloy - Claude"
 created_at: "2026-10-10T14:56:43.755Z"
-updated_at: "2026-10-10 13:03:35 EDT"
+updated_at: "2026-10-10 13:24:33 EDT"
 ---
 
 # Brannon steel and Sabre alloy - Claude
 
-## Claude (2026-10-10 13:03:35 EDT)
+## Claude (2026-10-10 13:24:33 EDT)
 
 Sabre Alloys is one of your most active customers in the ERP: 78 customer records, orders from January 2024 through October 2026, and about $20,378 open across three invoices.
 
@@ -32,11 +32,11 @@ The vault (email and wiki) still isn’t connected in this session, so I can’t
 
 Sources: ERP res_partner id 353530 (Sabre Alloys); ERP sale_order S00216, S00212, S00208, S00134, S00077, S00062; ERP account_move INV/2026/0409, INV/2026/0349, INV/2026/0379, RINV/2026/0003 and related cancelled invoices for partner 353530.
 
-## User (2026-10-10 13:03:35 EDT)
+## User (2026-10-10 13:24:33 EDT)
 
 \can u give me detail about 3gm
 
-## Claude (2026-10-10 13:03:35 EDT)
+## Claude (2026-10-10 13:24:33 EDT)
 
 I can’t give you details about 3GM from here. Neither connected source holds anything under that name.
 
@@ -49,42 +49,41 @@ If you connect the 3GM Vault and confirm the correct ERP, I can give you the com
 
 Sources: ERP res_company and res_partner (company records, EOXS Team Live); 3GM Vault tool search (no matching tools found).
 
-## User (2026-10-10 13:03:35 EDT)
+## User (2026-10-10 13:24:33 EDT)
 
 ok give me details in md files
 
-## Claude (2026-10-10 13:03:35 EDT)
+## Claude (2026-10-10 13:24:33 EDT)
 
-Claude responded: I've written two markdown files and sent them to you:
-Created 2 files, shared 2 files
+Here is the text from the screenshot. I haven’t checked any of it against the database or the vault, and the vault still isn’t connected in this session.
 
-Created 2 files, shared 2 files
+Completed request
 
-I’ve written two markdown files and sent them to you:
+I identified 36 customer names in the records checked, including 14 with detailed invoice-based profiles.
 
-brannon_steel.md: partner record, the $1,356.00 open invoice, five cancelled orders, and one item to check (the open invoice matches a cancelled order).
-sabre_alloys.md: partner record, three open invoices totalling $20,377.85, recent and stale orders, a $25,000 refund, and items to check.
+This is a verified historical list, not Sabre’s complete live customer register. The available evidence includes invoices, statements, sales-order correspondence, and accounting records. Current active/inactive status is not established. Prices, invoice amounts, and credit-limit amounts are restricted under the internal-team connection.
 
-Both are based on the EOXS Team Live database. I haven’t confirmed it’s 3GM’s system, and the 3GM Vault isn’t connected, so the files have no email or wiki context and can’t explain the cancellations.
+For the tables below, E means the original email record ID; A means its attachment ID. Addresses, phones, codes, and terms are those recorded on the dated documents.
 
-Sources: ERP partner records 502523, 502524, 353530, 102595 and 101798; sale orders and invoices listed in each file.
+The following 14 customers have the strongest documentary detail.
 
+Customer / customer code	Recorded address and phone	Source
+RAM Alloys, LLC — 100299	Billing and shipping: DEPT 191, Houston, TX 77210-4458. 713-466-1890. No street address shown.	E23090 / A36842
+Brask, Inc–Neela — 100252	Billing and shipping: Pearland, TX 77584. 281-201-0006. No street address shown.	E22914 / A36711
+Gulf Coast Alloy Welding — 100094	Billing: Humble, TX 77338. Shipping: 4403 Theiss Road… (cut off in screenshot)	E25845 / A39836
 
-Brannon steel
-Document·MD 
-Download
+The screenshot is cut off after the third row, so the remaining 11 customers aren’t visible.
 
-Sabre alloys
-Document·MD 
-Download
+Two things to note:
 
-Download all
+The output cites email and attachment IDs (E… / A…), which suggests it used the 3GM Vault. That connector isn’t available in this session, so I can’t tell where this list came from or confirm it.
+None of these three names appear in the ERP query I ran for Sabre earlier, which found Sabre Alloys, Sabre Steel, Inc. and Manitex Sabre. If this list is about Sabre Alloys, its customer codes don’t match what the ERP shows, and that should be checked before anyone relies on it.
 
-## User (2026-10-10 13:03:35 EDT)
+## User (2026-10-10 13:24:33 EDT)
 
 give for 3gm also
 
-## Claude (2026-10-10 13:03:35 EDT)
+## Claude (2026-10-10 13:24:33 EDT)
 
 I’ve sent two files:
 
@@ -95,7 +94,7 @@ I need to correct my earlier replies. I said there was no 3GM record in this dat
 
 Sources: ERP res_partner 41132 (3GM Steel) and the sale_order records listed in 3gm_steel.md; account_move, sale_order and res_partner totals for eoxs_team_overview.md.
 
-## Claude (2026-10-10 13:03:35 EDT)
+## Claude (2026-10-10 13:24:33 EDT)
 
 Claude responded: I've written two markdown files and sent them to you:
 Creating brannon_steel.md
@@ -124,7 +123,7 @@ Download
 
 Download all
 
-## Claude (2026-10-10 12:30:02 EDT)
+## Claude (2026-10-10 13:24:33 EDT)
 
 Sabre Alloys: ERP summary
 

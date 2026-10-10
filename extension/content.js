@@ -284,44 +284,54 @@
     });
 
     // B. Extract from Active Claude Artifact Side Panel / View (if present)
-    const artifactPanels = document.querySelectorAll('[data-testid="artifact-content"], .ant-artifact-view, div[class*="artifact-view"], div[class*="ArtifactView"]');
-    artifactPanels.forEach(panel => {
-      let title = "";
-      const titleEl = document.querySelector('[data-testid*="artifact-title"], [class*="artifact-title"], div[class*="Artifact"] h3, div[class*="Artifact"] [class*="title"]');
-      if (titleEl) {
-        title = (titleEl.innerText || titleEl.textContent || "").trim();
-      }
-      if (!title) title = "README.md";
+    try {
+      const artifactPanels = document.querySelectorAll('[data-testid="artifact-content"], .ant-artifact-view, div[class*="artifact-view"], div[class*="ArtifactView"]');
+      artifactPanels.forEach(panel => {
+        try {
+          if (!panel || panel.nodeType !== 1 || panel.tagName === "IFRAME") return;
+          let title = "";
+          const titleEl = document.querySelector('[data-testid*="artifact-title"], [class*="artifact-title"], div[class*="Artifact"] h3, div[class*="Artifact"] [class*="title"]');
+          if (titleEl) {
+            title = (titleEl.innerText || titleEl.textContent || "").trim();
+          }
+          if (!title) title = "README.md";
 
-      const match = title.match(/([\w\-.]+\.(?:md|markdown|py|js|ts|json|sh|html|css|yaml|yml|csv|sql|txt))/i);
-      const filename = match ? match[1] : (title.includes(".") ? title : `${title.replace(/\s+/g, "_")}.md`);
+          const match = title.match(/([\w\-.]+\.(?:md|markdown|py|js|ts|json|sh|html|css|yaml|yml|csv|sql|txt))/i);
+          const filename = match ? match[1] : (title.includes(".") ? title : `${title.replace(/\s+/g, "_")}.md`);
 
-      let content = "";
-      const viewLines = panel.querySelectorAll(".view-line");
-      if (viewLines && viewLines.length > 0) {
-        content = Array.from(viewLines).map(l => l.textContent).join("\n");
-      } else {
-        const code = panel.querySelector("pre, code, textarea");
-        if (code) {
-          content = (code.innerText || code.value || code.textContent || "").trim();
-        } else {
-          content = (panel.innerText || panel.textContent || "").trim();
+          let content = "";
+          if (typeof panel.querySelectorAll === "function") {
+            const viewLines = panel.querySelectorAll(".view-line");
+            if (viewLines && viewLines.length > 0) {
+              content = Array.from(viewLines).map(l => l.textContent || "").join("\n");
+            }
+          }
+          if (!content && typeof panel.querySelector === "function") {
+            const code = panel.querySelector("pre, code, textarea");
+            if (code) {
+              content = (code.innerText || code.value || code.textContent || "").trim();
+            } else {
+              content = (panel.innerText || panel.textContent || "").trim();
+            }
+          }
+
+          if (content && content.length > 10 && !seenFiles.has(filename)) {
+            seenFiles.add(filename);
+            const ext = filename.split(".").pop().toLowerCase();
+            files.push({
+              name: filename,
+              path: filename,
+              type: ext,
+              content: content,
+              role: "assistant",
+              is_artifact: true
+            });
+          }
+        } catch (panelErr) {
+          // ignore any cross-origin frame or element access restriction safely
         }
-      }
-
-      if (content && content.length > 10 && !seenFiles.has(filename)) {
-        seenFiles.add(filename);
-        const ext = filename.split(".").pop().toLowerCase();
-        files.push({
-          name: filename,
-          path: filename,
-          type: ext,
-          content: content,
-          role: "assistant",
-          is_artifact: true
-        });
-      }
-    });
+      });
+    } catch (e) {}
 
     return files;
   }
@@ -372,7 +382,12 @@
       seq++;
     });
 
-    const files = extractFilesAndAttachments(items, convId);
+    let files = [];
+    try {
+      files = extractFilesAndAttachments(items, convId);
+    } catch (err) {
+      files = [];
+    }
     return { messages, files };
   }
 

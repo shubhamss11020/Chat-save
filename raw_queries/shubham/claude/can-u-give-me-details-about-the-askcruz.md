@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Brannon steel and Sabre alloy - Claude"
 created_at: "2026-10-10T14:56:43.755Z"
-updated_at: "2026-10-10 12:28:13 EDT"
+updated_at: "2026-10-10 12:29:19 EDT"
 ---
 
 # Brannon steel and Sabre alloy - Claude
 
-## User (2026-10-10 12:28:13 EDT)
+## User (2026-10-10 12:29:19 EDT)
 
 can u give me details about brannon steel
 
-## Claude (2026-10-10 12:28:13 EDT)
+## Claude (2026-10-10 12:29:19 EDT)
 
 Brannon Steel is a customer in the ERP with one open invoice and no active orders. Its sales history is almost entirely cancelled.
 
@@ -31,11 +31,11 @@ A separate partner, David Brannon (Brampton), is also a customer with a $0 credi
 
 Sources: ERP res_partner id 502523 (Brannon Steel); ERP res_partner id 502524 (David Brannon); ERP sale_order S00203, S00196, S00189, S00174, S00155 (all cancelled); ERP account_move INV/2026/0385 (posted, unpaid) and cancelled invoices for partner 502523.
 
-## User (2026-10-10 12:28:13 EDT)
+## User (2026-10-10 12:29:19 EDT)
 
 can u give me detail about sabre alloy
 
-## Claude (2026-10-10 12:28:13 EDT)
+## Claude (2026-10-10 12:29:19 EDT)
 
 Sabre Alloys is one of your most active customers in the ERP: 78 customer records, orders from January 2024 through October 2026, and about $20,378 open across three invoices.
 
@@ -57,3 +57,20 @@ Two draft orders have been sitting for over a year. They should probably be conf
 The vault (email and wiki) still isn’t connected in this session, so I can’t tell you why any orders were cancelled or what was agreed on pricing.
 
 Sources: ERP res_partner id 353530 (Sabre Alloys); ERP sale_order S00216, S00212, S00208, S00134, S00077, S00062; ERP account_move INV/2026/0409, INV/2026/0349, INV/2026/0379, RINV/2026/0003 and related cancelled invoices for partner 353530.
+
+## User (2026-10-10 12:29:19 EDT)
+
+\can u give me detail about 3gm
+
+## Claude (2026-10-10 12:29:19 EDT)
+
+I can’t give you details about 3GM from here. Neither connected source holds anything under that name.
+
+3GM Vault (wiki and mail): not connected in this session. I searched for its tools and none are available, so I have no wiki pages or mailbox access.
+ERP: the connected database is “EOXS Team Live” (Odoo 13). Its company records are EOXS, Prata Inc. Canada, PhysioFix and a personal contact. There is no record named 3GM, and nothing in it is labelled as 3GM’s.
+
+The 3GM navigator guidance expects an ERP with steel-specific tables (coils/tags, release documents, freight orders). This database doesn’t have those, so it may not be 3GM’s system. Either the 3GM Vault and ERP need connecting, or I’ve been pointed at the wrong database. Earlier I answered about Brannon Steel and Sabre Alloys from this database without that caveat being clear enough, and those answers should be checked against 3GM’s own system before anyone acts on them.
+
+If you connect the 3GM Vault and confirm the correct ERP, I can give you the company overview, key customers and suppliers, and recent activity.
+
+Sources: ERP res_company and res_partner (company records, EOXS Team Live); 3GM Vault tool search (no matching tools found).

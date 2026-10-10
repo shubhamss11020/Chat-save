@@ -165,8 +165,14 @@ def save_conversation_atomic(conv: Conversation) -> bool:
                 INSERT INTO messages (id, conversation_id, external_message_id, sequence, role, content, created_at, content_hash)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(conversation_id, external_message_id) DO UPDATE SET
-                    content = excluded.content,
-                    content_hash = excluded.content_hash,
+                    content = CASE 
+                        WHEN length(excluded.content) >= length(messages.content) THEN excluded.content
+                        ELSE messages.content
+                    END,
+                    content_hash = CASE 
+                        WHEN length(excluded.content) >= length(messages.content) THEN excluded.content_hash
+                        ELSE messages.content_hash
+                    END,
                     sequence = excluded.sequence
                 """,
                 (
@@ -405,12 +411,30 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
         }
 
     messages_to_save: list[Message] = []
-    if existing and valid_incoming and len(valid_incoming) < len(existing.messages):
-        # Incremental turn update
-        merged = {m.id: m for m in existing.messages if m.content and m.content.strip()}
-        for inc_m in valid_incoming:
-            merged[inc_m.id] = inc_m
-        messages_to_save = list(merged.values())
+    if existing and valid_incoming:
+        # Merge existing conversation history with incoming turns to guarantee ZERO data loss
+        existing_by_id = {m.id: m for m in existing.messages if m.content and m.content.strip()}
+        existing_by_seq = {m.sequence: m for m in existing.messages if m.content and m.content.strip()}
+
+        # Protect against message trimming: if an earlier version of a turn has longer text, preserve it!
+        for inc_idx, inc_m in enumerate(valid_incoming, start=1):
+            prior_m = existing_by_id.get(inc_m.id) or existing_by_seq.get(inc_idx)
+            if prior_m and prior_m.role == inc_m.role:
+                if len(prior_m.content.strip()) > len(inc_m.content.strip()):
+                    inc_m.content = prior_m.content
+                if prior_m.timestamp and not inc_m.timestamp:
+                    inc_m.timestamp = prior_m.timestamp
+
+        if len(valid_incoming) >= len(existing.messages):
+            # Incoming has full turn set: use incoming with preserved complete contents
+            messages_to_save = valid_incoming
+        else:
+            # Incoming only has partial turns (older turns were scrolled/virtualized):
+            # Merge onto existing messages so older turns are never dropped
+            merged = {m.id: m for m in existing.messages if m.content and m.content.strip()}
+            for inc_m in valid_incoming:
+                merged[inc_m.id] = inc_m
+            messages_to_save = list(merged.values())
     elif valid_incoming:
         # Full snapshot
         messages_to_save = valid_incoming

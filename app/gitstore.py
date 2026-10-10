@@ -168,18 +168,29 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
     if not all_files:
         return None
 
-    # 1. Direct slug / filename match
-    target_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
-    for f in all_files:
-        if f.stem == target_slug or f.stem == _slug(conv.id):
-            return f
-
-    # 2. Match conversation_id in YAML frontmatter
+    # 1. Match conversation_id in YAML frontmatter (highest precision)
     if conv.id:
         for f in all_files:
             try:
                 txt = f.read_text(encoding="utf-8")
                 if f'conversation_id: "{conv.id}"' in txt or f'conversation_id: {conv.id}' in txt:
+                    return f
+            except Exception:
+                continue
+
+    # 2. Match exact conv.id filename
+    for f in all_files:
+        if f.stem == _slug(conv.id):
+            return f
+
+    # 3. Direct slug / filename match (only if no conflicting conversation_id)
+    target_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+    for f in all_files:
+        if f.stem == target_slug:
+            try:
+                txt = f.read_text(encoding="utf-8")
+                m = re.search(r'^conversation_id:\s*["\']?([^"\'\s]+)', txt, re.MULTILINE)
+                if not m or not m.group(1) or m.group(1) == conv.id:
                     return f
             except Exception:
                 continue
@@ -273,11 +284,21 @@ def commit_snapshot(conv: Conversation) -> None:
 
     # Authoritative canonical message list: prefer SQLite messages if present
     valid_incoming = [m for m in conv.messages if m.content and m.content.strip()]
-    if valid_incoming:
-        # If SQLite has valid messages, use them directly (authoritative source of truth)
+    if valid_incoming and existing_messages:
+        # Merge incoming messages with existing markdown file messages to prevent ANY trimming
+        merged_msgs: list[Message] = []
+        for i, in_m in enumerate(valid_incoming):
+            if i < len(existing_messages) and existing_messages[i].role == in_m.role:
+                # If existing message on disk has longer content, keep the longer content!
+                if len(existing_messages[i].content.strip()) > len(in_m.content.strip()):
+                    in_m.content = existing_messages[i].content
+            merged_msgs.append(in_m)
+        if len(existing_messages) > len(valid_incoming):
+            merged_msgs.extend(existing_messages[len(valid_incoming):])
+        conv.messages = merged_msgs
+    elif valid_incoming:
         conv.messages = valid_incoming
     elif existing_messages:
-        # Fallback to existing file only if incoming has no messages
         conv.messages = existing_messages
 
     rendered_text = render(conv, created_at=created_at, updated_at=updated_at)

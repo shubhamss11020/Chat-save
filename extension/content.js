@@ -1,17 +1,16 @@
 /**
  * Chat-Save Content Script
  * Injected into https://claude.ai/*
- * Captures submitted prompts, monitors assistant streaming to completion,
- * extracts canonical transcripts, and renders a persistent save-status HUD.
+ * High-performance, non-blocking transcript capture with zero DOM freeze.
  */
 
 (() => {
-  let currentConversationId = "";
   let isStreaming = false;
-  let debounceTimer = null;
+  let finalizeTimer = null;
+  let observerThrottle = null;
   let lastCapturedHash = "";
   let hudElement = null;
-  let hudStatus = "idle"; // "idle" | "streaming" | "syncing" | "synced" | "offline" | "error"
+  let hudStatus = "idle";
   let lastReceipt = null;
   let pendingCount = 0;
 
@@ -24,18 +23,15 @@
 
   // 2. Extract Conversation Title
   function getConversationTitle() {
-    // Strategy 1: Page title
     const docTitle = document.title.replace(/\s*·\s*Claude\s*$/i, "").trim();
     if (docTitle && docTitle !== "Claude") return docTitle;
 
-    // Strategy 2: Chat header title button/element
     const headerTitleEl = document.querySelector('header button[data-testid*="title"], header .text-ellipsis, [data-testid="chat-title"]');
     if (headerTitleEl && headerTitleEl.textContent.trim()) {
       return headerTitleEl.textContent.trim();
     }
 
-    // Strategy 3: First user message snippet
-    const firstUserMsg = document.querySelector('[data-testid*="user-message"], .font-user-message');
+    const firstUserMsg = document.querySelector('[data-testid="user-message"], .font-user-message');
     if (firstUserMsg && firstUserMsg.textContent.trim()) {
       return firstUserMsg.textContent.trim().slice(0, 50);
     }
@@ -52,91 +48,85 @@
       .join("");
   }
 
-  // Helper: Extract clean message text, stripping buttons, timestamps, badges, and SVGs
-  function extractCleanMessageText(el, role) {
-    if (!el) return "";
-    const clone = el.cloneNode(true);
-
-    // Remove buttons, icons, timestamps, and interactive controls
-    const uiSelectors = [
-      'button',
-      'svg',
-      '[role="button"]',
-      '[data-testid*="action"]',
-      '[data-testid*="copy"]',
-      '[data-testid*="edit"]',
-      '[data-testid*="retry"]',
-      '[data-testid*="thumbs"]',
-      '[aria-label*="Copy"]',
-      '[aria-label*="Edit"]',
-      '[aria-label*="Retry"]',
-      '[aria-label*="Good response"]',
-      '[aria-label*="Bad response"]',
-      '[aria-label*="citation"]',
-      '.text-text-500',
-      '.text-text-400',
-      '.text-xs',
-      '.sr-only',
-      '[data-testid*="timestamp"]'
-    ];
-
-    uiSelectors.forEach(sel => {
-      clone.querySelectorAll(sel).forEach(node => node.remove());
-    });
-
-    let text = "";
-    if (role === "user") {
-      const bodyEl = clone.querySelector('.whitespace-pre-wrap, [class*="font-user-message"], [class*="user-content"]');
-      text = bodyEl ? bodyEl.innerText : clone.innerText;
-    } else {
-      const bodyEl = clone.querySelector('.standard-markdown, .progressive-markdown, [class*="font-claude-message"], [class*="font-claude-response"], .prose');
-      text = bodyEl ? bodyEl.innerText : clone.innerText;
-    }
-
-    // Clean whitespace and filter out standalone timestamps like "2 minutes ago" or "Just now"
-    text = (text || "").trim();
-    if (/^(just now|\d+\s*(second|minute|hour|day)s?\s*ago)$/i.test(text)) {
-      return "";
-    }
-    return text;
+  function sanitizeText(str) {
+    if (!str) return "";
+    let s = str.replace(/[\uE000-\uF8FF]/g, ""); // Strip icon font PUA glyphs (copy, retry, etc.)
+    s = s.replace(/(?:\r?\n)?\s*(?:\d+\s*(?:second|minute|hour|day|week|month)s?\s*ago|just now)\s*$/i, "");
+    return s.trim();
   }
 
-  // 4. Robust extraction of message turns from Claude web DOM
+  // 4. Fast, complete text extraction gathering all paragraphs and markdown blocks
+  function extractCleanText(node, isAssistant) {
+    if (!node) return "";
+
+    let structured = "";
+    if (isAssistant) {
+      // Collect ALL markdown content blocks in this turn (paragraphs, lists, code blocks, tables)
+      const blocks = node.querySelectorAll('.standard-markdown, .progressive-markdown, [class*="font-claude-message"], .prose');
+      if (blocks && blocks.length > 0) {
+        const parts = [];
+        blocks.forEach(b => {
+          // Avoid duplicate nested text
+          const hasMatchedParent = Array.from(blocks).some(other => other !== b && other.contains(b));
+          if (!hasMatchedParent) {
+            const t = sanitizeText(b.innerText || b.textContent || "");
+            if (t) parts.push(t);
+          }
+        });
+        if (parts.length > 0) {
+          structured = sanitizeText(parts.join("\n\n"));
+        }
+      }
+    } else {
+      // User message
+      const userBlocks = node.querySelectorAll('.whitespace-pre-wrap, [class*="font-user-message"]');
+      if (userBlocks && userBlocks.length > 0) {
+        const parts = [];
+        userBlocks.forEach(b => {
+          const hasMatchedParent = Array.from(userBlocks).some(other => other !== b && other.contains(b));
+          if (!hasMatchedParent) {
+            const t = sanitizeText(b.innerText || b.textContent || "");
+            if (t) parts.push(t);
+          }
+        });
+        if (parts.length > 0) {
+          structured = sanitizeText(parts.join("\n\n"));
+        }
+      }
+    }
+
+    // Direct fallback from node text
+    const raw = sanitizeText(node.innerText || node.textContent || "");
+
+    // Always prefer the more complete text representation to prevent any trimming
+    if (structured && structured.length >= raw.length * 0.8) {
+      return structured;
+    }
+    return raw || structured;
+  }
+
+  // 5. Extract message sequence from the DOM
   function extractMessages(convId) {
     const messages = [];
 
-    // Query candidate nodes
-    const rawUserNodes = Array.from(document.querySelectorAll('[data-testid*="user-message"], .font-user-message'));
-    const rawAssistantNodes = Array.from(document.querySelectorAll('[data-testid*="assistant-message"], .font-claude-message, .font-claude-response, [data-is-streaming]'));
+    // Anthropic turn selectors
+    const userElements = Array.from(document.querySelectorAll('[data-testid="user-message"], .font-user-message'));
+    const assistantElements = Array.from(document.querySelectorAll('[data-testid="assistant-message"], .font-claude-message, .font-claude-response, div.standard-markdown'));
 
-    // Filter out nested descendants so parent and child are not treated as duplicate messages
-    const userNodes = rawUserNodes.filter(el => !rawUserNodes.some(other => other !== el && other.contains(el)));
-    const assistantNodes = rawAssistantNodes.filter(el => !rawAssistantNodes.some(other => other !== el && other.contains(el)));
+    // Filter out elements that are inside another element in the same list
+    const topUsers = userElements.filter(el => !userElements.some(other => other !== el && other.contains(el)));
+    const topAssistants = assistantElements.filter(el => !assistantElements.some(other => other !== el && other.contains(el)));
 
-    // Fallback: search for chat rows if specific classes were not found
-    if (userNodes.length === 0 && assistantNodes.length === 0) {
-      const allRows = Array.from(document.querySelectorAll('div[data-testid*="chat-message"], div.group:has(button[aria-label*="Copy"])'));
-      allRows.forEach((row, idx) => {
-        const isAssistant = Boolean(row.querySelector('button[aria-label*="Copy"], button[aria-label*="Good response"]'));
-        const text = extractCleanMessageText(row, isAssistant ? "assistant" : "user");
-        if (text && text.length > 0) {
-          messages.push({
-            id: `${convId}_turn_${idx + 1}`,
-            sequence: idx + 1,
-            role: isAssistant ? "assistant" : "user",
-            content: text
-          });
-        }
-      });
+    if (topUsers.length === 0 && topAssistants.length === 0) {
       return messages;
     }
 
-    // Combine and sort by vertical appearance in the document
-    const combined = [];
-    userNodes.forEach(el => combined.push({ el, role: "user" }));
-    assistantNodes.forEach(el => combined.push({ el, role: "assistant" }));
+    const items = [];
+    topUsers.forEach(el => items.push({ el, role: "user" }));
+    topAssistants.forEach(el => items.push({ el, role: "assistant" }));
 
-    combined.sort((a, b) => {
+    // Sort by document position
+    items.sort((a, b) => {
       const pos = a.el.compareDocumentPosition(b.el);
       if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
       if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;
@@ -144,22 +134,21 @@
     });
 
     let seq = 1;
-    let lastContentHash = "";
+    let prevTextHash = "";
 
-    combined.forEach(({ el, role }) => {
-      const content = extractCleanMessageText(el, role);
-      if (!content || content.length === 0) return; // Skip empty content entirely
+    items.forEach(({ el, role }) => {
+      const text = extractCleanText(el, role === "assistant");
+      if (!text || text.length === 0) return;
 
-      // Simple hash check to avoid duplicate consecutive turns
-      const chunkHash = `${role}:${content}`;
-      if (chunkHash === lastContentHash) return;
-      lastContentHash = chunkHash;
+      const hashKey = `${role}:${text}`;
+      if (hashKey === prevTextHash) return;
+      prevTextHash = hashKey;
 
       messages.push({
         id: `${convId}_msg_${seq}_${role}`,
         sequence: seq,
         role: role,
-        content: content
+        content: text
       });
       seq++;
     });
@@ -167,28 +156,30 @@
     return messages;
   }
 
-  // 5. Detect if Claude is currently streaming response
+  // 6. Fast non-blocking streaming check (simple attribute/button check, no :has)
   function checkIsStreaming() {
-    const stopBtn = document.querySelector('button[aria-label*="Stop"], button[data-testid*="stop"], button:has(rect)');
+    const stopBtn = document.querySelector('button[aria-label*="Stop" i], button[data-testid*="stop-button" i]');
+    if (stopBtn) return true;
+
     const streamAttr = document.querySelector('[data-is-streaming="true"]');
-    const cursor = document.querySelector('.cursor-pulse, .animate-pulse');
-    return Boolean(stopBtn || streamAttr || cursor);
+    if (streamAttr) return true;
+
+    return false;
   }
 
-  // 6. Capture and transmit conversation snapshot
+  // 7. Capture and send conversation snapshot
   async function triggerCapture(force = false) {
     const convId = getConversationId();
     if (!convId || convId === "new") return;
 
     const messages = extractMessages(convId);
-    if (messages.length === 0) return;
+    if (!messages || messages.length === 0) return;
 
-    // Build fingerprint of current conversation text
     const fullText = messages.map(m => `${m.role}:${m.content}`).join("\n");
     const hash = await sha256(fullText);
 
     if (hash === lastCapturedHash && !force) {
-      return; // No changes to transmit
+      return;
     }
 
     lastCapturedHash = hash;
@@ -204,91 +195,88 @@
       captured_at: new Date().toISOString()
     };
 
-    chrome.runtime.sendMessage(
-      { type: "INGEST_CONVERSATION", payload, force },
-      (res) => {
-        if (chrome.runtime.lastError) {
-          console.warn("[Chat-Save] Extension background error:", chrome.runtime.lastError.message);
-          updateHud("offline", { error: chrome.runtime.lastError.message });
-          return;
-        }
-
-        if (res && res.queued) {
-          pendingCount = res.pendingCount || 0;
-          if (pendingCount > 1) {
-            updateHud("offline", { pendingCount });
-          } else {
-            updateHud("synced");
+    try {
+      chrome.runtime.sendMessage(
+        { type: "INGEST_CONVERSATION", payload, force },
+        (res) => {
+          if (chrome.runtime.lastError) {
+            updateHud("offline", { error: chrome.runtime.lastError.message });
+            return;
+          }
+          if (res && res.queued) {
+            pendingCount = res.pendingCount || 0;
+            if (pendingCount > 1) {
+              updateHud("offline", { pendingCount });
+            } else {
+              updateHud("synced");
+            }
           }
         }
-      }
-    );
+      );
+    } catch (e) {
+      updateHud("offline");
+    }
   }
 
-  // 7. Debounced DOM observer for chat updates
-  function onDomMutated() {
-    const activeStreaming = checkIsStreaming();
+  // 8. Lightweight, throttled check for streaming lifecycle
+  function checkChatState() {
+    const active = checkIsStreaming();
 
-    if (activeStreaming) {
-      isStreaming = true;
-      updateHud("streaming");
-      // Clear pending finalize timer
-      if (debounceTimer) clearTimeout(debounceTimer);
-      return;
+    if (active) {
+      if (!isStreaming) {
+        isStreaming = true;
+        updateHud("streaming");
+      }
+      return; // Do nothing while Claude is actively outputting text
     }
 
-    if (isStreaming && !activeStreaming) {
-      // Just stopped streaming! Finalize promptly
+    if (isStreaming && !active) {
+      // Claude just finished outputting response!
       isStreaming = false;
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
+      if (finalizeTimer) clearTimeout(finalizeTimer);
+      // Wait 800ms for markdown DOM to settle before capturing
+      finalizeTimer = setTimeout(() => {
         triggerCapture(true);
       }, 800);
       return;
     }
-
-    // Normal typing or DOM update debounce
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      triggerCapture(false);
-    }, 1500);
   }
 
-  // 8. Capture prompt submission immediately on Enter / Click
-  function setupInputListeners() {
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        // User hit Enter on input
-        setTimeout(() => {
-          triggerCapture(false);
-        }, 600);
+  // 9. Throttled DOM Mutation Observer (ignores HUD and throttles to 2x/sec)
+  function onDomMutated(mutations) {
+    let hasPageMutation = false;
+    for (let i = 0; i < mutations.length; i++) {
+      const target = mutations[i].target;
+      if (target && target.nodeType === 1) {
+        if (target.id === "chatsave-hud-root" || (target.closest && target.closest("#chatsave-hud-root"))) {
+          continue;
+        }
       }
-    }, true);
+      hasPageMutation = true;
+      break;
+    }
+    if (!hasPageMutation) return;
 
-    document.addEventListener("click", (e) => {
-      const target = e.target;
-      const sendBtn = target.closest('button[aria-label*="Send"], button[data-testid*="send"], button:has(path)');
-      if (sendBtn) {
-        setTimeout(() => {
-          triggerCapture(false);
-        }, 600);
-      }
-    }, true);
+    // Throttle to at most one lightweight check every 400ms
+    if (observerThrottle) return;
+    observerThrottle = setTimeout(() => {
+      observerThrottle = null;
+      checkChatState();
+    }, 400);
   }
 
-  // 9. URL change monitor (Single Page App navigation)
+  // 10. URL change monitor (SPA Navigation)
   let lastUrl = window.location.href;
   setInterval(() => {
     if (window.location.href !== lastUrl) {
       lastUrl = window.location.href;
-      currentConversationId = getConversationId();
       lastCapturedHash = "";
       updateHud("idle");
-      setTimeout(() => triggerCapture(false), 1200);
+      setTimeout(() => triggerCapture(false), 1500);
     }
-  }, 500);
+  }, 1000);
 
-  // 10. Floating HUD on Claude.ai
+  // 11. Floating HUD on Claude.ai
   function createHud() {
     if (document.getElementById("chatsave-hud-root")) return;
 
@@ -362,9 +350,11 @@
   }
 
   function updateHud(status, data = {}) {
+    // Prevent redundant DOM updates that trigger mutation cascades
+    if (hudStatus === status && status === "streaming") return;
     hudStatus = status;
-    if (!hudElement) return;
 
+    if (!hudElement) return;
     const badge = hudElement.querySelector("#chatsave-badge");
     const label = hudElement.querySelector(".chatsave-label");
     const dot = hudElement.querySelector(".chatsave-dot");
@@ -386,8 +376,8 @@
         }
       }, 4000);
     } else if (status === "offline") {
-      const count = data.pendingCount || pendingCount;
-      label.textContent = `Offline (${count} queued)`;
+      const count = data.pendingCount !== undefined ? data.pendingCount : pendingCount;
+      label.textContent = count > 0 ? `Offline (${count} queued)` : "Offline";
       dot.style.background = "#f59e0b";
     } else if (status === "error") {
       label.textContent = "Sync Error ⚠";
@@ -424,7 +414,7 @@
     }
   }
 
-  // 11. Listen for background broadcast events
+  // 12. Listen for background broadcast events
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "SYNC_SUCCESS") {
       lastReceipt = msg.receipt;
@@ -443,20 +433,18 @@
     }
   });
 
-  // 12. Main Initialization
+  // 13. Initialization
   function init() {
     createHud();
-    setupInputListeners();
 
     // Start MutationObserver on chat body
     const observer = new MutationObserver(onDomMutated);
     observer.observe(document.body, {
       childList: true,
-      subtree: true,
-      characterData: true
+      subtree: true
     });
 
-    // Initial check
+    // Initial capture check after page loads
     setTimeout(() => {
       triggerCapture(false);
     }, 2000);

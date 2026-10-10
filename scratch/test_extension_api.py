@@ -107,7 +107,55 @@ def test_extension_flow():
     assert r_dlq.status_code == 200
     assert "requeued" in r_dlq.json()
 
-    print("ALL EXTENSION & RETRY/DLQ API TESTS PASSED SUCCESSFULLY!")
+    # 8. Test Multi-Turn Non-Trimming Guarantee:
+    # First turn has full long response (e.g. 1000 chars)
+    # Second turn arrives where turn 1 is shortened/trimmed in payload:
+    # Verify canonical conversation retains full 1000 chars of turn 1!
+    long_response_1 = "AskCruz is an AI product connecting company data... " + ("X" * 1000)
+    mt_conv_id = f"test-multiturn-{int(time.time())}"
+    turn1_payload = {
+        "client_id": "test-ext-001",
+        "user_id": "shubham",
+        "conversation_id": mt_conv_id,
+        "title": "Askcruz multi-turn test",
+        "platform": "claude",
+        "messages": [
+            {"id": "msg-1-user", "role": "user", "content": "can u give me details about askcruz", "sequence": 1},
+            {"id": "msg-2-assistant", "role": "assistant", "content": long_response_1, "sequence": 2}
+        ]
+    }
+    r_turn1 = client.post("/api/extension/ingest", json=turn1_payload, headers=headers)
+    assert r_turn1.status_code == 200
+
+    # Verify Turn 1 in state
+    c1 = state.get_canonical_conversation(mt_conv_id)
+    assert len(c1.messages) == 2
+    assert len(c1.messages[1].content) >= 1000
+
+    # Now turn 2 arrives, but msg-2 is trimmed down to 50 chars in incoming payload!
+    turn2_payload = {
+        "client_id": "test-ext-001",
+        "user_id": "shubham",
+        "conversation_id": mt_conv_id,
+        "title": "Askcruz multi-turn test",
+        "platform": "claude",
+        "messages": [
+            {"id": "msg-1-user", "role": "user", "content": "can u give me details about askcruz", "sequence": 1},
+            {"id": "msg-2-assistant", "role": "assistant", "content": "AskCruz is an AI product...", "sequence": 2},
+            {"id": "msg-3-user", "role": "user", "content": "what about sabre alloys", "sequence": 3},
+            {"id": "msg-4-assistant", "role": "assistant", "content": "Sabre Alloys is a customer...", "sequence": 4}
+        ]
+    }
+    r_turn2 = client.post("/api/extension/ingest", json=turn2_payload, headers=headers)
+    assert r_turn2.status_code == 200
+
+    # Verify that msg-2 in canonical conversation was NOT trimmed!
+    c2 = state.get_canonical_conversation(mt_conv_id)
+    assert len(c2.messages) == 4
+    assert len(c2.messages[1].content) >= 1000, "Turn 1 response was incorrectly trimmed!"
+    assert c2.messages[3].content == "Sabre Alloys is a customer..."
+
+    print("ALL EXTENSION & RETRY/DLQ & MULTI-TURN PRESERVATION TESTS PASSED SUCCESSFULLY!")
 
 if __name__ == "__main__":
     test_extension_flow()

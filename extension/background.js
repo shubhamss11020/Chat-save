@@ -109,7 +109,17 @@ async function enqueue(payload) {
   };
 
   if (existingIdx >= 0) {
-    // Supercede pending queue item with the newest state
+    const oldMessages = queue[existingIdx].payload.messages || [];
+    const newMessages = payload.messages || [];
+    // Protect earlier messages from being shortened if DOM temporarily trimmed them:
+    for (let i = 0; i < newMessages.length; i++) {
+      const prior = oldMessages.find(m => m.id === newMessages[i].id || m.sequence === newMessages[i].sequence);
+      if (prior && prior.role === newMessages[i].role && prior.content && newMessages[i].content) {
+        if (prior.content.trim().length > newMessages[i].content.trim().length) {
+          newMessages[i].content = prior.content;
+        }
+      }
+    }
     queue[existingIdx] = queueItem;
   } else {
     queue.push(queueItem);

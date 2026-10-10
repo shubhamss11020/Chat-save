@@ -1,10 +1,10 @@
 ---
-conversation_id: test-conv-ext-1791643438
+conversation_id: test-conv-ext-1791643587
 platform: claude
 username: "alex"
 title: "Debugging Kubernetes Networking"
 created_at: "2026-10-10T20:13:58.211685"
-updated_at: "2026-10-10 10:43:58 EDT"
+updated_at: "2026-10-10 10:46:27 EDT"
 ---
 
 # Debugging Kubernetes Networking

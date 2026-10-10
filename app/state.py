@@ -275,15 +275,33 @@ def complete(ids: list[int]) -> None:
 
 
 def fail(ids: list[int], error: str) -> None:
+    MAX_ATTEMPTS = 10
     with conn() as c:
         for i in ids:
             row = c.execute("SELECT attempts FROM outbox WHERE id=?", (i,)).fetchone()
             attempts = (row["attempts"] if row else 0) + 1
-            backoff = min(600, 5 * (2 ** attempts))
-            c.execute(
-                "UPDATE outbox SET status='pending', attempts=?, last_error=?, next_attempt_at=? WHERE id=?",
-                (attempts, error[:500], time.time() + backoff, i)
-            )
+            if attempts >= MAX_ATTEMPTS:
+                # Dead Letter Queue: exceeded max retry attempts
+                c.execute(
+                    "UPDATE outbox SET status='dead_letter', attempts=?, last_error=?, completed_at=? WHERE id=?",
+                    (attempts, f"DLQ: {error[:400]}", time.time(), i)
+                )
+            else:
+                backoff = min(600, 5 * (2 ** attempts))
+                c.execute(
+                    "UPDATE outbox SET status='pending', attempts=?, last_error=?, next_attempt_at=? WHERE id=?",
+                    (attempts, error[:500], time.time() + backoff, i)
+                )
+
+
+def retry_dead_letter() -> int:
+    """Reset all dead_letter outbox items back to pending for retry."""
+    with conn() as c:
+        cur = c.cursor()
+        cur.execute(
+            "UPDATE outbox SET status='pending', attempts=0, next_attempt_at=0 WHERE status='dead_letter'"
+        )
+        return cur.rowcount
 
 
 def stats() -> dict:
@@ -372,28 +390,39 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
     user = payload.user_id or effective_user or USERNAME or "shubham"
     now_str = datetime.now().isoformat()
     
-    # 1. Merge incoming messages with any previously persisted messages
+    # 1. Sanitize incoming messages: strictly filter out empty messages
+    valid_incoming = [m for m in (payload.messages or []) if m.content and m.content.strip()]
     existing = get_canonical_conversation(payload.conversation_id)
+
+    if not valid_incoming and not existing:
+        return {
+            "receipt_id": "rcpt_empty",
+            "conversation_id": payload.conversation_id,
+            "saved_messages": 0,
+            "status": "ignored_empty",
+            "deduplicated": True,
+            "timestamp": now_str
+        }
+
     messages_to_save: list[Message] = []
-    
-    if existing and payload.messages and len(payload.messages) < len(existing.messages):
-        # Incoming payload contains an incremental or partial message set
-        merged = {m.id: m for m in existing.messages}
-        for inc_m in payload.messages:
+    if existing and valid_incoming and len(valid_incoming) < len(existing.messages):
+        # Incremental turn update
+        merged = {m.id: m for m in existing.messages if m.content and m.content.strip()}
+        for inc_m in valid_incoming:
             merged[inc_m.id] = inc_m
         messages_to_save = list(merged.values())
-    elif payload.messages:
-        messages_to_save = payload.messages
+    elif valid_incoming:
+        # Full snapshot
+        messages_to_save = valid_incoming
     elif existing:
-        messages_to_save = existing.messages
-    
-    # Ensure sequential turn ordering
+        messages_to_save = [m for m in existing.messages if m.content and m.content.strip()]
+
+    # Ensure sequential turn ordering and compute clean hashes
     for idx, m in enumerate(messages_to_save, start=1):
+        m.content = m.content.strip()
         m.conversation_id = payload.conversation_id
-        if not m.sequence:
-            m.sequence = idx
-        if not m.content_hash:
-            m.content_hash = compute_content_hash(m.content)
+        m.sequence = idx
+        m.content_hash = compute_content_hash(m.content)
 
     conv = Conversation(
         id=payload.conversation_id,

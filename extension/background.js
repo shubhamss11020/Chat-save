@@ -180,10 +180,30 @@ async function processQueue() {
       } catch (err) {
         console.warn("[Chat-Save] Queue delivery failed:", err.message);
         item.attempts += 1;
-        const backoffMs = Math.min(300000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000;
-        item.nextAttemptAt = Date.now() + backoffMs;
         item.lastError = err.message;
-        remainingQueue.push(item);
+
+        // Dead Letter Queue after MAX_RETRIES (10 attempts)
+        const MAX_RETRIES = 10;
+        if (item.attempts >= MAX_RETRIES) {
+          const dlq = await getDeadLetterQueue();
+          dlq.push({
+            ...item,
+            deadLetterAt: Date.now(),
+            failureReason: `Exceeded ${MAX_RETRIES} attempts: ${err.message}`
+          });
+          await saveDeadLetterQueue(dlq);
+          console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
+          broadcastToTabs({
+            type: "DEAD_LETTER_EVENT",
+            conversationId: item.payload.conversation_id,
+            error: item.lastError
+          });
+        } else {
+          // Exponential backoff with jitter
+          const backoffMs = Math.min(300000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000;
+          item.nextAttemptAt = Date.now() + backoffMs;
+          remainingQueue.push(item);
+        }
 
         broadcastToTabs({
           type: "SYNC_ERROR",
@@ -202,6 +222,21 @@ async function processQueue() {
   } finally {
     isProcessingQueue = false;
   }
+}
+
+/**
+ * Reads the dead letter queue.
+ */
+async function getDeadLetterQueue() {
+  const data = await chrome.storage.local.get("chatsave_dead_letter");
+  return data.chatsave_dead_letter || [];
+}
+
+/**
+ * Saves the dead letter queue.
+ */
+async function saveDeadLetterQueue(dlq) {
+  await chrome.storage.local.set({ chatsave_dead_letter: dlq });
 }
 
 /**
@@ -279,10 +314,13 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
       const lastReceipt = (await chrome.storage.local.get("chatsave_last_receipt")).chatsave_last_receipt || null;
       const lastSyncTime = (await chrome.storage.local.get("chatsave_last_sync_time")).chatsave_last_sync_time || null;
 
+      const dlq = await getDeadLetterQueue();
+
       sendResponse({
         config,
         clientId,
         pendingCount: queue.length,
+        deadLetterCount: dlq.length,
         lastReceipt,
         lastSyncTime
       });
@@ -305,6 +343,36 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     (async () => {
       await saveQueue([]);
       sendResponse({ success: true, pendingCount: 0 });
+    })();
+    return true;
+  }
+
+  if (req.type === "RETRY_DEAD_LETTER") {
+    (async () => {
+      const dlq = await getDeadLetterQueue();
+      if (!dlq.length) {
+        sendResponse({ success: true, reQueued: 0 });
+        return;
+      }
+      const queue = await getQueue();
+      dlq.forEach(item => {
+        item.attempts = 0;
+        item.nextAttemptAt = Date.now();
+        item.lastError = null;
+        queue.push(item);
+      });
+      await saveQueue(queue);
+      await saveDeadLetterQueue([]);
+      processQueue();
+      sendResponse({ success: true, reQueued: dlq.length, pendingCount: queue.length });
+    })();
+    return true;
+  }
+
+  if (req.type === "CLEAR_DEAD_LETTER") {
+    (async () => {
+      await saveDeadLetterQueue([]);
+      sendResponse({ success: true, deadLetterCount: 0 });
     })();
     return true;
   }

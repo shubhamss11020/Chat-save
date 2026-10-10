@@ -132,6 +132,15 @@ def list_extension_clients():
     return {"clients": state.get_heartbeats()}
 
 
+@app.post("/api/outbox/retry-dlq")
+def retry_dead_letter_queue(bg: BackgroundTasks):
+    """Re-queue all dead_letter outbox items back to pending and drain."""
+    requeued = state.retry_dead_letter()
+    if requeued > 0:
+        bg.add_task(outbox.drain)
+    return {"requeued": requeued}
+
+
 @app.post("/reconcile")
 def reconcile_now(bg: BackgroundTasks):
     bg.add_task(_tick)

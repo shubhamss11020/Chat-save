@@ -139,19 +139,62 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  btnRetryQueue.addEventListener("click", () => {
-    chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
-      setTimeout(loadQueue, 500);
+  // 6. Dead Letter Queue Inspector
+  const dlqSummary = document.getElementById("dlqSummary");
+  const dlqTable = document.getElementById("dlqTable");
+  const dlqTbody = document.getElementById("dlqTbody");
+  const btnRetryDLQ = document.getElementById("btnRetryDLQ");
+  const btnClearDLQ = document.getElementById("btnClearDLQ");
+
+  async function loadDLQ() {
+    const data = await chrome.storage.local.get("chatsave_dead_letter");
+    const dlq = data.chatsave_dead_letter || [];
+
+    if (dlq.length === 0) {
+      dlqSummary.textContent = "0 failed items in Dead Letter Queue (all clear).";
+      dlqTable.style.display = "none";
+      btnRetryDLQ.disabled = true;
+      btnClearDLQ.disabled = true;
+      return;
+    }
+
+    dlqSummary.textContent = `${dlq.length} item(s) permanently failed and saved in Dead Letter Queue:`;
+    dlqTable.style.display = "table";
+    btnRetryDLQ.disabled = false;
+    btnClearDLQ.disabled = false;
+
+    dlqTbody.innerHTML = "";
+    dlq.forEach(item => {
+      const tr = document.createElement("tr");
+      const title = item.payload.title || item.payload.conversation_id;
+      tr.innerHTML = `
+        <td><code>${title.slice(0, 24)}...</code></td>
+        <td>${item.attempts}</td>
+        <td style="color:#f87171;">${item.failureReason ? item.failureReason.slice(0, 50) + "..." : "Exceeded retries"}</td>
+      `;
+      dlqTbody.appendChild(tr);
+    });
+  }
+
+  btnRetryDLQ.addEventListener("click", () => {
+    btnRetryDLQ.disabled = true;
+    chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+      setTimeout(() => {
+        loadQueue();
+        loadDLQ();
+        btnRetryDLQ.disabled = false;
+      }, 500);
     });
   });
 
-  btnClearQueue.addEventListener("click", () => {
-    if (confirm("Are you sure you want to discard all pending offline items?")) {
-      chrome.runtime.sendMessage({ type: "CLEAR_QUEUE" }, () => {
-        loadQueue();
+  btnClearDLQ.addEventListener("click", () => {
+    if (confirm("Are you sure you want to discard all items in the Dead Letter Queue?")) {
+      chrome.runtime.sendMessage({ type: "CLEAR_DEAD_LETTER" }, () => {
+        loadDLQ();
       });
     }
   });
 
   loadQueue();
+  loadDLQ();
 });

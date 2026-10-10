@@ -52,39 +52,90 @@
       .join("");
   }
 
+  // Helper: Extract clean message text, stripping buttons, timestamps, badges, and SVGs
+  function extractCleanMessageText(el, role) {
+    if (!el) return "";
+    const clone = el.cloneNode(true);
+
+    // Remove buttons, icons, timestamps, and interactive controls
+    const uiSelectors = [
+      'button',
+      'svg',
+      '[role="button"]',
+      '[data-testid*="action"]',
+      '[data-testid*="copy"]',
+      '[data-testid*="edit"]',
+      '[data-testid*="retry"]',
+      '[data-testid*="thumbs"]',
+      '[aria-label*="Copy"]',
+      '[aria-label*="Edit"]',
+      '[aria-label*="Retry"]',
+      '[aria-label*="Good response"]',
+      '[aria-label*="Bad response"]',
+      '[aria-label*="citation"]',
+      '.text-text-500',
+      '.text-text-400',
+      '.text-xs',
+      '.sr-only',
+      '[data-testid*="timestamp"]'
+    ];
+
+    uiSelectors.forEach(sel => {
+      clone.querySelectorAll(sel).forEach(node => node.remove());
+    });
+
+    let text = "";
+    if (role === "user") {
+      const bodyEl = clone.querySelector('.whitespace-pre-wrap, [class*="font-user-message"], [class*="user-content"]');
+      text = bodyEl ? bodyEl.innerText : clone.innerText;
+    } else {
+      const bodyEl = clone.querySelector('.standard-markdown, .progressive-markdown, [class*="font-claude-message"], [class*="font-claude-response"], .prose');
+      text = bodyEl ? bodyEl.innerText : clone.innerText;
+    }
+
+    // Clean whitespace and filter out standalone timestamps like "2 minutes ago" or "Just now"
+    text = (text || "").trim();
+    if (/^(just now|\d+\s*(second|minute|hour|day)s?\s*ago)$/i.test(text)) {
+      return "";
+    }
+    return text;
+  }
+
   // 4. Robust extraction of message turns from Claude web DOM
   function extractMessages(convId) {
     const messages = [];
 
-    // Strategy A: Known Claude message container selectors
-    // Anthropic uses .font-user-message and .font-claude-message / .font-claude-response
-    const userNodes = Array.from(document.querySelectorAll('[data-testid*="user-message"], .font-user-message'));
-    const assistantNodes = Array.from(document.querySelectorAll('[data-testid*="assistant-message"], .font-claude-message, .font-claude-response, [data-is-streaming]'));
+    // Query candidate nodes
+    const rawUserNodes = Array.from(document.querySelectorAll('[data-testid*="user-message"], .font-user-message'));
+    const rawAssistantNodes = Array.from(document.querySelectorAll('[data-testid*="assistant-message"], .font-claude-message, .font-claude-response, [data-is-streaming]'));
 
-    // Strategy B: General conversational blocks if specific testids/classes are absent
+    // Filter out nested descendants so parent and child are not treated as duplicate messages
+    const userNodes = rawUserNodes.filter(el => !rawUserNodes.some(other => other !== el && other.contains(el)));
+    const assistantNodes = rawAssistantNodes.filter(el => !rawAssistantNodes.some(other => other !== el && other.contains(el)));
+
+    // Fallback: search for chat rows if specific classes were not found
     if (userNodes.length === 0 && assistantNodes.length === 0) {
-      // Fallback: look for alternating prose elements or message rows
       const allRows = Array.from(document.querySelectorAll('div[data-testid*="chat-message"], div.group:has(button[aria-label*="Copy"])'));
       allRows.forEach((row, idx) => {
-        const text = row.innerText.trim();
-        if (!text) return;
         const isAssistant = Boolean(row.querySelector('button[aria-label*="Copy"], button[aria-label*="Good response"]'));
-        messages.push({
-          id: `${convId}_turn_${idx + 1}`,
-          sequence: idx + 1,
-          role: isAssistant ? "assistant" : "user",
-          content: text
-        });
+        const text = extractCleanMessageText(row, isAssistant ? "assistant" : "user");
+        if (text && text.length > 0) {
+          messages.push({
+            id: `${convId}_turn_${idx + 1}`,
+            sequence: idx + 1,
+            role: isAssistant ? "assistant" : "user",
+            content: text
+          });
+        }
       });
       return messages;
     }
 
-    // Gather elements and sort them by their appearance order in the DOM
+    // Combine and sort by vertical appearance in the document
     const combined = [];
     userNodes.forEach(el => combined.push({ el, role: "user" }));
     assistantNodes.forEach(el => combined.push({ el, role: "assistant" }));
 
-    // Sort by document position
     combined.sort((a, b) => {
       const pos = a.el.compareDocumentPosition(b.el);
       if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
@@ -93,23 +144,16 @@
     });
 
     let seq = 1;
-    let lastRole = null;
-    let lastContent = "";
+    let lastContentHash = "";
 
     combined.forEach(({ el, role }) => {
-      const content = el.innerText.trim();
-      if (!content) return;
+      const content = extractCleanMessageText(el, role);
+      if (!content || content.length === 0) return; // Skip empty content entirely
 
-      // Avoid immediate consecutive identical chunks from nested wrappers
-      if (role === lastRole && content === lastContent) return;
-      if (role === lastRole && content.startsWith(lastContent)) {
-        // Replace previous partial with complete wrapper content
-        if (messages.length > 0) {
-          messages[messages.length - 1].content = content;
-          lastContent = content;
-          return;
-        }
-      }
+      // Simple hash check to avoid duplicate consecutive turns
+      const chunkHash = `${role}:${content}`;
+      if (chunkHash === lastContentHash) return;
+      lastContentHash = chunkHash;
 
       messages.push({
         id: `${convId}_msg_${seq}_${role}`,
@@ -117,9 +161,6 @@
         role: role,
         content: content
       });
-
-      lastRole = role;
-      lastContent = content;
       seq++;
     });
 
@@ -128,13 +169,9 @@
 
   // 5. Detect if Claude is currently streaming response
   function checkIsStreaming() {
-    // Indicator 1: Stop button present
     const stopBtn = document.querySelector('button[aria-label*="Stop"], button[data-testid*="stop"], button:has(rect)');
-    // Indicator 2: Claude streaming attribute
     const streamAttr = document.querySelector('[data-is-streaming="true"]');
-    // Indicator 3: Pulsing cursor
     const cursor = document.querySelector('.cursor-pulse, .animate-pulse');
-
     return Boolean(stopBtn || streamAttr || cursor);
   }
 

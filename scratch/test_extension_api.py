@@ -86,7 +86,28 @@ def test_extension_flow():
     assert "extension_clients" in stats_data
     assert any(c["client_id"] == "test-ext-001" for c in stats_data["extension_clients"])
 
-    print("ALL EXTENSION API TESTS PASSED SUCCESSFULLY!")
+    # 6. Test empty message filtering: sending empty messages should be safely ignored
+    empty_payload = {
+        "client_id": "test-ext-001",
+        "user_id": "alex",
+        "conversation_id": f"test-empty-{int(time.time())}",
+        "title": "Empty Thread Test",
+        "platform": "claude",
+        "messages": [
+            {"id": "msg-empty-1", "role": "user", "content": "   ", "sequence": 1},
+            {"id": "msg-empty-2", "role": "assistant", "content": "", "sequence": 2}
+        ]
+    }
+    r_empty = client.post("/api/extension/ingest", json=empty_payload, headers=headers)
+    assert r_empty.status_code == 200
+    assert r_empty.json()["saved_messages"] == 0
+
+    # 7. Test DLQ retry endpoint
+    r_dlq = client.post("/api/outbox/retry-dlq", headers=headers)
+    assert r_dlq.status_code == 200
+    assert "requeued" in r_dlq.json()
+
+    print("ALL EXTENSION & RETRY/DLQ API TESTS PASSED SUCCESSFULLY!")
 
 if __name__ == "__main__":
     test_extension_flow()

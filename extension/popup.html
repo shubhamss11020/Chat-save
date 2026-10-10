@@ -175,6 +175,10 @@
       <span class="label">Offline Queue:</span>
       <span class="val" id="valQueue">0 pending</span>
     </div>
+    <div class="card-row" id="rowDeadLetter" style="display: none;">
+      <span class="label" style="color: #f87171;">Dead Letter:</span>
+      <span class="val" id="valDeadLetter" style="color: #f87171; font-weight: 600;">0 failed</span>
+    </div>
     <div class="card-row">
       <span class="label">Last Receipt:</span>
       <code class="val" id="valReceipt">None yet</code>
@@ -185,10 +189,16 @@
     </div>
   </div>
 
-  <button class="btn btn-primary" id="btnSyncNow">
-    <span>⟳</span>
-    <span>Sync Outbox Now</span>
-  </button>
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <button class="btn btn-primary" id="btnSyncNow">
+      <span>⟳</span>
+      <span>Sync Outbox Now</span>
+    </button>
+    <button class="btn" id="btnRetryDLQ" style="display: none; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">
+      <span>⚠</span>
+      <span>Retry Dead Letter Items</span>
+    </button>
+  </div>
 
   <div class="footer">
     <span id="versionText">v1.0.0</span>

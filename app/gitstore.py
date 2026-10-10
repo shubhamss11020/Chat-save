@@ -69,11 +69,14 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
            f"updated_at: {_q(u_at)}",
            "---", "", f"# {conv.title}", ""]
     for m in conv.messages:
+        content = m.content.strip() if m.content else ""
+        if not content:
+            continue
         who = {"user": "User", "assistant": "Claude"}.get(m.role, m.role.title())
         t = m.timestamp
         if not t or "00:00:00" in t:
             t = u_at
-        out += [f"## {who}" + (f" ({t})" if t else ""), "", m.content, ""]
+        out += [f"## {who}" + (f" ({t})" if t else ""), "", content, ""]
     if conv.files:
         out += ["", "## Generated Documents & Files", ""]
         for f in conv.files:
@@ -268,9 +271,14 @@ def commit_snapshot(conv: Conversation) -> None:
 
     updated_at = now_est
 
-    # Merge incoming messages with any existing messages in the thread
-    merged_messages = _merge_messages(existing_messages, conv.messages)
-    conv.messages = merged_messages
+    # Authoritative canonical message list: prefer SQLite messages if present
+    valid_incoming = [m for m in conv.messages if m.content and m.content.strip()]
+    if valid_incoming:
+        # If SQLite has valid messages, use them directly (authoritative source of truth)
+        conv.messages = valid_incoming
+    elif existing_messages:
+        # Fallback to existing file only if incoming has no messages
+        conv.messages = existing_messages
 
     rendered_text = render(conv, created_at=created_at, updated_at=updated_at)
     path.write_text(rendered_text, encoding="utf-8", newline="\n")

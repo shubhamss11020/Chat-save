@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const { config, pendingCount, lastReceipt, lastSyncTime } = res;
+      const { config, pendingCount, deadLetterCount, lastReceipt, lastSyncTime } = res;
 
       valUser.textContent = config.userId || "user";
       valServer.textContent = config.serverUrl || "Not configured";
@@ -33,20 +33,41 @@ document.addEventListener("DOMContentLoaded", () => {
         managedBadge.style.display = "inline-block";
       }
 
+      const rowDeadLetter = document.getElementById("rowDeadLetter");
+      const valDeadLetter = document.getElementById("valDeadLetter");
+      const btnRetryDLQ = document.getElementById("btnRetryDLQ");
+
+      if (deadLetterCount > 0) {
+        rowDeadLetter.style.display = "flex";
+        valDeadLetter.textContent = `${deadLetterCount} item(s) failed`;
+        btnRetryDLQ.style.display = "flex";
+        statusText.textContent = "Action Needed (DLQ)";
+        statusPill.style.color = "#ef4444";
+        statusPill.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        statusPill.style.background = "rgba(239, 68, 68, 0.15)";
+      } else {
+        rowDeadLetter.style.display = "none";
+        btnRetryDLQ.style.display = "none";
+      }
+
       if (pendingCount > 0) {
         valQueue.textContent = `${pendingCount} item(s) pending`;
         valQueue.style.color = "#f59e0b";
-        statusText.textContent = "Offline (Queued)";
-        statusPill.style.color = "#f59e0b";
-        statusPill.style.borderColor = "rgba(245, 158, 11, 0.3)";
-        statusPill.style.background = "rgba(245, 158, 11, 0.15)";
+        if (deadLetterCount === 0) {
+          statusText.textContent = "Offline (Queued)";
+          statusPill.style.color = "#f59e0b";
+          statusPill.style.borderColor = "rgba(245, 158, 11, 0.3)";
+          statusPill.style.background = "rgba(245, 158, 11, 0.15)";
+        }
       } else {
         valQueue.textContent = "0 pending (clean)";
         valQueue.style.color = "#10b981";
-        statusText.textContent = "Active";
-        statusPill.style.color = "#10b981";
-        statusPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
-        statusPill.style.background = "rgba(16, 185, 129, 0.15)";
+        if (deadLetterCount === 0) {
+          statusText.textContent = "Active";
+          statusPill.style.color = "#10b981";
+          statusPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
+          statusPill.style.background = "rgba(16, 185, 129, 0.15)";
+        }
       }
 
       if (lastReceipt) {
@@ -57,6 +78,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const d = new Date(lastSyncTime);
         valLastSync.textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
       }
+    });
+  }
+
+  const btnRetryDLQ = document.getElementById("btnRetryDLQ");
+  if (btnRetryDLQ) {
+    btnRetryDLQ.addEventListener("click", () => {
+      btnRetryDLQ.disabled = true;
+      btnRetryDLQ.textContent = "Re-queueing...";
+      chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+        setTimeout(() => {
+          loadStatus();
+          btnRetryDLQ.disabled = false;
+          btnRetryDLQ.textContent = "Retry Dead Letter Items";
+        }, 800);
+      });
     });
   }
 

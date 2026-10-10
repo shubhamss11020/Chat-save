@@ -272,6 +272,27 @@
         <tbody id="queueTbody"></tbody>
       </table>
     </div>
+
+    <div class="card">
+      <h2 style="color: #f87171;">Dead Letter Queue (DLQ)</h2>
+      <p class="subtitle" id="dlqSummary">0 failed items in Dead Letter Queue.</p>
+
+      <div style="margin-top: 14px; display: flex; gap: 10px;">
+        <button class="btn btn-secondary" id="btnRetryDLQ">Re-queue All DLQ Items</button>
+        <button class="btn btn-danger" id="btnClearDLQ">Clear DLQ</button>
+      </div>
+
+      <table id="dlqTable" style="display: none; margin-top: 12px;">
+        <thead>
+          <tr>
+            <th>Thread</th>
+            <th>Attempts</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody id="dlqTbody"></tbody>
+      </table>
+    </div>
   </div>
 
   <script src="options.js"></script>

@@ -1,19 +1,19 @@
 ---
-conversation_id: 85dd8290-1939-42d5-bd90-c33888e4d5ff
+conversation_id: 0b60e2c0-b479-44c7-ae8e-305874527d57
 platform: claude
 username: "shubham"
 title: "Askcruz details"
 created_at: "2026-10-10T15:29:02.023Z"
-updated_at: "2026-10-12 12:31:04 EDT"
+updated_at: "2026-10-12 12:31:10 EDT"
 ---
 
 # Askcruz details
 
-## User (2026-10-12 12:31:04 EDT)
+## User (2026-10-12 12:31:10 EDT)
 
 can u give me details about askcruz
 
-## Claude (2026-10-12 12:31:04 EDT)
+## Claude (2026-10-12 12:31:10 EDT)
 
 ```
 

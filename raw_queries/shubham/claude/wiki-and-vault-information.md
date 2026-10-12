@@ -1,19 +1,19 @@
 ---
-conversation_id: 5fa51939-ede0-47d0-b539-28a14c493ea6
+conversation_id: 8e90bc54-cf94-40c4-9fbf-4d90f4bd96c9
 platform: claude
 username: "shubham"
-title: "Email and attachment analysis"
+title: "Intern leave records"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:28:36 EDT"
+updated_at: "2026-10-12 10:28:46 EDT"
 ---
 
-# Email and attachment analysis
+# Intern leave records
 
-## User (2026-10-12 10:28:36 EDT)
+## User (2026-10-12 10:28:46 EDT)
 
-provide me with all the questions which i can query to do a QA on the 3gm vault. give me atleast 20 questions
+give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 10:28:36 EDT)
+## Claude (2026-10-12 10:28:46 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -83,11 +83,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 10:28:36 EDT)
+## User (2026-10-12 10:28:46 EDT)
 
 Did anyone outside 3GM email either mailbox more than 50 times?
 
-## Claude (2026-10-12 10:28:36 EDT)
+## Claude (2026-10-12 10:28:46 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -132,11 +132,11 @@ Current vault: 675 wiki pages (410 entity, 163 analysis, 55 source, 44 concept, 
 
 Sources: vault stats call (get_vault_stats), 2026-10-12.
 
-## User (2026-10-12 10:28:36 EDT)
+## User (2026-10-12 10:28:46 EDT)
 
 What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 10:28:36 EDT)
+## Claude (2026-10-12 10:28:46 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 
@@ -207,12 +207,56 @@ Here are 50 more questions. The vault connection is offline right now, so I can'
 54. What's the forecast for next week?
 55. Which of our customers has the biggest birthday party coming up?
 
-## User (2026-10-12 10:28:16 EDT)
+## User (2026-10-12 10:28:46 EDT)
 
-Which emails from the last week have “urgent” in the subject?
+Regarding his leave days, how many days of leave did he take off?
 
-## Claude (2026-10-12 10:28:16 EDT)
+## Claude (2026-10-12 10:28:46 EDT)
 
-I can't answer this right now. The 3GM Vault connector is disconnected, so I can't search email subjects, and I'm not going to guess at results.
+```
+This block is not supported on your current device yet.
+```
 
-Once the connector is back, I'll search for "urgent" in subject lines from 2026-10-05 through today, 2026-10-12, both mailboxes unless you want one. I'll list each match with sender, recipients, time in ET, and message IDs.
+```
+This block is not supported on your current device yet.
+```
+
+```
+This block is not supported on your current device yet.
+```
+
+
+
+I can confirm only one leave day for Yash Sharma, and even that is uncertain.
+
+- **29 Sep 2026, casual leave, 1 day.** The subject line "Casual Leave - 29 September 2026" comes from yashsharma63930@gmail.com (email 69981). The body is redacted, so I can't verify the reason or that it was approved. I'm assuming this is him based on the name in the address.
+
+I found no "Time Off Approval" notifications under the name Yash Sharma, so there may be other leave days I can't see. The leave records I did find for "Yash" belong to Yash Motghare, a different person who left in February 2026 (emails 30201, 30351, 65462). I've excluded those from this count.
+
+If you need the full number, check the EOXS portal leave history for Yash Sharma. Leaves are applied there, so it is the authoritative record.
+
+## User (2026-10-12 10:28:46 EDT)
+
+how are we currently validating the total number of ingestion of emails are precise  in the first ingestion stage of pipeline, is that keywords or semantic search or overall meaning or what?
+
+## Claude (2026-10-12 10:28:46 EDT)
+
+```
+This block is not supported on your current device yet.
+```
+
+```
+This block is not supported on your current device yet.
+```
+
+
+I couldn't find documentation of how the first ingestion stage is validated, so I can't say whether it relies on keywords, semantic search, or meaning.
+
+What the vault does show:
+- **Batch-based ingestion:** Some support-ticket sources were "ingested in three date-sorted batches by parallel agents," each covering a date window. For example, one batch covered 165 tickets with IDs T04447–T05159. Source: wiki page 842, Discount Pipe & Steel support tickets.
+- **Email archives are split by date and batch:** Archive pages are organized by batch number and date range, for example "batch 13, 2025-09-09 to 2025-10-16." Source: wiki pages 931 and 983.
+- **Counts appear to be checked by ID range and date window,** not by content. The pages describe what was ingested by range, but none of the pages I searched explains how completeness was verified.
+
+I found no mention of keyword matching, semantic search, or meaning-based checks in the ingestion records, so I can't confirm any of them is the validation method.
+
+To answer this properly, I'd need the pipeline's design notes, the ingestion script, or the "Study Time" session where the ingestion approach was discussed. I can search the call transcripts for "ingestion" or "validation" if you want me to try that.

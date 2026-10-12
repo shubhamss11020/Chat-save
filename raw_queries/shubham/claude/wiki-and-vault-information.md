@@ -1,19 +1,19 @@
 ---
-conversation_id: afd47173-e8e8-4b7b-b95f-ce67cba11c4a
+conversation_id: 5fa51939-ede0-47d0-b539-28a14c493ea6
 platform: claude
 username: "shubham"
-title: "Travis's most frequent CC"
+title: "Email and attachment analysis"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:28:33 EDT"
+updated_at: "2026-10-12 10:28:36 EDT"
 ---
 
-# Travis's most frequent CC
+# Email and attachment analysis
 
-## User (2026-10-12 10:28:33 EDT)
+## User (2026-10-12 10:28:36 EDT)
 
 provide me with all the questions which i can query to do a QA on the 3gm vault. give me atleast 20 questions
 
-## Claude (2026-10-12 10:28:33 EDT)
+## Claude (2026-10-12 10:28:36 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -83,11 +83,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 10:28:33 EDT)
+## User (2026-10-12 10:28:36 EDT)
 
-Which threads has Stefan replied to most often this month?
+Did anyone outside 3GM email either mailbox more than 50 times?
 
-## Claude (2026-10-12 10:28:33 EDT)
+## Claude (2026-10-12 10:28:36 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -132,11 +132,11 @@ Current vault: 675 wiki pages (410 entity, 163 analysis, 55 source, 44 concept, 
 
 Sources: vault stats call (get_vault_stats), 2026-10-12.
 
-## User (2026-10-12 10:28:21 EDT)
+## User (2026-10-12 10:28:36 EDT)
 
 What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 10:28:21 EDT)
+## Claude (2026-10-12 10:28:36 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 

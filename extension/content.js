@@ -169,6 +169,62 @@
     return mimeMap[ext] || fallback;
   }
 
+  // Session cache of real binary files uploaded by user (PDFs, images, documents)
+  const recentUploadedFiles = new Map();
+
+  function cacheUploadedFile(file) {
+    if (!file || !file.name) return;
+    try {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        if (typeof dataUrl === "string" && dataUrl.startsWith("data:")) {
+          const rawName = file.name;
+          const safeName = rawName.replace(/\s+/g, "_");
+          const entry = {
+            name: rawName,
+            safeName: safeName,
+            type: file.type || getCanonicalMimeType(rawName, dataUrl),
+            size: file.size,
+            dataUrl: dataUrl
+          };
+          recentUploadedFiles.set(rawName.toLowerCase(), entry);
+          recentUploadedFiles.set(safeName.toLowerCase(), entry);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (e) {
+      console.warn("[Chat-Save] Could not cache uploaded file:", e);
+    }
+  }
+
+  // Intercept file picker dialogs
+  document.addEventListener("change", (e) => {
+    if (e.target && e.target.type === "file" && e.target.files) {
+      for (let i = 0; i < e.target.files.length; i++) {
+        cacheUploadedFile(e.target.files[i]);
+      }
+    }
+  }, true);
+
+  // Intercept drag and drop files
+  document.addEventListener("drop", (e) => {
+    if (e.dataTransfer && e.dataTransfer.files) {
+      for (let i = 0; i < e.dataTransfer.files.length; i++) {
+        cacheUploadedFile(e.dataTransfer.files[i]);
+      }
+    }
+  }, true);
+
+  // Intercept pasted files
+  document.addEventListener("paste", (e) => {
+    if (e.clipboardData && e.clipboardData.files) {
+      for (let i = 0; i < e.clipboardData.files.length; i++) {
+        cacheUploadedFile(e.clipboardData.files[i]);
+      }
+    }
+  }, true);
+
   // 5. Extract files, artifacts, and attachments from turns and artifact panels
   function extractFilesAndAttachments(items, convId) {
     const files = [];
@@ -232,13 +288,17 @@
                 fileUrl = anchor.href;
               }
 
-              const mime = getCanonicalMimeType(safeName, "", "application/octet-stream");
+              // Check if we captured the genuine binary data during this session
+              const cached = recentUploadedFiles.get(safeName.toLowerCase()) || recentUploadedFiles.get(rawName.toLowerCase());
+              const realBinary = cached ? cached.dataUrl : "";
+
+              const mime = getCanonicalMimeType(safeName, realBinary, "application/octet-stream");
               files.push({
                 name: safeName,
                 path: `attachments/${safeName}`,
                 url: fileUrl || undefined,
                 type: mime,
-                content: chipText,
+                content: realBinary, // Genuine binary data URL or empty, never filename string
                 role: "user",
                 turn_sequence: turnSeq,
                 is_attachment: true
@@ -1058,13 +1118,19 @@
             const atts = [...(m.attachments || []), ...(m.files || [])];
             atts.forEach(att => {
               const fname = att.file_name || att.name || "attachment";
-              const mime = getCanonicalMimeType(fname, "", "application/octet-stream");
+              const safeName = fname.replace(/\s+/g, "_");
+              const cached = recentUploadedFiles.get(safeName.toLowerCase()) || recentUploadedFiles.get(fname.toLowerCase());
+              const realBinary = cached ? cached.dataUrl : "";
+              const extractedText = (att.extracted_content && att.extracted_content !== fname) ? att.extracted_content : "";
+              const mime = getCanonicalMimeType(safeName, realBinary, "application/octet-stream");
+
               files.push({
-                name: fname,
-                path: `attachments/${fname}`,
+                name: safeName,
+                path: `attachments/${safeName}`,
                 url: att.url || att.download_url || undefined,
                 type: mime,
-                content: att.extracted_content || fname,
+                content: realBinary, // Real binary data URL or empty, never filename string
+                extracted_text: extractedText,
                 role: role,
                 turn_sequence: seq,
                 is_attachment: true

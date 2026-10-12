@@ -177,10 +177,11 @@ def generate_presigned_download_url(
         return None
     try:
         guessed_type = resolve_mime_type(filename=s3_key)
+        clean_basename = s3_key.split("/")[-1]
         params = {
             "Bucket": S3_BUCKET_NAME,
             "Key": s3_key,
-            "ResponseContentDisposition": "inline",
+            "ResponseContentDisposition": f'inline; filename="{clean_basename}"',
         }
         if guessed_type and guessed_type != "application/octet-stream":
             params["ResponseContentType"] = guessed_type
@@ -223,6 +224,7 @@ def generate_presigned_upload_url(
             clean_fname += ext_map[canonical_mime]
 
     s3_key = build_s3_key(clean_fname, conversation_id, user_id)
+    content_disp = f'inline; filename="{clean_fname}"'
 
     upload_url = client.generate_presigned_url(
         "put_object",
@@ -230,7 +232,7 @@ def generate_presigned_upload_url(
             "Bucket": S3_BUCKET_NAME,
             "Key": s3_key,
             "ContentType": canonical_mime,
-            "ContentDisposition": "inline",
+            "ContentDisposition": content_disp,
         },
         ExpiresIn=expiration,
     )
@@ -244,7 +246,7 @@ def generate_presigned_upload_url(
         "method": "PUT",
         "headers": {
             "Content-Type": canonical_mime,
-            "Content-Disposition": "inline",
+            "Content-Disposition": content_disp,
         },
     }
 
@@ -325,7 +327,25 @@ def upload_attachment_data(
         logger.warning("Empty attachment data for %s, skipping S3 upload", filename)
         return None
 
-    # Resolve canonical MIME type (e.g. image/png, image/jpeg, image/svg+xml)
+    # Guard: Never upload fake filename strings or invalid text placeholders as binary files
+    if any(filename.lower().endswith(ext) for ext in (".pdf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".zip", ".docx", ".xlsx")):
+        if isinstance(content_data, str) and content_data.strip() == filename.strip():
+            logger.warning("Attachment %s content is merely its filename, skipping S3 upload", filename)
+            return None
+        if filename.lower().endswith(".pdf") and not raw_bytes.startswith(b"%PDF-"):
+            logger.warning("Attachment %s lacks valid PDF header (%%PDF-), skipping S3 upload", filename)
+            return None
+        if filename.lower().endswith(".png") and not raw_bytes.startswith(b"\x89PNG"):
+            logger.warning("Attachment %s lacks valid PNG header, skipping S3 upload", filename)
+            return None
+        if any(filename.lower().endswith(ext) for ext in (".jpg", ".jpeg")) and not raw_bytes.startswith(b"\xff\xd8"):
+            logger.warning("Attachment %s lacks valid JPEG header, skipping S3 upload", filename)
+            return None
+        if len(raw_bytes) < 32:
+            logger.warning("Attachment %s payload too small (%d bytes) for binary file, skipping S3 upload", filename, len(raw_bytes))
+            return None
+
+    # Resolve canonical MIME type (e.g. application/pdf, image/png, image/jpeg)
     canonical_mime = resolve_mime_type(
         filename=filename,
         content_type=detected_mime or content_type,
@@ -347,6 +367,7 @@ def upload_attachment_data(
             clean_fname += ext_map[canonical_mime]
 
     s3_key = build_s3_key(clean_fname, conversation_id, user_id)
+    content_disp = f'inline; filename="{clean_fname}"'
 
     try:
         client.put_object(
@@ -354,7 +375,7 @@ def upload_attachment_data(
             Key=s3_key,
             Body=raw_bytes,
             ContentType=canonical_mime,
-            ContentDisposition="inline",
+            ContentDisposition=content_disp,
         )
         return build_public_file_url(s3_key)
     except Exception as e:

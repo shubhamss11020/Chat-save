@@ -101,17 +101,24 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
             out += ["**Attachments:**"]
             for att in turn_attachments:
                 att_name = att.get("name") or "attachment"
-                # Prefer permanent S3/public URL if available, else relative local file path
-                rel_link = att.get("url") or f"{files_folder}/{(att.get('path') or f'attachments/{att_name}')}"
+                rel_link = att.get("url")
+                if not rel_link and (att.get("uploaded_to_s3") or att.get("has_file_on_disk")):
+                    rel_link = f"{files_folder}/{(att.get('path') or f'attachments/{att_name}')}"
+                elif not rel_link and att.get("extracted_txt_path"):
+                    rel_link = f"{files_folder}/{att.get('extracted_txt_path')}"
+
                 att_type = (att.get("type") or "").lower()
-                if (
+                is_img = (
                     att_type in ("image", "png", "jpg", "jpeg", "gif", "webp", "svg")
                     or att_type.startswith("image/")
                     or any(att_name.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"))
-                ):
+                )
+                if is_img and rel_link:
                     out += [f"- ![{att_name}]({rel_link})"]
-                else:
+                elif rel_link:
                     out += [f"- 📎 [{att_name}]({rel_link})"]
+                else:
+                    out += [f"- 📎 **{att_name}** *(Attached in Claude conversation)*"]
             out += [""]
 
     # Generated files & artifacts (README.md, scripts, diagrams, etc.)
@@ -356,15 +363,36 @@ def commit_snapshot(conv: Conversation) -> None:
             target_f = files_dir / rel_f
             target_f.parent.mkdir(parents=True, exist_ok=True)
             fcontent = f.get("content") or f.get("body") or ""
+            fname = f.get("name") or rel_f
+
             # Handle base64 data URLs for binary image/attachment files (fallback when S3 disabled)
             if isinstance(fcontent, str) and fcontent.startswith("data:") and ";base64," in fcontent:
                 try:
                     _, b64 = fcontent.split(";base64,", 1)
                     target_f.write_bytes(base64.b64decode(b64))
+                    f["has_file_on_disk"] = True
                     continue
                 except Exception:
                     pass
-            target_f.write_text(str(fcontent), encoding="utf-8", newline="\n")
+            elif isinstance(fcontent, bytes):
+                target_f.write_bytes(fcontent)
+                f["has_file_on_disk"] = True
+                continue
+
+            # Save Claude extracted document text if available
+            extracted_txt = f.get("extracted_text") or ""
+            if extracted_txt and extracted_txt != fname:
+                txt_name = f"{Path(rel_f).stem}.extracted.txt"
+                txt_target = files_dir / "attachments" / txt_name
+                txt_target.parent.mkdir(parents=True, exist_ok=True)
+                txt_target.write_text(extracted_txt, encoding="utf-8", errors="replace")
+                f["extracted_txt_path"] = f"attachments/{txt_name}"
+                continue
+
+            # Never write placeholder filename strings as files
+            if fcontent and str(fcontent).strip() != str(fname).strip():
+                target_f.write_text(str(fcontent), encoding="utf-8", newline="\n")
+                f["has_file_on_disk"] = True
 
     full = f"raw_queries/{rel}"
     full_files = f"raw_queries/{uname}/{conv.platform}/{path.stem}_files"

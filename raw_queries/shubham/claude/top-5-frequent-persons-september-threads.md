@@ -4,65 +4,56 @@ platform: claude
 username: "shubham"
 title: "Top 5 frequent persons September threads"
 created_at: "2026-10-09T13:23:57.656752Z"
-updated_at: "2026-10-12 10:35:48 EDT"
+updated_at: "2026-10-12 12:33:21 EDT"
 ---
 
 # Top 5 frequent persons September threads
 
-## User (2026-10-12 10:35:48 EDT)
+## User (2026-10-12 12:33:21 EDT)
 
 can you give me the about the threads from september month of top 5 most frequent persons
 
-## Claude (2026-10-12 10:35:48 EDT)
+## Claude (2026-10-12 12:33:21 EDT)
 
 Routing: this is a Claude-activity question about who authored threads in September, so I'm using the thread-wiki skill. I'm loading it and its tools now.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
+```
+
+```
+
 ```
 
 **Routing:** This is a thread-activity question, so I used the Thread-wiki connector, which is loaded this session. I counted threads by `username` (who saved the thread), created 1–30 Sept 2026. There were 1,233 threads across 23 users in total.

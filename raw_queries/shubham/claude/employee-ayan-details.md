@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Employee Ayan details"
 created_at: "2026-10-08T18:03:03.648618Z"
-updated_at: "2026-10-12 10:41:17 EDT"
+updated_at: "2026-10-12 12:33:53 EDT"
 ---
 
 # Employee Ayan details
 
-## User (2026-10-12 10:41:17 EDT)
+## User (2026-10-12 12:33:53 EDT)
 
 can u give me the details of the employee ayan
 
-## Claude (2026-10-12 10:41:17 EDT)
+## Claude (2026-10-12 12:33:53 EDT)
 
 I need to route this correctly before responding.
 
@@ -21,19 +21,18 @@ I need to route this correctly before responding.
 
 Let me load the routing skill to determine the right connector for employee data.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 **Routing decision:** This is an employee directory question → `raj-vault` employee tools.
 
 **MCP availability check:** Let me verify the raj-vault tools are available in this session.
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 **Constraint identified:** The `raj-vault` connector (where the employee directory is authoritative) is not available in this session.

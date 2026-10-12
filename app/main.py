@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from . import capture, outbox, s3, state
 from .auth import TokenAuth, current_user
 from .config import CAPTURE, RECONCILE_SECONDS
@@ -63,6 +65,13 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Chat-Save", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(TokenAuth)
 
 

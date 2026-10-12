@@ -55,15 +55,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 3. Save Settings
   btnSave.addEventListener("click", async () => {
+    const sUrl = serverUrlInput.value.trim().replace(/\/+$/, "");
+    if (!sUrl || sUrl.includes("claude.ai")) {
+      showAlert("✕ Error: Do NOT enter claude.ai as the Server URL! The Server URL must be your Chat-Save backend service (e.g. http://localhost:8000 or your Render service like https://chat-save-xxx.onrender.com).", "error");
+      return;
+    }
+
     const configToSave = {
-      serverUrl: serverUrlInput.value.trim().replace(/\/+$/, ""),
+      serverUrl: sUrl,
       authToken: authTokenInput.value.trim(),
       userId: userIdInput.value.trim() || "user",
       autoSync: autoSyncCheckbox.checked
     };
 
     await chrome.storage.local.set({ chatsave_config: configToSave });
-    showAlert("Settings saved successfully!", "success");
+    showAlert("✓ Settings saved successfully!", "success");
   });
 
   // 4. Test Server Connection
@@ -74,12 +80,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const url = serverUrlInput.value.trim().replace(/\/+$/, "");
     const token = authTokenInput.value.trim();
 
+    if (!url || url.includes("claude.ai")) {
+      showAlert("✕ Error: Do NOT use claude.ai as the Server URL! Please enter http://localhost:8000 or your deployed Render URL.", "error");
+      btnTest.disabled = false;
+      return;
+    }
+
     try {
       const headers = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const res = await fetch(`${url}/health`, { headers });
       if (!res.ok) {
+        const text = await res.text();
+        if (text.includes("<title>Blocked</title>") || text.includes("Cloudflare")) {
+          throw new Error(`Cloudflare/WAF blocked request at ${url} (HTTP ${res.status}). Ensure the URL is your Chat-Save server.`);
+        }
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
 
@@ -108,6 +124,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 5. Queue Inspector
   async function loadQueue() {
+    await new Promise(r => chrome.runtime.sendMessage({ type: "GET_STATUS" }, () => {
+      if (chrome.runtime.lastError) { /* consumed */ }
+      r();
+    }));
     const data = await chrome.storage.local.get("chatsave_outbox");
     const queue = data.chatsave_outbox || [];
 
@@ -138,6 +158,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       queueTbody.appendChild(tr);
     });
   }
+
+  btnRetryQueue.addEventListener("click", () => {
+    btnRetryQueue.disabled = true;
+    btnRetryQueue.textContent = "Retrying...";
+    chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
+      if (chrome.runtime.lastError) { /* consumed */ }
+      setTimeout(() => {
+        loadQueue();
+        loadDLQ();
+        btnRetryQueue.disabled = false;
+        btnRetryQueue.textContent = "Retry Outbox";
+      }, 600);
+    });
+  });
+
+  btnClearQueue.addEventListener("click", () => {
+    if (confirm("Are you sure you want to clear all pending items in the offline queue?")) {
+      btnClearQueue.disabled = true;
+      chrome.runtime.sendMessage({ type: "CLEAR_QUEUE" }, () => {
+        if (chrome.runtime.lastError) { /* consumed */ }
+        loadQueue();
+        loadDLQ();
+        btnClearQueue.disabled = false;
+      });
+    }
+  });
 
   // 6. Dead Letter Queue Inspector
   const dlqSummary = document.getElementById("dlqSummary");
@@ -179,6 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnRetryDLQ.addEventListener("click", () => {
     btnRetryDLQ.disabled = true;
     chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+      if (chrome.runtime.lastError) { /* consumed */ }
       setTimeout(() => {
         loadQueue();
         loadDLQ();
@@ -190,10 +237,41 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnClearDLQ.addEventListener("click", () => {
     if (confirm("Are you sure you want to discard all items in the Dead Letter Queue?")) {
       chrome.runtime.sendMessage({ type: "CLEAR_DEAD_LETTER" }, () => {
+        if (chrome.runtime.lastError) { /* consumed */ }
         loadDLQ();
       });
     }
   });
+
+  const btnOptionsReconcile = document.getElementById("btnOptionsReconcile");
+  const reconcileStatusText = document.getElementById("reconcileStatusText");
+  if (btnOptionsReconcile) {
+    btnOptionsReconcile.addEventListener("click", () => {
+      btnOptionsReconcile.disabled = true;
+      btnOptionsReconcile.textContent = "Scanning Claude Conversations...";
+      if (reconcileStatusText) reconcileStatusText.textContent = "Connecting to open Claude tab to fetch recent conversation list...";
+      chrome.runtime.sendMessage({ type: "TRIGGER_RECONCILE", maxDays: 2 }, (res) => {
+        if (chrome.runtime.lastError) {
+          btnOptionsReconcile.disabled = false;
+          btnOptionsReconcile.textContent = "Scan & Sync Recent Chats (Past 48h)";
+          if (reconcileStatusText) reconcileStatusText.textContent = "⚠ Could not connect to Claude tab. Please refresh your open claude.ai tab.";
+          return;
+        }
+        setTimeout(() => {
+          btnOptionsReconcile.disabled = false;
+          btnOptionsReconcile.textContent = "Scan & Sync Recent Chats (Past 48h)";
+          if (res && res.enqueued > 0) {
+            if (reconcileStatusText) reconcileStatusText.textContent = `✓ Found and queued ${res.enqueued} stale/mobile conversation(s) into outbox for syncing!`;
+          } else if (res && res.error) {
+            if (reconcileStatusText) reconcileStatusText.textContent = `⚠ ${res.error}`;
+          } else {
+            if (reconcileStatusText) reconcileStatusText.textContent = "✓ All conversations from the past 48h are already up-to-date.";
+          }
+          loadQueue();
+        }, 1500);
+      });
+    });
+  }
 
   loadQueue();
   loadDLQ();

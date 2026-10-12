@@ -77,6 +77,11 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
         content = m.content.strip() if m.content else ""
         if not content:
             continue
+        # Strip Anthropic unsupported tool widget placeholder banners
+        content = re.sub(r'(?mi)^\s*This block is not supported on your current device yet\.?\s*$', '', content)
+        content = re.sub(r'\n{3,}', '\n\n', content).strip()
+        if not content:
+            continue
         who = {"user": "User", "assistant": "Claude"}.get(m.role, m.role.title())
         t = m.timestamp
         if not t or "00:00:00" in t:

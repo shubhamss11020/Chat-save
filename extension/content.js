@@ -13,6 +13,8 @@
   let hudStatus = "idle";
   let lastReceipt = null;
   let pendingCount = 0;
+  let currentQueuedIds = new Set();
+  let currentDlqIds = new Set();
 
   // 1. Extract Conversation ID from URL
   function getConversationId() {
@@ -52,6 +54,10 @@
     if (!str) return "";
     let s = str.replace(/[\uE000-\uF8FF]/g, ""); // Strip icon font PUA glyphs (copy, retry, etc.)
     s = s.replace(/(?:\r?\n)?\s*(?:\d+\s*(?:second|minute|hour|day|week|month)s?\s*ago|just now)\s*$/i, "");
+    // Strip Anthropic unsupported device tool-block placeholders
+    s = s.replace(/(?:^|\n)\s*This block is not supported on your current device yet\.?\s*(?=\n|$)/gi, "\n");
+    s = s.replace(/This block is not supported on your current device yet\.?/gi, "");
+    s = s.replace(/\n{3,}/g, "\n\n");
     return s.trim();
   }
 
@@ -69,7 +75,12 @@
           // Avoid duplicate nested text
           const hasMatchedParent = Array.from(blocks).some(other => other !== b && other.contains(b));
           if (!hasMatchedParent) {
-            const t = sanitizeText(b.innerText || b.textContent || "");
+            const raw = (b.innerText || b.textContent || "").trim();
+            if (raw.toLowerCase() === "this block is not supported on your current device yet." ||
+                raw.toLowerCase().startsWith("this block is not supported on your current device yet")) {
+              return; // skip placeholder element
+            }
+            const t = sanitizeText(raw);
             if (t) parts.push(t);
           }
         });
@@ -498,7 +509,9 @@
     for (let i = 0; i < mutations.length; i++) {
       const target = mutations[i].target;
       if (target && target.nodeType === 1) {
-        if (target.id === "chatsave-hud-root" || (target.closest && target.closest("#chatsave-hud-root"))) {
+        if (target.id === "chatsave-hud-root" ||
+            (target.closest && target.closest("#chatsave-hud-root")) ||
+            (target.classList && target.classList.contains("chatsave-sidebar-dot"))) {
           continue;
         }
       }
@@ -512,6 +525,7 @@
     observerThrottle = setTimeout(() => {
       observerThrottle = null;
       checkChatState();
+      updateSidebarDots();
     }, 400);
   }
 
@@ -522,6 +536,7 @@
       lastUrl = window.location.href;
       lastCapturedHash = "";
       updateHud("idle");
+      fetchQueueStateAndUpdateSidebar();
       setTimeout(() => triggerCapture(false), 1500);
     }
   }, 1000);
@@ -562,8 +577,9 @@
             <strong id="chatsave-pop-queue" style="color: #eab308;">0 pending</strong>
           </div>
         </div>
-        <div class="chatsave-footer">
-          <button id="chatsave-btn-sync" class="chatsave-btn">Sync Now</button>
+        <div class="chatsave-footer" style="display: flex; gap: 6px;">
+          <button id="chatsave-btn-sync" class="chatsave-btn" style="flex: 1;">Sync Thread</button>
+          <button id="chatsave-btn-reconcile" class="chatsave-btn" style="flex: 1; background: #4f46e5;">Sync 48h</button>
         </div>
       </div>
     `;
@@ -575,6 +591,7 @@
     const popover = root.querySelector("#chatsave-popover");
     const closeBtn = root.querySelector("#chatsave-popover-close");
     const syncBtn = root.querySelector("#chatsave-btn-sync");
+    const reconcileBtn = root.querySelector("#chatsave-btn-reconcile");
 
     badge.addEventListener("click", () => {
       popover.style.display = popover.style.display === "none" ? "block" : "none";
@@ -590,13 +607,28 @@
       syncBtn.disabled = true;
       syncBtn.textContent = "Syncing...";
       chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
+        if (chrome.runtime.lastError) { /* consumed */ }
         triggerCapture(true);
         setTimeout(() => {
           syncBtn.disabled = false;
-          syncBtn.textContent = "Sync Now";
+          syncBtn.textContent = "Sync Thread";
         }, 1000);
       });
     });
+
+    if (reconcileBtn) {
+      reconcileBtn.addEventListener("click", () => {
+        reconcileBtn.disabled = true;
+        reconcileBtn.textContent = "Scanning...";
+        reconcileStaleConversations(2, true).then(res => {
+          reconcileBtn.textContent = (res && res.enqueued > 0) ? `Queued ${res.enqueued}` : "Up to date ✓";
+          setTimeout(() => {
+            reconcileBtn.disabled = false;
+            reconcileBtn.textContent = "Sync 48h";
+          }, 2500);
+        });
+      });
+    }
   }
 
   function updateHud(status, data = {}) {
@@ -664,17 +696,112 @@
     }
   }
 
+  // 11b. Claude Sidebar Queue & Sync Status Indicators
+  function updateSidebarDots() {
+    const links = document.querySelectorAll('a[href*="/chat/"]');
+    if (!links || links.length === 0) return;
+
+    links.forEach(link => {
+      const href = link.getAttribute("href") || "";
+      const match = href.match(/\/chat\/([a-zA-Z0-9_-]+)/);
+      if (!match) return;
+      const convId = match[1];
+      if (convId === "new") return;
+
+      let dot = link.querySelector(".chatsave-sidebar-dot");
+
+      if (currentQueuedIds.has(convId)) {
+        if (!dot) {
+          dot = document.createElement("span");
+          dot.className = "chatsave-sidebar-dot chatsave-dot-queued";
+          dot.title = "Chat queued in local outbox for sync";
+          link.appendChild(dot);
+        } else if (!dot.classList.contains("chatsave-dot-queued")) {
+          dot.className = "chatsave-sidebar-dot chatsave-dot-queued";
+          dot.title = "Chat queued in local outbox for sync";
+        }
+      } else if (currentDlqIds.has(convId)) {
+        if (!dot) {
+          dot = document.createElement("span");
+          dot.className = "chatsave-sidebar-dot chatsave-dot-dlq";
+          dot.title = "Sync failed - in Dead Letter Queue";
+          link.appendChild(dot);
+        } else if (!dot.classList.contains("chatsave-dot-dlq")) {
+          dot.className = "chatsave-sidebar-dot chatsave-dot-dlq";
+          dot.title = "Sync failed - in Dead Letter Queue";
+        }
+      } else {
+        if (dot) {
+          dot.remove();
+        }
+      }
+    });
+  }
+
+  function clearSidebarDot(convId) {
+    if (!convId) return;
+    const links = document.querySelectorAll(`a[href*="/chat/${convId}"]`);
+    links.forEach(link => {
+      const dot = link.querySelector(".chatsave-sidebar-dot");
+      if (dot) {
+        dot.className = "chatsave-sidebar-dot chatsave-dot-synced";
+        setTimeout(() => {
+          if (dot.parentElement) dot.remove();
+        }, 500);
+      }
+    });
+  }
+
+  function fetchQueueStateAndUpdateSidebar() {
+    chrome.runtime.sendMessage({ type: "GET_QUEUE_STATE" }, (res) => {
+      if (chrome.runtime.lastError || !res) return;
+      if (Array.isArray(res.queuedIds)) {
+        currentQueuedIds = new Set(res.queuedIds);
+      }
+      if (Array.isArray(res.dlqIds)) {
+        currentDlqIds = new Set(res.dlqIds);
+      }
+      updateSidebarDots();
+    });
+  }
+
   // 12. Listen for background broadcast events
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === "SYNC_SUCCESS") {
+  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.type === "TRIGGER_RECONCILE") {
+      reconcileStaleConversations(msg.maxDays || 7, true).then(res => {
+        sendResponse(res);
+      });
+      return true; // async reply
+    } else if (msg.type === "SYNC_SUCCESS") {
       lastReceipt = msg.receipt;
       pendingCount = 0;
       updateHud("synced");
+      if (msg.conversationId) {
+        currentQueuedIds.delete(msg.conversationId);
+        currentDlqIds.delete(msg.conversationId);
+        clearSidebarDot(msg.conversationId);
+      }
+      fetchQueueStateAndUpdateSidebar();
     } else if (msg.type === "SYNC_ERROR") {
       pendingCount = msg.pendingCount || 1;
       updateHud("offline", { error: msg.error, pendingCount });
+      fetchQueueStateAndUpdateSidebar();
+    } else if (msg.type === "DEAD_LETTER_EVENT") {
+      if (msg.conversationId) {
+        currentQueuedIds.delete(msg.conversationId);
+        currentDlqIds.add(msg.conversationId);
+      }
+      fetchQueueStateAndUpdateSidebar();
     } else if (msg.type === "QUEUE_UPDATED") {
       pendingCount = msg.pendingCount;
+      if (Array.isArray(msg.queuedIds)) {
+        currentQueuedIds = new Set(msg.queuedIds);
+      }
+      if (Array.isArray(msg.dlqIds)) {
+        currentDlqIds = new Set(msg.dlqIds);
+      }
+      updateSidebarDots();
+
       if (pendingCount > 0 && hudStatus !== "syncing") {
         updateHud("offline", { pendingCount });
       } else if (pendingCount === 0 && hudStatus === "offline") {
@@ -683,9 +810,190 @@
     }
   });
 
-  // 13. Initialization
+  // 13. Cloud / Mobile Conversation Reconciliation Worker
+  let isReconciling = false;
+
+  async function getStoredSyncedThreads() {
+    const data = await new Promise(r => chrome.storage.local.get("chatsave_synced_threads", r));
+    return data.chatsave_synced_threads || {};
+  }
+
+  async function saveStoredSyncedThreads(syncedMap) {
+    await new Promise(r => chrome.storage.local.set({ chatsave_synced_threads: syncedMap }, r));
+  }
+
+  async function reconcileStaleConversations(maxDays = 7, force = false) {
+    if (isReconciling) {
+      return { success: false, reason: "Reconciliation already in progress" };
+    }
+    isReconciling = true;
+
+    try {
+      // 1. Throttle check (at most once every 15 minutes unless forced)
+      const lastCheckData = await new Promise(r => chrome.storage.local.get("chatsave_last_reconcile_time", r));
+      const lastCheckTime = lastCheckData.chatsave_last_reconcile_time || 0;
+      const fifteenMinutes = 15 * 60 * 1000;
+      if (!force && Date.now() - lastCheckTime < fifteenMinutes) {
+        isReconciling = false;
+        return { success: true, enqueued: 0, skipped: true, reason: "Recently reconciled" };
+      }
+
+      updateHud("syncing");
+
+      // 2. Discover active organization ID
+      let orgId = "";
+      try {
+        const orgsRes = await fetch("/api/organizations", { credentials: "include" });
+        if (orgsRes.ok) {
+          const orgs = await orgsRes.json();
+          if (Array.isArray(orgs) && orgs.length > 0) {
+            orgId = orgs[0].uuid;
+          }
+        }
+      } catch (e) {}
+
+      if (!orgId) {
+        isReconciling = false;
+        updateHud("synced");
+        return { success: false, error: "Could not resolve Claude organization" };
+      }
+
+      // 3. Fetch list of conversations
+      const convListRes = await fetch(`/api/organizations/${orgId}/chat_conversations`, { credentials: "include" });
+      if (!convListRes.ok) {
+        isReconciling = false;
+        updateHud("synced");
+        return { success: false, error: `HTTP ${convListRes.status} from chat_conversations` };
+      }
+      const allConvs = await convListRes.json();
+      if (!Array.isArray(allConvs) || allConvs.length === 0) {
+        isReconciling = false;
+        updateHud("synced");
+        return { success: true, enqueued: 0 };
+      }
+
+      // 4. Filter conversations updated in the last N days
+      const cutoffTime = Date.now() - (maxDays * 24 * 60 * 60 * 1000);
+      const recentConvs = allConvs.filter(c => {
+        const upTime = c.updated_at ? new Date(c.updated_at).getTime() : (c.created_at ? new Date(c.created_at).getTime() : 0);
+        return upTime >= cutoffTime;
+      });
+
+      const syncedThreads = await getStoredSyncedThreads();
+      const currentActiveId = getConversationId();
+
+      const staleToSync = recentConvs.filter(c => {
+        if (c.uuid === currentActiveId) return false;
+        return syncedThreads[c.uuid] !== c.updated_at;
+      });
+
+      if (staleToSync.length === 0) {
+        await new Promise(r => chrome.storage.local.set({ chatsave_last_reconcile_time: Date.now() }, r));
+        isReconciling = false;
+        updateHud("synced");
+        return { success: true, enqueued: 0, message: "All recent conversations up to date" };
+      }
+
+      // 5. Fetch details and enqueue each stale conversation one by one with a polite delay
+      let enqueuedCount = 0;
+      for (const convMeta of staleToSync) {
+        try {
+          await new Promise(r => setTimeout(r, 1500));
+
+          const detailRes = await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}`, { credentials: "include" });
+          if (!detailRes.ok) continue;
+
+          const detail = await detailRes.json();
+          const chatMsgs = detail.chat_messages || [];
+          if (!chatMsgs.length) continue;
+
+          const messages = [];
+          const files = [];
+          let seq = 1;
+
+          chatMsgs.forEach(m => {
+            let bodyText = m.text || "";
+            if (!bodyText && Array.isArray(m.content)) {
+              bodyText = m.content
+                .filter(b => b && b.type === "text" && b.text)
+                .map(b => b.text)
+                .join("\n\n");
+            }
+            bodyText = sanitizeText(bodyText);
+            if (!bodyText) return;
+
+            const role = m.sender === "human" ? "user" : "assistant";
+            messages.push({
+              id: m.uuid || `${convMeta.uuid}_msg_${seq}_${role}`,
+              sequence: seq,
+              role: role,
+              content: bodyText
+            });
+
+            const atts = [...(m.attachments || []), ...(m.files || [])];
+            atts.forEach(att => {
+              const fname = att.file_name || att.name || "attachment";
+              const ext = fname.split(".").pop().toLowerCase();
+              files.push({
+                name: fname,
+                path: `attachments/${fname}`,
+                url: att.url || att.download_url || undefined,
+                type: ext,
+                content: att.extracted_content || fname,
+                role: role,
+                turn_sequence: seq,
+                is_attachment: true
+              });
+            });
+
+            seq++;
+          });
+
+          if (messages.length > 0) {
+            const payload = {
+              conversation_id: convMeta.uuid,
+              title: convMeta.name || "Untitled conversation",
+              platform: "claude",
+              url: `https://claude.ai/chat/${convMeta.uuid}`,
+              messages: messages,
+              files: files,
+              is_final: true,
+              captured_at: convMeta.updated_at || new Date().toISOString()
+            };
+
+            await new Promise(resolve => {
+              chrome.runtime.sendMessage({ type: "INGEST_CONVERSATION", payload, force: false }, (res) => {
+                if (chrome.runtime.lastError) { /* consumed */ }
+                resolve(res);
+              });
+            });
+
+            syncedThreads[convMeta.uuid] = convMeta.updated_at;
+            enqueuedCount++;
+          }
+        } catch (itemErr) {}
+      }
+
+      await saveStoredSyncedThreads(syncedThreads);
+      await new Promise(r => chrome.storage.local.set({ chatsave_last_reconcile_time: Date.now() }, r));
+
+      isReconciling = false;
+      updateHud("synced");
+      return { success: true, enqueued: enqueuedCount };
+    } catch (err) {
+      isReconciling = false;
+      updateHud("synced");
+      return { success: false, error: err.message };
+    }
+  }
+
+  // 14. Initialization
   function init() {
     createHud();
+
+    // Fetch initial queue state and draw sidebar dots
+    fetchQueueStateAndUpdateSidebar();
+    setInterval(updateSidebarDots, 2500);
 
     // Start MutationObserver on chat body
     const observer = new MutationObserver(onDomMutated);
@@ -694,10 +1002,15 @@
       subtree: true
     });
 
-    // Initial capture check after page loads
+    // Initial capture check on current active page
     setTimeout(() => {
       triggerCapture(false);
     }, 2000);
+
+    // Initial cloud/mobile stale conversation reconciliation (runs 6s after load)
+    setTimeout(() => {
+      reconcileStaleConversations(7, false);
+    }, 6000);
   }
 
   if (document.readyState === "loading") {

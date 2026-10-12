@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btnRetryDLQ.disabled = true;
       btnRetryDLQ.textContent = "Re-queueing...";
       chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+        if (chrome.runtime.lastError) { /* consumed */ }
         setTimeout(() => {
           loadStatus();
           btnRetryDLQ.disabled = false;
@@ -100,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnSyncNow.disabled = true;
     btnSyncNow.innerHTML = "<span>⟳</span><span>Syncing...</span>";
     chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
+      if (chrome.runtime.lastError) { /* consumed */ }
       setTimeout(() => {
         loadStatus();
         btnSyncNow.disabled = false;
@@ -107,6 +109,38 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1000);
     });
   });
+
+  const btnReconcile = document.getElementById("btnReconcile");
+  if (btnReconcile) {
+    btnReconcile.addEventListener("click", () => {
+      btnReconcile.disabled = true;
+      btnReconcile.innerHTML = "<span>☁</span><span>Scanning Claude Chats...</span>";
+      chrome.runtime.sendMessage({ type: "TRIGGER_RECONCILE", maxDays: 2 }, (res) => {
+        if (chrome.runtime.lastError) {
+          btnReconcile.disabled = false;
+          btnReconcile.innerHTML = "<span>⚠</span><span>Refresh Claude tab</span>";
+          setTimeout(() => {
+            btnReconcile.innerHTML = "<span>☁</span><span>Sync Recent Cloud Chats (48h)</span>";
+          }, 3500);
+          return;
+        }
+        setTimeout(() => {
+          loadStatus();
+          btnReconcile.disabled = false;
+          if (res && res.enqueued > 0) {
+            btnReconcile.innerHTML = `<span>✓</span><span>Queued ${res.enqueued} Chats</span>`;
+          } else if (res && res.error) {
+            btnReconcile.innerHTML = `<span>⚠</span><span>${res.error.slice(0, 20)}</span>`;
+          } else {
+            btnReconcile.innerHTML = `<span>✓</span><span>All Chats Up to Date</span>`;
+          }
+          setTimeout(() => {
+            btnReconcile.innerHTML = "<span>☁</span><span>Sync Recent Cloud Chats (48h)</span>";
+          }, 3000);
+        }, 1200);
+      });
+    });
+  }
 
   linkOptions.addEventListener("click", () => {
     if (chrome.runtime.openOptionsPage) {

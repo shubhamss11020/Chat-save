@@ -18,6 +18,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   await getClientId();
   chrome.alarms.create("chatsave_queue_worker", { periodInMinutes: 1 });
   chrome.alarms.create("chatsave_heartbeat", { periodInMinutes: 5 });
+  chrome.alarms.create("chatsave_reconcile_worker", { periodInMinutes: 20 });
   processQueue();
   sendHeartbeat();
 });
@@ -32,6 +33,8 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     processQueue();
   } else if (alarm.name === "chatsave_heartbeat") {
     sendHeartbeat();
+  } else if (alarm.name === "chatsave_reconcile_worker") {
+    triggerReconcileInTabs();
   }
 });
 
@@ -126,9 +129,63 @@ async function enqueue(payload) {
   }
 
   await saveQueue(queue);
-  broadcastToTabs({ type: "QUEUE_UPDATED", pendingCount: queue.length });
+  const currentDlq = await getDeadLetterQueue();
+  broadcastToTabs({
+    type: "QUEUE_UPDATED",
+    pendingCount: queue.length,
+    queuedIds: queue.map(q => q.payload?.conversation_id).filter(Boolean),
+    dlqIds: currentDlq.map(d => d.payload?.conversation_id).filter(Boolean)
+  });
   processQueue();
   return queue.length;
+}
+
+/**
+ * Automatically moves items that exceeded MAX_RETRIES to Dead Letter Queue
+ */
+async function purgeExpiredToDLQ() {
+  const queue = await getQueue();
+  if (!queue.length) return false;
+
+  const dlq = await getDeadLetterQueue();
+  const surviving = [];
+  let movedCount = 0;
+
+  for (const item of queue) {
+    const isAuth = item.lastError && (item.lastError.includes("HTTP 401") || item.lastError.includes("HTTP 403") || item.lastError.includes("Blocked") || item.lastError.includes("Invalid Server URL"));
+    const maxAttempts = isAuth ? 2 : 5;
+    if (item.attempts >= maxAttempts) {
+      dlq.push({
+        ...item,
+        deadLetterAt: Date.now(),
+        failureReason: isAuth
+          ? `Delivery blocked (${item.lastError.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
+          : `Exceeded ${maxAttempts} attempts: ${item.lastError || "Unknown error"}`
+      });
+      movedCount++;
+      console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
+      broadcastToTabs({
+        type: "DEAD_LETTER_EVENT",
+        conversationId: item.payload?.conversation_id,
+        error: item.lastError
+      });
+    } else {
+      surviving.push(item);
+    }
+  }
+
+  if (movedCount > 0) {
+    await saveQueue(surviving);
+    await saveDeadLetterQueue(dlq);
+    broadcastToTabs({
+      type: "QUEUE_UPDATED",
+      pendingCount: surviving.length,
+      queuedIds: surviving.map(q => q.payload?.conversation_id).filter(Boolean),
+      dlqIds: dlq.map(d => d.payload?.conversation_id).filter(Boolean)
+    });
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -139,6 +196,9 @@ async function processQueue() {
   isProcessingQueue = true;
 
   try {
+    // 1. Immediately purge any items that have already exceeded max retries
+    await purgeExpiredToDLQ();
+
     const config = await getConfig();
     let queue = await getQueue();
     if (!queue.length) {
@@ -156,6 +216,10 @@ async function processQueue() {
       }
 
       try {
+        if (!config.serverUrl || config.serverUrl.includes("claude.ai")) {
+          throw new Error(`Invalid Server URL: "${config.serverUrl || ""}". Server URL must be your Chat-Save backend service (e.g. http://localhost:8000 or your Render URL), NOT claude.ai.`);
+        }
+
         const url = `${config.serverUrl}/api/extension/ingest?user=${encodeURIComponent(config.userId)}`;
         const headers = {
           "Content-Type": "application/json"
@@ -172,7 +236,11 @@ async function processQueue() {
 
         if (!res.ok) {
           const errText = await res.text();
-          throw new Error(`HTTP ${res.status}: ${errText.slice(0, 200)}`);
+          let summary = `HTTP ${res.status}: ${errText.slice(0, 150)}`;
+          if (errText.includes("<title>Blocked</title>") || errText.includes("Cloudflare")) {
+            summary = `Blocked by Cloudflare/WAF at ${url} (HTTP ${res.status}). Verify Server URL in extension options.`;
+          }
+          throw new Error(summary);
         }
 
         const receipt = await res.json();
@@ -192,14 +260,18 @@ async function processQueue() {
         item.attempts += 1;
         item.lastError = err.message;
 
-        // Dead Letter Queue after MAX_RETRIES (10 attempts)
-        const MAX_RETRIES = 10;
+        // Fail fast on non-retryable authentication errors (HTTP 401 / HTTP 403 / Cloudflare blocks)
+        const isAuthError = err.message.includes("HTTP 401") || err.message.includes("HTTP 403") || err.message.includes("Blocked by Cloudflare") || err.message.includes("Invalid Server URL");
+        const MAX_RETRIES = isAuthError ? 2 : 5;
+
         if (item.attempts >= MAX_RETRIES) {
           const dlq = await getDeadLetterQueue();
           dlq.push({
             ...item,
             deadLetterAt: Date.now(),
-            failureReason: `Exceeded ${MAX_RETRIES} attempts: ${err.message}`
+            failureReason: isAuthError
+              ? `Delivery failed (${err.message.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
+              : `Exceeded ${MAX_RETRIES} attempts: ${err.message}`
           });
           await saveDeadLetterQueue(dlq);
           console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
@@ -210,7 +282,7 @@ async function processQueue() {
           });
         } else {
           // Exponential backoff with jitter
-          const backoffMs = Math.min(300000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000;
+          const backoffMs = isAuthError ? 4000 : (Math.min(120000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000);
           item.nextAttemptAt = Date.now() + backoffMs;
           remainingQueue.push(item);
         }
@@ -225,7 +297,13 @@ async function processQueue() {
     }
 
     await saveQueue(remainingQueue);
-    broadcastToTabs({ type: "QUEUE_UPDATED", pendingCount: remainingQueue.length });
+    const currentDlq = await getDeadLetterQueue();
+    broadcastToTabs({
+      type: "QUEUE_UPDATED",
+      pendingCount: remainingQueue.length,
+      queuedIds: remainingQueue.map(q => q.payload?.conversation_id).filter(Boolean),
+      dlqIds: currentDlq.map(d => d.payload?.conversation_id).filter(Boolean)
+    });
 
   } catch (globalErr) {
     console.error("[Chat-Save] Queue worker error:", globalErr);
@@ -294,9 +372,11 @@ function broadcastToTabs(message) {
   chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
     if (tabs && tabs.length) {
       tabs.forEach(tab => {
-        try {
-          chrome.tabs.sendMessage(tab.id, message).catch(() => {});
-        } catch (e) {}
+        chrome.tabs.sendMessage(tab.id, message, () => {
+          if (chrome.runtime.lastError) {
+            // Tab is navigating or content script not yet attached; safely ignored
+          }
+        });
       });
     }
   });
@@ -318,6 +398,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
   if (req.type === "GET_STATUS") {
     (async () => {
+      await purgeExpiredToDLQ();
       const config = await getConfig();
       const queue = await getQueue();
       const clientId = await getClientId();
@@ -352,6 +433,13 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   if (req.type === "CLEAR_QUEUE") {
     (async () => {
       await saveQueue([]);
+      const currentDlq = await getDeadLetterQueue();
+      broadcastToTabs({
+        type: "QUEUE_UPDATED",
+        pendingCount: 0,
+        queuedIds: [],
+        dlqIds: currentDlq.map(d => d.payload?.conversation_id).filter(Boolean)
+      });
       sendResponse({ success: true, pendingCount: 0 });
     })();
     return true;
@@ -373,6 +461,12 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
       });
       await saveQueue(queue);
       await saveDeadLetterQueue([]);
+      broadcastToTabs({
+        type: "QUEUE_UPDATED",
+        pendingCount: queue.length,
+        queuedIds: queue.map(q => q.payload?.conversation_id).filter(Boolean),
+        dlqIds: []
+      });
       processQueue();
       sendResponse({ success: true, reQueued: dlq.length, pendingCount: queue.length });
     })();
@@ -382,7 +476,27 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   if (req.type === "CLEAR_DEAD_LETTER") {
     (async () => {
       await saveDeadLetterQueue([]);
+      const queue = await getQueue();
+      broadcastToTabs({
+        type: "QUEUE_UPDATED",
+        pendingCount: queue.length,
+        queuedIds: queue.map(q => q.payload?.conversation_id).filter(Boolean),
+        dlqIds: []
+      });
       sendResponse({ success: true, deadLetterCount: 0 });
+    })();
+    return true;
+  }
+
+  if (req.type === "GET_QUEUE_STATE") {
+    (async () => {
+      await purgeExpiredToDLQ();
+      const queue = await getQueue();
+      const dlq = await getDeadLetterQueue();
+      sendResponse({
+        queuedIds: queue.map(q => q.payload?.conversation_id).filter(Boolean),
+        dlqIds: dlq.map(d => d.payload?.conversation_id).filter(Boolean)
+      });
     })();
     return true;
   }
@@ -468,4 +582,40 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (req.type === "TRIGGER_RECONCILE") {
+    chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
+      if (tabs && tabs.length > 0) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays: req.maxDays || 7 }, (res) => {
+          if (chrome.runtime.lastError) {
+            sendResponse({
+              success: false,
+              error: "Please refresh your open Claude.ai tab to reconnect the extension."
+            });
+            return;
+          }
+          sendResponse(res || { success: true, enqueued: 0, message: "Reconciliation initiated" });
+        });
+      } else {
+        sendResponse({ success: false, error: "No active claude.ai tab open" });
+      }
+    });
+    return true;
+  }
 });
+
+/**
+ * Sends a message to the active claude.ai tab to reconcile recent conversations from the past N days.
+ */
+function triggerReconcileInTabs(maxDays = 7) {
+  chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
+    if (tabs && tabs.length > 0) {
+      chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays }, () => {
+        if (chrome.runtime.lastError) {
+          // Tab not refreshed or script not ready; safely consumed
+        }
+      });
+    }
+  });
+}
+

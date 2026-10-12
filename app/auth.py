@@ -45,7 +45,7 @@ class TokenAuth:
             return await self.app(scope, receive, send)
 
         path = scope["path"]
-        if path == "/health" or path.startswith("/.well-known/"):
+        if path == "/health" or path.startswith("/.well-known/") or scope.get("method") == "OPTIONS":
             return await self.app(scope, receive, send)
 
         headers = dict(scope.get("headers", []))

@@ -152,3 +152,45 @@
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Claude Sidebar Queue Indicator Dot */
+.chatsave-sidebar-dot {
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  min-height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: auto !important;
+  margin-right: 8px !important;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.chatsave-sidebar-dot.chatsave-dot-queued {
+  background: #3b82f6 !important; /* Solid blue dot in queue */
+  box-shadow: 0 0 7px rgba(59, 130, 246, 0.85);
+  animation: chatsave-pulse 1.8s infinite ease-in-out;
+}
+
+.chatsave-sidebar-dot.chatsave-dot-dlq {
+  background: #ef4444 !important; /* Red dot for failure / DLQ */
+  box-shadow: 0 0 7px rgba(239, 68, 68, 0.85);
+}
+
+.chatsave-sidebar-dot.chatsave-dot-synced {
+  background: #10b981 !important;
+  transform: scale(0.3);
+  opacity: 0;
+  transition: all 0.5s ease-out;
+}
+
+a:has(> .chatsave-sidebar-dot) {
+  display: flex !important;
+  align-items: center !important;
+}
+
+

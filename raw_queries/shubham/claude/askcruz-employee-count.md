@@ -3,8 +3,8 @@ conversation_id: 280cb7be-de6b-438b-b6d4-af494e6929a4
 platform: claude
 username: "shubham"
 title: "Askcruz employee count and functionality - Claude"
-created_at: "2026-10-12T18:07:08.567362Z"
-updated_at: "2026-10-12 15:26:20 EDT"
+created_at: "2026-10-12 14:07:08 EDT"
+updated_at: "2026-10-12 16:00:41 EDT"
 ---
 
 # Askcruz employee count and functionality - Claude
@@ -132,7 +132,7 @@ Sources: msg 262337 (FW: Mac Metal Sales -Invoice # 62279773, 2026-09-24 14:56 E
 
 What did we agree to with our top supplier and has it been followed through?
 
-## Claude (2026-10-12 15:26:20 EDT)
+## Claude (2026-10-12 16:00:41 EDT)
 
 Short answer: The main obligation, the tariff reimbursement from Prosperity Tieh (PT), has been largely followed through. PT has remitted $750,000 in cash and applied about $1.37M in PO deductions. But the remaining balance doesn’t reconcile, the July cash wire isn’t evidenced, and I couldn’t check the ERP.
 
@@ -162,11 +162,11 @@ Not checked: The ERP. Current balances and receivables are ERP-owned, so the liv
 
 Sources: outlook_message 203363 (Jan 6 proposal) · outlook_message 203329 (agreed initial wire) · outlook_message 203360 · outlook_message 203675 · outlook_message 224569 (Sep 14 forward of PT’s Sep 11 statement) · outlook_message 291074 and 290277 (Oct 2 “Future Discount” thread) · outlook_message 48921 (Aug 3 remittance) · outlook_attachment 46218 (balance) · wiki pages 320 (Prosperity Tieh Tariff Reimbursement) and 260 (Prosperity Tieh Enterprise).
 
-## User (2026-10-12 15:26:20 EDT)
+## User (2026-10-12 16:00:41 EDT)
 
 What did Stefan send Travis yesterday?
 
-## Claude (2026-10-12 15:26:20 EDT)
+## Claude (2026-10-12 16:00:41 EDT)
 
 Stefan sent Travis nothing yesterday (October 11). The only message Stefan sent that day was “Fwd: 2B Holdings” to Jameson Brown at Tann Electric. Travis isn’t on it.
 
@@ -174,11 +174,11 @@ If you meant today (October 12, Eastern), Travis was copied on three of Stefan�
 
 Sources: msg 301428 (Fwd: 2B Holdings, to Jameson Brown, Oct 11) · msg 301493, 301502, 301510 (Re: Steel City, Travis on CC, Oct 12)
 
-## User (2026-10-12 15:26:20 EDT)
+## User (2026-10-12 16:00:41 EDT)
 
 What are the most common fact keys across the wiki?
 
-## Claude (2026-10-12 15:26:20 EDT)
+## Claude (2026-10-12 16:00:41 EDT)
 
 Claude responded: The vault has no tool that counts fact keys across all pages, so I can't give a true wiki-wide ranking.
 Exploring sampled pages for aggregate fact-key data.
@@ -193,25 +193,31 @@ On these two pages, as_of is the most common key. Its frequency reflects how oft
 
 Sources: wiki page 320 (fact_keys) · wiki page 191 (fact_keys)
 
-## User (2026-10-12 15:26:20 EDT)
+## User (2026-10-12 16:00:41 EDT)
 
 Who is Virat Kohli?
 
-## Claude (2026-10-12 15:26:20 EDT)
+## Claude (2026-10-12 16:00:41 EDT)
 
 Claude responded: I'm the 3GM data agent, so I can't answer questions about people outside 3GM's business.
 
 I’m the 3GM data agent, so I can’t answer questions about people outside 3GM’s business. I can help with 3GM’s orders, inventory, customers, suppliers, and correspondence.
 
-## User (2026-10-12 15:26:20 EDT)
+## User (2026-10-12 16:00:41 EDT)
 
 Who is sourav Ganguly?
 
-## User (2026-10-12 15:26:20 EDT)
+## Claude (2026-10-12 16:00:41 EDT)
+
+Claude responded: I'm the 3GM data agent, so I can't answer questions about people outside 3GM's business.
+
+I’m the 3GM data agent, so I can’t answer questions about people outside 3GM’s business. I can help with 3GM’s orders, inventory, customers, suppliers, and correspondence.
+
+## User (2026-10-12 16:00:41 EDT)
 
 What more do you know about 3gm?
 
-## Claude (2026-10-12 15:26:20 EDT)
+## Claude (2026-10-12 16:00:41 EDT)
 
 I can’t look anything else up right now. The 3GM vault connection has dropped, and I never reached the ERP. Here’s what I’d already retrieved this session:
 

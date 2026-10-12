@@ -4,54 +4,47 @@ platform: claude
 username: "shubham"
 title: "Sabre alloys and Brannon steel"
 created_at: "2026-10-10T17:40:50.789Z"
-updated_at: "2026-10-12 10:33:25 EDT"
+updated_at: "2026-10-12 12:15:25 EDT"
 ---
 
 # Sabre alloys and Brannon steel
 
-## User (2026-10-12 10:33:25 EDT)
+## User (2026-10-12 12:15:25 EDT)
 
 can u give me detail about the sabre alloys\
 
-## Claude (2026-10-12 10:33:25 EDT)
+## Claude (2026-10-12 12:15:25 EDT)
 
-```
-This block is not supported on your current device yet.
-```
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
 
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
 ```
 
 **Sabre Alloys is not a 3GM customer in the data I could reach.** It is an EOXS Team client that runs on EOXS's Odoo system, and the connected vault is EOXS's AskCruz wiki, not the 3GM Vault. The 3GM Vault tools (whoami, find_facts, search_raw) weren't available in this session, so I used AskCruz. If you meant a 3GM relationship, tell me and I'll look again.
@@ -81,29 +74,26 @@ This block is not supported on your current device yet.
 
 Sources: AskCruz client profile "sabre-alloys" (id 1) · wiki pages 77 (Sabre Alloys), 774 (Invoice History), 2302 (Negative Unit Cost, Process 7839), 2053 (AskCruz Proposal) · email thread 70119, 70584 · call 2521 (6 Oct 2026) · ERP res_partner 353530, sale_order (partner 353530, state sale/done)
 
-## User (2026-10-12 10:33:25 EDT)
+## User (2026-10-12 12:15:25 EDT)
 
 can u give me details about brannon steel
 
-## Claude (2026-10-12 10:33:25 EDT)
+## Claude (2026-10-12 12:15:25 EDT)
 
-```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
+```
+
+```
+
+```
+
 ```
 
 **Brannon Steel is not a 3GM customer in the data I could reach.** Like Sabre Alloys, it is an EOXS client. The connected vault is EOXS's AskCruz wiki, not the 3GM Vault, and the 3GM Vault tools weren't available in this session.

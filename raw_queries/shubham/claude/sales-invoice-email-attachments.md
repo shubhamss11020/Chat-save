@@ -3,41 +3,17 @@ conversation_id: 12390233-f91a-4e4c-afdc-86964739bdc8
 platform: claude
 username: "shubham"
 title: "Sales invoice email attachments"
-created_at: "2026-10-12T15:34:59.694107Z"
-updated_at: "2026-10-12 13:29:30 EDT"
+created_at: "2026-10-12 11:34:59 EDT"
+updated_at: "2026-10-12 16:19:07 EDT"
 ---
 
 # Sales invoice email attachments
 
-## User (2026-10-12 13:29:30 EDT)
+## User (2026-10-12 16:19:07 EDT)
 
 Find emails with attachments related to sales invoices, including emails where the attachment filename differs from the email subject
 
-## Claude (2026-10-12 13:29:30 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:07 EDT)
 
 The clearest mismatch is the Mac Metal sales invoices. Jessica Worley and Stefan Brown forward them under subjects like "FW: Mac Metal Sales -Invoice # 62279773", but the PDFs are named only by invoice number, e.g. `62279773.pdf` (att 46001, msg 262337, 2026-09-24). Those PDFs don't contain the word "invoice," so a filename search misses them. I checked one of these emails directly; I haven't opened the other Mac Metal invoice emails, so I can't confirm their filenames.
 

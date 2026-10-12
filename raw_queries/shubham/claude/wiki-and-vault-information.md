@@ -1,19 +1,19 @@
 ---
-conversation_id: 5fa51939-ede0-47d0-b539-28a14c493ea6
+conversation_id: afd47173-e8e8-4b7b-b95f-ce67cba11c4a
 platform: claude
 username: "shubham"
-title: "Email and attachment analysis"
+title: "Travis's most frequent CC"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:13:41 EDT"
+updated_at: "2026-10-12 12:13:44 EDT"
 ---
 
-# Email and attachment analysis
+# Travis's most frequent CC
 
-## User (2026-10-12 12:13:41 EDT)
+## User (2026-10-12 12:13:44 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:13:41 EDT)
+## Claude (2026-10-12 12:13:44 EDT)
 
 ```
 
@@ -81,11 +81,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 12:13:41 EDT)
+## User (2026-10-12 12:13:44 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 12:13:41 EDT)
+## Claude (2026-10-12 12:13:44 EDT)
 
 ```
 

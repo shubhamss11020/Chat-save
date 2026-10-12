@@ -2,18 +2,18 @@
 conversation_id: 61dd3291-d49d-4e41-9e2f-c811992a20db
 platform: claude
 username: "shubham"
-title: "Wiki fact keys and messages - Claude"
-created_at: "2026-10-12T15:14:33.403824Z"
-updated_at: "2026-10-12 14:18:13 EDT"
+title: "Wiki fact keys and messages"
+created_at: "2026-10-12 11:14:33 EDT"
+updated_at: "2026-10-12 16:19:25 EDT"
 ---
 
-# Wiki fact keys and messages - Claude
+# Wiki fact keys and messages
 
-## User (2026-10-12 14:18:13 EDT)
+## User (2026-10-12 16:19:25 EDT)
 
 What did Stefan send Travis yesterday?
 
-## Claude (2026-10-12 14:18:13 EDT)
+## Claude (2026-10-12 16:19:25 EDT)
 
 Stefan sent Travis nothing yesterday (Sunday, Oct 11 Eastern). Travis's mailbox has no mail from Stefan for that day.
 
@@ -23,11 +23,11 @@ If you meant something else, such as messages Stefan sent to Travis on a differe
 
 Sources: msg 301428 (get_email, Stefan's Sent Items; delivered only to Stefan's mailbox)
 
-## User (2026-10-12 14:18:13 EDT)
+## User (2026-10-12 16:19:25 EDT)
 
 What are the most common fact keys across the wiki?
 
-## Claude (2026-10-12 14:18:13 EDT)
+## Claude (2026-10-12 16:19:25 EDT)
 
 I can't give you a reliable ranking. The wiki has about 11,728 indexed facts, and the only tool I have for scanning facts returns at most 200 rows per call, with no aggregation. So I can only count within a sample.
 
@@ -45,11 +45,11 @@ For an exact count, I can query each candidate key on its own (for example `fact
 
 Sources: page 187, 188, 382, 485, 595 (find_facts, 200-row sample; the count reflects that sample only)
 
-## User (2026-10-12 14:18:13 EDT)
+## User (2026-10-12 16:19:25 EDT)
 
 What’s the current status of the largest open purchase order, according to the vault and the ERP?
 
-## Claude (2026-10-12 14:18:13 EDT)
+## Claude (2026-10-12 16:19:25 EDT)
 
 I can't answer this yet. The ERP is not available in this session, and the vault doesn't give me a way to identify the largest open purchase order.
 
@@ -60,11 +60,11 @@ To finish this, either enable the 3GM ERP connector in this chat so I can rank o
 
 Sources: vault search_wiki (page 615, 616, 628), find_facts (no matching facts), search_raw (65 messages across 33 conversations, none a PO status report)
 
-## User (2026-10-12 14:18:13 EDT)
+## User (2026-10-12 16:19:25 EDT)
 
 Which supplier has the longest average lead time, and is it confirmed in both systems?
 
-## Claude (2026-10-12 14:18:13 EDT)
+## Claude (2026-10-12 16:19:25 EDT)
 
 Based on the vault, Wheeling-Nippon Steel has the longest quoted lead time, at 12 weeks. I can't confirm it in the ERP, and I can't give a true average.
 

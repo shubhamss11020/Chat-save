@@ -1,19 +1,19 @@
 ---
-conversation_id: 86ef6ced-aaaa-4542-831a-93037223fe65
+conversation_id: 739c8b5d-2ec2-4646-be19-457c0b965c4d
 platform: claude
 username: "shubham"
-title: "3GM Vault MCP search testing"
+title: "3GM Vault MCP testing"
 created_at: "2026-10-09T21:14:35.054198Z"
-updated_at: "2026-10-12 10:33:53 EDT"
+updated_at: "2026-10-12 10:34:32 EDT"
 ---
 
-# 3GM Vault MCP search testing
+# 3GM Vault MCP testing
 
-## User (2026-10-12 10:33:53 EDT)
+## User (2026-10-12 10:34:32 EDT)
 
 Test the search and retrieval capabilities of the 3GM Vault MCP using different search terms, partial names, exact matches, similar terms, and available filters. Check for relevant records that are missed, irrelevant records that are returned, inconsistent results for equivalent queries, and failures to retrieve information that is demonstrably available. Document reproducible examples and explain the likely cause of each issue.
 
-## Claude (2026-10-12 10:33:53 EDT)
+## Claude (2026-10-12 10:34:32 EDT)
 
 I'll start by loading the navigator skill and the vault tool schemas.
 ```

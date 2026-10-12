@@ -4,121 +4,105 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP audit"
 created_at: "2026-10-09T21:14:50.489874Z"
-updated_at: "2026-10-12 10:34:44 EDT"
+updated_at: "2026-10-12 12:32:16 EDT"
 ---
 
 # 3GM Vault MCP audit
 
-## User (2026-10-12 10:34:44 EDT)
+## User (2026-10-12 12:32:16 EDT)
 
 Audit the 3GM Vault MCP for data-integrity problems. Examine record identifiers, references, parent-child relationships, metadata, timestamps, and links between related records wherever these are exposed. Identify orphaned records, invalid references, duplicate identifiers, mismatched relationships, and values that violate apparent data rules. Provide evidence and suggest the safest correction for each confirmed issue.
 
-## Claude (2026-10-12 10:34:44 EDT)
+## Claude (2026-10-12 12:32:16 EDT)
 
 I'll start by reading the 3GM navigator skill, as your preferences require for any 3GM question.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 The skill is loaded. Next I'll pull the vault's scale and its page inventory so I know what I'm auditing.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 The corpus is large (659 pages, 31,509 facts), so I'll focus on the places integrity problems usually show up: near-duplicate page titles, cross-page references, and citation integrity. I'll start with the near-duplicate pairs in the inventory, reading only the metadata and first facts to keep output small.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
 
 The first pass turned up real issues in the Bluestone, Discount Metal Roofing, and C O Building Systems clusters. Next I'll check whether the citation IDs they rely on actually resolve, and look at a few other suspicious pages.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
 
 The Dongkuk pages are too large to read in full, and the vault's own flags already document the main Dongkuk problem. Before I write up, I want to confirm one specific citation conflict on the Dongkuk International page: the AR balance figure cites two different attachments, one of which is unresolved.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 Short answer: the vault has real integrity problems, and they cluster in three places. Dongkuk and two other customers each have duplicate live pages that were never merged. Several citations are stored with a null source ID even though the record exists. One attachment is stored under two IDs. I read 11 of 659 live wiki pages and 6 source records, so this is a sampled audit, not a full one.
 

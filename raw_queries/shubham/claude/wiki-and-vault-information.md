@@ -3,8 +3,8 @@ conversation_id: 4b5b19b7-3bae-40cb-8944-888748517f46
 platform: claude
 username: "shubham"
 title: "Mac Metal sales invoice"
-created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 13:31:00 EDT"
+created_at: "2026-10-12 10:28:04 EDT"
+updated_at: "2026-10-12 16:20:39 EDT"
 ---
 
 # Mac Metal sales invoice
@@ -14,18 +14,6 @@ updated_at: "2026-10-12 13:31:00 EDT"
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
 ## Claude (2026-10-12 13:31:00 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't check these against live data. The questions below are built from the 3gm-navigator skill's documented coverage. Replace the bracketed placeholders with real names, subjects and dates before you run them.
 
@@ -86,34 +74,6 @@ To run this against the live vault, start a session where the 3GM Vault and ERP 
 No i am asking on what criteria it is generating the weekly report of each employee
 
 ## Claude (2026-10-12 12:14:40 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 Four of Stefan's recent analysis pages have open questions. I picked them because they carry his drafts and have the latest activity. There are about 20 other pages with his drafts that I haven't read, so tell me if you want those too.
 
@@ -228,26 +188,6 @@ Which supplier has the longest average lead time, and is it confirmed in both sy
 
 ## Claude (2026-10-12 12:14:40 EDT)
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
 I took "top three" to mean the three customer pages with the most facts on file, since the tools don't rank pages otherwise. I read the first 60 facts of each page, so these lists are partial. Each page also carries "possible duplicate" flags that mean its records may be merged with other drafts later.
 
 **1. Red Dot Products (380 facts)**
@@ -284,22 +224,6 @@ Sources: wiki page 516 (Red Dot Products, facts 0–60 of 380) · wiki page 180 
 how are we currently validating the total number of ingestion of emails are precise  in the first ingestion stage of pipeline, is that keywords or semantic search or overall meaning or what?
 
 ## Claude (2026-10-12 12:13:56 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 I couldn't produce a complete list. The cutoff is before 2026-07-14, and the vault has many pages with dates in that range. I checked only 2025 through March 2026, and the 2025, January and March searches each hit the 200-row limit. April through mid-July 2026 is still unchecked.
 
@@ -345,42 +269,6 @@ What open issues appear on analysis pages about freight?
 
 ## Claude (2026-10-12 12:13:16 EDT)
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
 Six freight analysis pages show open items. All of them trace back to unpaid carriers after the freight broker GT Worldwide Logistics failed to pay them. The status on each is only as current as the newest source the page cites, and none of the pages records a settlement or a filed suit.
 
 - **Baxter Bailey Freight Charges Claim (page 490):** Open as of March 25, 2026. The demand rose from $10,500 to $13,200 across five carriers, and counsel said they had asked for a suit to be prepared. An April 15 letter exists but I didn't read it. The page is flagged as a possible duplicate of three other staging pages.
@@ -400,34 +288,6 @@ How many open quotes are in the vault, and how many of those are in the ERP?
 
 ## Claude (2026-10-12 12:13:16 EDT)
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
 Yes, but only a few, and none of them is a clear-cut price contradiction between two live pages. I checked the flags on the six pricing-related pages that came up in the search, not every page in the vault, so there may be others.
 
 - **Gingco Supply (page 218), a flagged contradiction:** Adam Buck's August 4 message says PRM 29 was "approved per Travis @ $2.25." The executed August tracker shows PRM 29 painted coil at $2.24/ft on five sales orders and $2.26/ft on the sixth. The page doesn't pick one figure.
@@ -442,18 +302,6 @@ Sources: wiki pages 218, 101, 54, 2 (get_wiki_page flags); messages 48027, 48173
 Which customer pages say the account is on hold?
 
 ## Claude (2026-10-12 12:13:16 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 I can't confirm which accounts are on hold right now. Credit holds are live values that sit in the ERP, and no ERP tool is available in this session, so I can only report what the wiki recorded and when.
 
@@ -474,10 +322,6 @@ Sources: wiki pages 348, 218, 432 (search_wiki excerpts; the ERP was not queried
 Did the price quoted to a customer in the vault match what was invoiced?
 
 ## Claude (2026-10-12 12:13:16 EDT)
-
-```
-
-```
 
 I found one customer where the vault shows a quoted price and an invoiced amount that don't agree, and it's Gingco Supply (Ging Co Supply, LLC). I didn't check other customers, so this isn't a full audit.
 
@@ -509,3 +353,29 @@ By wiki footprint, the largest supplier is **Prosperity Tieh Enterprise** (page 
 Which do you mean? Once you name the supplier, I can pull the agreement from the wiki and mail. To check whether it was followed through, I'd need the purchase orders and receipts from the ERP, so I'd have to say which parts I could verify and which I couldn't.
 
 Sources: vault list_wiki_pages (supplier), fact_count per page (pages 260, 112, 199).
+
+## User (2026-10-12 16:20:39 EDT)
+
+what's the latest on the mac metal sales invoice thread?
+
+## Claude (2026-10-12 16:20:39 EDT)
+
+The latest message is Stefan Brown's reply on September 24: "Yea feels like they are leaving them there on purpose." It came after Jessica Worley forwarded Mid-Ship Logistics' invoice #62279773 for $15,600.00 in barge demurrage.
+
+**The invoice:** It's dated September 24, 2026, billed to Mac Metal Sales (Somerset, KY), and covers the MV Royal Orion / July '26 project. Five barges were charged 6 to 11 days of demurrage at $400/day:
+
+- IN-075244: 7 days, $2,800
+- IN-165496: 8 days, $3,200
+- IN-176009: 6 days, $2,400
+- SCF-26121B: 7 days, $2,800
+- T-13938: 11 days, $4,400
+
+Those lines add to the $15,600.00 total. Two barges were not charged.
+
+**Something to check before paying:** Mid-Ship's cover email gives a new remittance address, SCSAR@watco.com. The invoice itself lists AR@midshiplogistics.com as the remittance email. Confirm the change with Mid-Ship by phone before paying anything to the new address.
+
+**The thread:** This is the newest of 30 threads with "Mac Metal Sales" invoice subjects, running from June to September. The earlier ones follow the same pattern: Jessica forwards a Mid-Ship invoice and the team discusses it. I haven't read the older threads in full.
+
+**ERP:** The ERP tools weren't available in this session, so I couldn't check whether the invoice is recorded there. The 3GM navigator notes say Mid-Ship bills aren't entered in the ERP, so this one probably won't be there.
+
+Sources: msg 262337 (Jessica Worley forward, Sep 24) · msg 262385 (Stefan Brown reply, Sep 24) · att 46001 (62279773.pdf)

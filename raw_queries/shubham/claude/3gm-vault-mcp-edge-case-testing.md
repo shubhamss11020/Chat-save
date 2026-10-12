@@ -1,19 +1,19 @@
 ---
-conversation_id: 7e64ca64-2c83-49d3-8821-62700a76e66c
+conversation_id: 1e7c88e7-ab73-478d-8cc9-567fc7b21513
 platform: claude
 username: "shubham"
-title: "Wiki pages analysis"
+title: "Wiki and vault information"
 created_at: "2026-10-12T14:59:16.302308Z"
-updated_at: "2026-10-12 12:13:35 EDT"
+updated_at: "2026-10-12 12:13:38 EDT"
 ---
 
-# Wiki pages analysis
+# Wiki and vault information
 
-## User (2026-10-12 12:13:35 EDT)
+## User (2026-10-12 12:13:38 EDT)
 
 Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## Claude (2026-10-12 12:13:35 EDT)
+## Claude (2026-10-12 12:13:38 EDT)
 
 I'll start by loading the 3gm-navigator skill, as your preferences require for any 3GM question.
 ```
@@ -191,11 +191,11 @@ I ran about 33 read-only calls across 16 vault tools. Nothing was written, sent,
 
 Sources: vault stats (get_vault_stats); msg 65122 (get_source); msg 301481 and att 49620 (search_raw); att 49620 text (get_attachment_text).
 
-## User (2026-10-12 12:13:35 EDT)
+## User (2026-10-12 12:13:38 EDT)
 
 What’s the average number of messages per thread this year?
 
-## Claude (2026-10-12 12:13:35 EDT)
+## Claude (2026-10-12 12:13:38 EDT)
 
 ```
 
@@ -247,13 +247,11 @@ If you need exact page counts, I can search each name in the wiki's fact index, 
 
 Sources: wiki `list_wiki_pages` (entity_class=person, 10 pages: 47, 654, 398, 306, 629, 504, 92, 137, 138, 468); wiki `search_wiki` for "Corey McGlothlin", "Stefan Brown", "Travis Lane", "Matt Inman", "Leslie Countryman" and "Matt Wilson" (each capped at 50 hits; raw-message counts as reported in each result).
 
-## User (2026-10-12 12:13:35 EDT)
+## User (2026-10-12 12:13:38 EDT)
 
-Who has Travis emailed but never received a reply from?
+What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 12:13:35 EDT)
-
-```
+## Claude (2026-10-12 12:13:38 EDT)
 
 ```
 
@@ -263,117 +261,23 @@ Who has Travis emailed but never received a reply from?
 
 ```
 
-```
+In the vault, an **entity page** describes a standing thing: a company, person or place. An **analysis page** describes a bounded deal or matter, such as a single order, claim, negotiation or acquisition.
 
-```
+Examples from the wiki:
+- **Entity:** "POSCO International America" (page 256) and "3GM Steel, Inc." (page 191, classed as a group-entity). Each records a counterparty or company across all its dealings.
+- **Analysis:** "ASTA October 2026 PT Order" (page 20), which covers one mill order, and "Mac Metal Sales — unnamed manufacturing acquisition" (page 536), which covers one acquisition.
 
-```
+Entity pages carry an `entity_class` such as customer, supplier, prospect, or group-entity. Analysis pages almost always have none, which is consistent with their being about a matter rather than a party. Both page types hold cited facts.
 
-```
+The vault doesn't have a page that defines the types. The overview pages I checked (3GM Group Structure, Active Matters, Obligations Register) don't cover this, and the only definition I found is in the 3gm-navigator skill: entity (company/person/place), analysis (a bounded deal or matter), source (a recurring report template, one page per template), and concept (a process or standing arrangement). The examples above come from the page listings, not from a rulebook. If you want the full rules, that would be the taxonomy document, which I couldn't locate in the vault.
 
-```
+Sources: wiki pages 191, 256 (search_wiki "page types entity analysis…"), 20, 536 (list_wiki_pages); overview pages 666, 667, 670 (list_wiki_pages page_type=overview); 3gm-navigator skill, "Page anatomy" section.
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-Among the 25 most-emailed external contacts I checked, four never sent Travis a message: **Yongbeom Lee** (73 messages from Travis), **Jason Sung** (jssung@us.poscointl.com, 40 received), **Lucas Rollison** (25 received), and **정인식 (Jung, In-Shik)** (52 received).
-
-This is a partial answer. Travis has emailed 130 external people in total, and I only checked the top 25 by volume. Lucas Rollison's record shows no messages from him, and the others show none either. The check covered the whole archive from 2025-09-01.
-
-Sang Hyun Yim (yim.sh@poscointl.com) has 13 messages sent in the archive, but none reached Travis's mailbox, so he may have replied to Stefan. I left him out because I couldn't confirm that he never replied.
-
-Sources: top_correspondents (Travis, sent, external, 130 people); per-person list_emails checks in mailbox `3gm_travis_outlook` (msgs 45729, 67490, 47687, 61103 and others as cited in each lookup)
-
-## User (2026-10-12 12:13:32 EDT)
+## User (2026-10-12 12:13:38 EDT)
 
 Which PDFs attached to emails were sent by a single sender more than five times?
 
-## Claude (2026-10-12 12:13:32 EDT)
+## Claude (2026-10-12 12:13:38 EDT)
 
 ```
 

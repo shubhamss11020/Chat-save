@@ -4,20 +4,20 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP QA investigation - Claude"
 created_at: "2026-10-12T15:17:28.493029Z"
-updated_at: "2026-10-12 14:13:42 EDT"
+updated_at: "2026-10-12 14:17:22 EDT"
 ---
 
 # 3GM Vault MCP QA investigation - Claude
 
-## User (2026-10-12 14:13:42 EDT)
+## User (2026-10-12 14:17:22 EDT)
 
 Act as an independent QA engineer investigating the 3GM Vault MCP. Explore its available capabilities and identify subtle or unexpected failure modes that ordinary testing might miss. Investigate boundary conditions, inconsistent search behavior, incorrect record associations, missing results, malformed outputs, unexpected defaults, and inconsistencies between documented and observed behavior. For every potential bug, provide a reproducible test case, actual result, expected result when verifiable, severity, and recommended next step. Do not invent bugs or claim to have tested functionality that you cannot access.
 
-## User (2026-10-12 14:13:42 EDT)
+## User (2026-10-12 14:17:22 EDT)
 
 Act as an independent QA engineer investigating the 3GM Vault MCP. Explore its available capabilities and identify subtle or unexpected failure modes that ordinary testing might miss. Investigate boundary conditions, inconsistent search behavior, incorrect record associations, missing results, malformed outputs, unexpected defaults, and inconsistencies between documented and observed behavior. For every potential bug, provide a reproducible test case, actual result, expected result when verifiable, severity, and recommended next step. Do not invent bugs or claim to have tested functionality that you cannot access.
 
-## Claude (2026-10-12 14:13:42 EDT)
+## Claude (2026-10-12 14:17:22 EDT)
 
 I'll start by reading the 3GM navigator skill, as your preferences require for anything touching the 3GM connectors, then load the Vault tool schemas.
 ```
@@ -315,7 +315,7 @@ The large page dump confirmed several things: duplicated `links_in` entries, a s
 
 Sources: page 1 (Georgia Metals, body, flags, links), page 217 (Georgia Metal Center, fact credit_limit_usd, msg 224288), page 188 (.0160 Program, msgs 63574, 64093), page 337 (Ace Metal Sales, msgs 69023, 62300), page 595 (2026 Mid-Year Sales Review, msg 46323), msg 301479 and thread 301477–301481, att 49596 (msg 301401), list_wiki_pages and search_wiki (enum errors), find_people("Cory")
 
-## Claude (2026-10-12 14:13:42 EDT)
+## Claude (2026-10-12 14:17:22 EDT)
 
 I'll start by reading the 3GM navigator skill, as your preferences require for anything touching the 3GM connectors, then load the Vault tool schemas.
 ```
@@ -613,15 +613,15 @@ The large page dump confirmed several things: duplicated `links_in` entries, a s
 
 Sources: page 1 (Georgia Metals, body, flags, links), page 217 (Georgia Metal Center, fact credit_limit_usd, msg 224288), page 188 (.0160 Program, msgs 63574, 64093), page 337 (Ace Metal Sales, msgs 69023, 62300), page 595 (2026 Mid-Year Sales Review, msg 46323), msg 301479 and thread 301477–301481, att 49596 (msg 301401), list_wiki_pages and search_wiki (enum errors), find_people("Cory")
 
-## User (2026-10-12 14:13:42 EDT)
+## User (2026-10-12 14:17:22 EDT)
 
 Which customer complaints appear in the mail but have no entry on the customer’s wiki page?
 
-## User (2026-10-12 14:13:42 EDT)
+## User (2026-10-12 14:17:22 EDT)
 
 Which customer complaints appear in the mail but have no entry on the customer’s wiki page?
 
-## Claude (2026-10-12 14:13:42 EDT)
+## Claude (2026-10-12 14:17:22 EDT)
 
 I'll start by searching the mail and the wiki for complaint language, then compare the two.
 ```
@@ -759,7 +759,7 @@ The Pine View thread sits under two wiki pages, Vertex Building Supply and Pine 
 
 Sources: page 217 (msg 49409, 49388); page 155 (msg 47972); page 141 (att 13626, msg 64769); page 466 (msg 64606, 65764); page 648 (msgs 48809, 48829, att 11931); page 62; page 499; page 111; pages 109, 110; page 606 (msg 45639); page 164 (msgs 276978, 277020); page 181 (msgs 277095, 282378, 301465); page 535; page 357 (msg 48716); msg 46952, 46955; msg 50271
 
-## Claude (2026-10-12 14:13:42 EDT)
+## Claude (2026-10-12 14:17:22 EDT)
 
 I'll start by searching the mail and the wiki for complaint language, then compare the two.
 ```

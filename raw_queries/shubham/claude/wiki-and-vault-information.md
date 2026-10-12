@@ -1,19 +1,19 @@
 ---
-conversation_id: 9e029737-6568-4d0d-bb41-ef3996747712
+conversation_id: 020d9e69-0ebf-4c06-acbd-d0f575d7f722
 platform: claude
 username: "shubham"
-title: "Supplier and email data queries"
+title: "Vault messages and Stefan's analysis"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:28:54 EDT"
+updated_at: "2026-10-12 10:28:57 EDT"
 ---
 
-# Supplier and email data queries
+# Vault messages and Stefan's analysis
 
-## User (2026-10-12 10:28:54 EDT)
+## User (2026-10-12 10:28:57 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 10:28:54 EDT)
+## Claude (2026-10-12 10:28:57 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -83,11 +83,16 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 10:28:54 EDT)
+## User (2026-10-12 10:28:57 EDT)
 
-Did anyone outside 3GM email either mailbox more than 50 times?
+What are the open questions on the Stefan’s recent analysis pages?
 
-## Claude (2026-10-12 10:28:54 EDT)
+## Claude (2026-10-12 10:28:57 EDT)
+
+```
+This block is not supported on your current device yet.
+```
+
 
 ```
 This block is not supported on your current device yet.
@@ -98,39 +103,57 @@ This block is not supported on your current device yet.
 This block is not supported on your current device yet.
 ```
 
-The vault is now connected. Correction to my last reply: I said the connectors couldn't be loaded, but I was searching under the wrong names. They're available now, and the stats are below.
 
-Current vault: 675 wiki pages (410 entity, 163 analysis, 55 source, 44 concept, 3 overview), 32,584 facts, 25,224 messages and 14,235 attachments across the Stefan and Travis mailboxes.
+```
+This block is not supported on your current device yet.
+```
 
-**General vault questions**
+```
+This block is not supported on your current device yet.
+```
 
-1. How many wiki pages do we have on customers, and how many on suppliers?
-2. What are the three most recent analysis pages in the wiki?
-3. What's the newest email in the vault, and who sent it?
-4. Which people email Travis the most, excluding newsletters?
-5. How many emails did Stefan send last month?
-6. What's the most-discussed subject line in the last 90 days?
-7. Which attachments are PDFs from the last 30 days?
-8. Are there any wiki pages flagged with a contradiction? What are they about?
-9. What does the vault say about our biggest customer by volume?
-10. Which suppliers have we dealt with more than ten times?
-11. What's the oldest message in the vault?
-12. Which pages have the most facts, and what subjects do they cover?
-13. How many attachments have no readable text?
-14. Who is the most frequent CC on Travis's mail?
-15. Which pages are marked as needing escalation?
-16. What's in the overview pages, and how do they differ from the entity pages?
-17. What was discussed in the thread that has the most replies?
-18. What are the open questions on the Stefan's recent analysis pages?
-19. Which concept pages describe processes, and what are they called?
-20. Did anyone outside 3GM email either mailbox more than 50 times?
-21. What dates are covered in the source pages, and how often are they updated?
-22. What's the largest attachment in the vault by size?
-23. Are there any facts about pricing that have a date more than six months old?
-24. Which people appear in the most wiki pages?
-25. What's the difference between an analysis page and an entity page, per the vault's own structure?
+```
+This block is not supported on your current device yet.
+```
 
-Sources: vault stats call (get_vault_stats), 2026-10-12.
+```
+This block is not supported on your current device yet.
+```
+
+
+
+
+Four of Stefan's recent analysis pages have open questions. I picked them because they carry his drafts and have the latest activity. There are about 20 other pages with his drafts that I haven't read, so tell me if you want those too.
+
+**Englert Open Claims: WN wrong-material dispute (page 535, as of 30 Sep 2026)**
+- **Claim 2050 weight:** the original summary says 14,351 lbs, but the credit calculation and memo say 14,531 lbs. Nothing reconciles them.
+- **Claim 2050 defect:** the summary calls it "Centerbuckel", while the later table says "Wavy edge".
+- **WN acceptance:** WN needs to inspect the material, which it doesn't expect until November. Travis wants an earlier date confirmed in writing. No outcome yet.
+- **Remaining credit:** Jessica proposed applying $23,939.87 to the one open invoice and asked where the rest should go. Englert has since asked for credit memos only, so the application is unconfirmed.
+- **Disputed steel:** the 59,707 lbs must stay untouched until inspection. Whether WN denies the claim, and so whether the steel is resold, is undecided.
+
+**3GM Consignment Pilot Program (page 8, as of 1 Sep 2026)**
+- **Decision:** still open. Validity lapsed on 31 Aug, and the outcome of the 31 Aug meeting isn't recorded.
+- **Pricing:** Dongkuk's proposal says pricing is firm, but its 28 Aug reply says "if we can also agree on the pricing". Two price tables also conflict ($94.35–$118.07 vs $93.44–$117.16).
+- **Contracting entity:** it's unclear whether 3GM Steel or Mac Metal would contract, take title, or carry the end-of-term obligation.
+- **PLQ supply:** Travis is unsure whether "no GL volume" applies only to the consignment deal.
+- **Trading RFQs:** Josh's view flipped within hours, and the counterparty's text reply hasn't been read.
+
+**On Time Metal / Prestige Steel import quote (page 101, as of 13 Aug 2026)**
+- **Sell price:** $97.64/CWT is the initial offer, but Matt's $95.15 figure is still on the page and unreconciled.
+- **Mill price:** $1,990 → $1,970 → $1,950/MT, with the $1,950 offer's validity unclear.
+- **Charleston adder:** three figures ($40, $60, $75) with no record of which went into the offer.
+- **Identity:** whether "On Time Metal" and "Prestige Steel" are one company is unresolved.
+- **Outcome:** whether the quote became an order isn't recorded. The ERP should show that.
+
+**Texas Star Steel Carports past-due collection (page 520, as of 3 Aug 2026)**
+- **Attorney question:** Maggie asked whether 3GM's attorney should send a demand letter. No reply from Stefan is held.
+- **Balance:** $35,276.78 and $4,387.93 as of 3 Aug. Any payments since then aren't recorded. The ERP AR ledger should show the current balance.
+- **Identity:** the 2026 mail says only "Texas Star", so the link to this customer rests on context.
+
+I can check the ERP for the current Texas Star balance, the Englert credit memo, and whether the On Time quote became an order.
+
+Sources: wiki pages 535, 8, 101, 520; outlook messages 277095, 280528, 282385, 46484, 46696, 46700, 48173, 49073; outlook attachments 11298, 46130
 
 ## User (2026-10-12 10:28:46 EDT)
 

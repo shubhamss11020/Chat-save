@@ -54,9 +54,14 @@
     if (!str) return "";
     let s = str.replace(/[\uE000-\uF8FF]/g, ""); // Strip icon font PUA glyphs (copy, retry, etc.)
     s = s.replace(/(?:\r?\n)?\s*(?:\d+\s*(?:second|minute|hour|day|week|month)s?\s*ago|just now)\s*$/i, "");
-    // Strip Anthropic unsupported device tool-block placeholders
+    // Strip Anthropic unsupported device tool-block placeholders (fenced and unfenced)
+    s = s.replace(/```[a-zA-Z0-9_-]*\s*This block is not supported on your current device yet\.?\s*```/gi, "");
     s = s.replace(/(?:^|\n)\s*This block is not supported on your current device yet\.?\s*(?=\n|$)/gi, "\n");
     s = s.replace(/This block is not supported on your current device yet\.?/gi, "");
+    // Strip empty markdown code fences (```\n``` or ```xyz\n``` with only whitespace)
+    while (/```[a-zA-Z0-9_-]*\s*```/.test(s)) {
+      s = s.replace(/```[a-zA-Z0-9_-]*\s*```/g, "");
+    }
     s = s.replace(/\n{3,}/g, "\n\n");
     return s.trim();
   }
@@ -874,6 +879,12 @@
         currentQueuedIds.delete(msg.conversationId);
         currentDlqIds.delete(msg.conversationId);
         clearSidebarDot(msg.conversationId);
+        if (msg.capturedAt) {
+          getStoredSyncedThreads().then(threads => {
+            threads[msg.conversationId] = msg.capturedAt;
+            saveStoredSyncedThreads(threads);
+          });
+        }
       }
       fetchQueueStateAndUpdateSidebar();
     } else if (msg.type === "SYNC_ERROR") {
@@ -884,6 +895,12 @@
       if (msg.conversationId) {
         currentQueuedIds.delete(msg.conversationId);
         currentDlqIds.add(msg.conversationId);
+        getStoredSyncedThreads().then(threads => {
+          if (threads[msg.conversationId]) {
+            delete threads[msg.conversationId];
+            saveStoredSyncedThreads(threads);
+          }
+        });
       }
       fetchQueueStateAndUpdateSidebar();
     } else if (msg.type === "QUEUE_UPDATED") {
@@ -935,12 +952,17 @@
       m.content.forEach(b => {
         if (!b) return;
         if (typeof b === "string" && b.trim()) {
-          if (!parts.includes(b.trim())) parts.push(b.trim());
+          const raw = b.trim();
+          if (!raw.toLowerCase().includes("this block is not supported on your current device yet") && !parts.includes(raw)) {
+            parts.push(raw);
+          }
         } else if (typeof b === "object") {
-          if (b.text && typeof b.text === "string" && b.text.trim()) {
-            if (!parts.includes(b.text.trim())) parts.push(b.text.trim());
-          } else if (b.content && typeof b.content === "string" && b.content.trim()) {
-            if (!parts.includes(b.content.trim())) parts.push(b.content.trim());
+          const txt = (b.text || b.content || "");
+          if (typeof txt === "string" && txt.trim()) {
+            const raw = txt.trim();
+            if (!raw.toLowerCase().includes("this block is not supported on your current device yet") && !parts.includes(raw)) {
+              parts.push(raw);
+            }
           } else if (b.type === "thinking" && b.thinking && typeof b.thinking === "string") {
             parts.push(`> *Thinking:*\n> ${b.thinking.trim().replace(/\n/g, "\n> ")}`);
           } else if (b.type === "tool_use" && b.name) {
@@ -961,10 +983,19 @@
     return full;
   }
 
-  async function reconcileStaleConversations(maxDays = 2, force = false) {
+  let tabAutoSynced = false;
+
+  async function reconcileStaleConversations(maxDays = 2, force = false, isOnTabOpen = false) {
     // 1. In-memory check and cross-tab lock to prevent running twice
     if (isReconciling) {
       return { success: false, reason: "Reconciliation already in progress in this tab" };
+    }
+
+    if (isOnTabOpen) {
+      if (tabAutoSynced) {
+        return { success: true, enqueued: 0, reason: "Already auto-synced this tab session" };
+      }
+      tabAutoSynced = true;
     }
 
     const lockData = await new Promise(r => chrome.storage.local.get("chatsave_reconcile_lock", r));
@@ -978,17 +1009,24 @@
     isReconciling = true;
 
     try {
-      // 2. Throttle check (at most once every 10 minutes unless forced)
-      const lastCheckData = await new Promise(r => chrome.storage.local.get("chatsave_last_reconcile_time", r));
-      const lastCheckTime = lastCheckData.chatsave_last_reconcile_time || 0;
-      const tenMinutes = 10 * 60 * 1000;
-      if (!force && Date.now() - lastCheckTime < tenMinutes) {
-        isReconciling = false;
-        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
-        return { success: true, enqueued: 0, skipped: true, reason: "Recently reconciled" };
+      // 2. Throttle check for non-tab-open background calls (skip if recently reconciled within 10 min)
+      if (!force && !isOnTabOpen) {
+        const lastCheckData = await new Promise(r => chrome.storage.local.get("chatsave_last_reconcile_time", r));
+        const lastCheckTime = lastCheckData.chatsave_last_reconcile_time || 0;
+        const tenMinutes = 10 * 60 * 1000;
+        if (Date.now() - lastCheckTime < tenMinutes) {
+          isReconciling = false;
+          await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+          return { success: true, enqueued: 0, skipped: true, reason: "Recently reconciled" };
+        }
       }
 
       updateHud("syncing");
+
+      // Auto-retry any items stranded in Dead Letter Queue so no conversations are missed
+      chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+        if (chrome.runtime.lastError) {}
+      });
 
       // 3. Query server for already committed conversations for true idempotency
       let serverCommitted = {};
@@ -1054,18 +1092,32 @@
       const syncedThreads = await getStoredSyncedThreads();
       const currentActiveId = getConversationId();
 
-      // Filter only those NOT already committed to Git or synced
+      // Check if conversation has new turns or hasn't been synced at this updated_at timestamp
       const staleToSync = recentConvs.filter(c => {
-        // If already committed to Git on server, skip!
-        if (serverCommitted[c.uuid]) {
-          syncedThreads[c.uuid] = c.updated_at;
+        const localSyncedAt = syncedThreads[c.uuid];
+        const serverSyncedAt = serverCommitted[c.uuid];
+        const currentUpdatedAt = c.updated_at || c.created_at || "";
+
+        // If this item was in Dead Letter Queue, NEVER skip it!
+        if (currentDlqIds.has(c.uuid)) {
+          return true;
+        }
+
+        // If the server state is available:
+        if (serverCommitted && Object.keys(serverCommitted).length > 0) {
+          if (serverSyncedAt && (serverSyncedAt === currentUpdatedAt || serverSyncedAt.includes(currentUpdatedAt))) {
+            syncedThreads[c.uuid] = currentUpdatedAt;
+            return false;
+          }
+          return true; // Server doesn't have it yet, must sync!
+        }
+
+        // Fallback if server was unreachable:
+        if (localSyncedAt && localSyncedAt === currentUpdatedAt) {
           return false;
         }
-        // If locally marked as synced with identical updated_at, skip!
-        if (syncedThreads[c.uuid] === c.updated_at) {
-          return false;
-        }
-        return true;
+
+        return true; // There are new prompts or newer updates to sync!
       });
 
       if (staleToSync.length === 0) {
@@ -1081,33 +1133,50 @@
       let enqueuedCount = 0;
       for (const convMeta of staleToSync) {
         try {
-          // If this is the active conversation currently open, capture DOM directly for freshest state
-          if (convMeta.uuid === currentActiveId) {
-            triggerCapture(true);
-            syncedThreads[convMeta.uuid] = convMeta.updated_at;
-            await saveStoredSyncedThreads(syncedThreads);
-            enqueuedCount++;
-            continue;
-          }
-
           await new Promise(r => setTimeout(r, 1200));
 
-          const detailRes = await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}`, { credentials: "include" });
-          if (!detailRes.ok) continue;
+          // Fetch full conversation history from Claude API (includes all 8+ prompts and responses)
+          const detailRes = await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}?tree=True&rendering_mode=messages`, { credentials: "include" })
+            .catch(() => null) || await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}`, { credentials: "include" });
+          if (!detailRes || !detailRes.ok) continue;
 
           const detail = await detailRes.json();
           const chatMsgs = detail.chat_messages || [];
           if (!chatMsgs.length) continue;
+
+          // Strictly sort chronologically by created_at to guarantee correct sequential turn order
+          chatMsgs.sort((a, b) => {
+            const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+            if (tA && tB && tA !== tB) return tA - tB;
+            if (typeof a.index === "number" && typeof b.index === "number") return a.index - b.index;
+            return 0;
+          });
 
           const messages = [];
           const files = [];
           let seq = 1;
 
           chatMsgs.forEach(m => {
-            const bodyText = extractApiMessageText(m);
+            const role = (m.sender === "human" || m.sender === "user") ? "user" : "assistant";
+            let bodyText = extractApiMessageText(m);
+            if (!bodyText) {
+              const attsList = [...(m.attachments || []), ...(m.files || [])];
+              if (attsList.length > 0) {
+                const names = attsList.map(a => a.file_name || a.name || "document").join(", ");
+                bodyText = `*(Attached: ${names})*`;
+              } else if (role === "user") {
+                bodyText = `*(User Prompt ${seq})*`;
+              }
+            }
             if (!bodyText) return;
 
-            const role = (m.sender === "human" || m.sender === "user") ? "user" : "assistant";
+            // Deduplicate consecutive identical turns
+            const lastMsg = messages[messages.length - 1];
+            if (lastMsg && lastMsg.role === role && lastMsg.content === bodyText) {
+              return;
+            }
+
             messages.push({
               id: m.uuid || `${convMeta.uuid}_msg_${seq}_${role}`,
               sequence: seq,
@@ -1129,7 +1198,7 @@
                 path: `attachments/${safeName}`,
                 url: att.url || att.download_url || undefined,
                 type: mime,
-                content: realBinary, // Real binary data URL or empty, never filename string
+                content: realBinary,
                 extracted_text: extractedText,
                 role: role,
                 turn_sequence: seq,
@@ -1158,6 +1227,11 @@
                 resolve(res);
               });
             });
+
+            // If this is currently the active tab conversation, also trigger live capture
+            if (convMeta.uuid === currentActiveId) {
+              triggerCapture(false);
+            }
 
             // Immediately mark as synced in persistent storage so no other process retries it
             syncedThreads[convMeta.uuid] = convMeta.updated_at;
@@ -1204,10 +1278,26 @@
       triggerCapture(false);
     }, 2000);
 
-    // Initial cloud/mobile stale conversation reconciliation for past 48h (runs 6s after load)
-    setTimeout(() => {
-      reconcileStaleConversations(2, false);
-    }, 6000);
+    // Auto-sync on Claude opening when extension is connected (runs 3.5s after load, once per tab session)
+    setTimeout(async () => {
+      try {
+        const config = await new Promise(resolve => {
+          chrome.storage.local.get("chatsave_config", d => resolve(d.chatsave_config || {}));
+        });
+        const sUrl = (config.serverUrl || "http://localhost:8000").replace(/\/+$/, "");
+        if (sUrl && !sUrl.includes("claude.ai")) {
+          const headers = {};
+          if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
+          const pingRes = await fetch(`${sUrl}/api/extension/synced-state`, { headers }).catch(() => null);
+          if (pingRes && pingRes.ok) {
+            console.log("[Chat-Save] Extension connected. Auto-syncing recent Claude cloud chats (past 48h)...");
+            reconcileStaleConversations(2, false, true);
+          }
+        }
+      } catch (e) {
+        // Safe fallback
+      }
+    }, 3500);
   }
 
   if (document.readyState === "loading") {

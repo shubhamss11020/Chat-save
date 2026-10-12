@@ -152,8 +152,8 @@ async function purgeExpiredToDLQ() {
   let movedCount = 0;
 
   for (const item of queue) {
-    const isAuth = item.lastError && (item.lastError.includes("HTTP 401") || item.lastError.includes("HTTP 403") || item.lastError.includes("Blocked") || item.lastError.includes("Invalid Server URL"));
-    const maxAttempts = isAuth ? 2 : 5;
+    const isAuth = item.lastError && (item.lastError.includes("HTTP 401") || item.lastError.includes("Invalid Server URL"));
+    const maxAttempts = isAuth ? 4 : 10;
     if (item.attempts >= maxAttempts) {
       dlq.push({
         ...item,
@@ -189,14 +189,14 @@ async function purgeExpiredToDLQ() {
 }
 
 /**
- * Process the local outbox queue with exponential backoff retry.
+ * Process the local outbox queue with exponential backoff retry and request pacing.
  */
 async function processQueue() {
   if (isProcessingQueue) return;
   isProcessingQueue = true;
 
   try {
-    // 1. Immediately purge any items that have already exceeded max retries
+    // 1. Purge items that have legitimately exhausted retries
     await purgeExpiredToDLQ();
 
     const config = await getConfig();
@@ -209,11 +209,15 @@ async function processQueue() {
     const now = Date.now();
     const remainingQueue = [];
 
-    for (const item of queue) {
+    for (let i = 0; i < queue.length; i++) {
+      const item = queue[i];
       if (item.nextAttemptAt > now) {
         remainingQueue.push(item);
         continue;
       }
+
+      // Smooth pacing between requests so we never flood Render or trigger Cloudflare rate limits
+      await new Promise(r => setTimeout(r, 600));
 
       try {
         if (!config.serverUrl || config.serverUrl.includes("claude.ai")) {
@@ -251,7 +255,8 @@ async function processQueue() {
 
         broadcastToTabs({
           type: "SYNC_SUCCESS",
-          conversationId: item.payload.conversation_id,
+          conversationId: item.payload?.conversation_id,
+          capturedAt: item.payload?.captured_at,
           receipt
         });
 
@@ -260,9 +265,9 @@ async function processQueue() {
         item.attempts += 1;
         item.lastError = err.message;
 
-        // Fail fast on non-retryable authentication errors (HTTP 401 / HTTP 403 / Cloudflare blocks)
-        const isAuthError = err.message.includes("HTTP 401") || err.message.includes("HTTP 403") || err.message.includes("Blocked by Cloudflare") || err.message.includes("Invalid Server URL");
-        const MAX_RETRIES = isAuthError ? 2 : 5;
+        const isAuthError = err.message.includes("HTTP 401") || err.message.includes("Invalid Server URL");
+        const isRateLimitOrWaf = err.message.includes("Blocked") || err.message.includes("HTTP 403") || err.message.includes("HTTP 429") || err.message.includes("502") || err.message.includes("503") || err.message.includes("Failed to fetch");
+        const MAX_RETRIES = isAuthError ? 4 : 10;
 
         if (item.attempts >= MAX_RETRIES) {
           const dlq = await getDeadLetterQueue();
@@ -277,22 +282,37 @@ async function processQueue() {
           console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
           broadcastToTabs({
             type: "DEAD_LETTER_EVENT",
-            conversationId: item.payload.conversation_id,
+            conversationId: item.payload?.conversation_id,
             error: item.lastError
           });
         } else {
-          // Exponential backoff with jitter
-          const backoffMs = isAuthError ? 4000 : (Math.min(120000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000);
+          // Exponential backoff with jitter (longer backoff for rate limiting/WAF blocks)
+          const backoffMs = isRateLimitOrWaf
+            ? (10000 + Math.random() * 5000)
+            : (Math.min(120000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000);
           item.nextAttemptAt = Date.now() + backoffMs;
           remainingQueue.push(item);
         }
 
         broadcastToTabs({
           type: "SYNC_ERROR",
-          conversationId: item.payload.conversation_id,
+          conversationId: item.payload?.conversation_id,
           error: err.message,
           pendingCount: remainingQueue.length
         });
+
+        // If rate limited or Cloudflare blocked or server down, pause remaining items instead of failing all 50+ immediately
+        if (isRateLimitOrWaf) {
+          console.warn("[Chat-Save] Pausing queue batch processing to allow Cloudflare/server to cool down");
+          for (let j = i + 1; j < queue.length; j++) {
+            const nextItem = queue[j];
+            if (nextItem.nextAttemptAt <= now) {
+              nextItem.nextAttemptAt = Date.now() + 8000 + Math.random() * 4000;
+            }
+            remainingQueue.push(nextItem);
+          }
+          break;
+        }
       }
     }
 

@@ -85,17 +85,34 @@ CREATE TABLE IF NOT EXISTS client_heartbeats (
 """
 
 
-@contextmanager
-def conn():
+_db_initialized = False
+
+def _init_db() -> None:
+    global _db_initialized
+    if _db_initialized:
+        return
     STORAGE.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(STATE_DB, timeout=30)
-    c.row_factory = sqlite3.Row
-    c.executescript(SCHEMA)
     try:
-        c.execute("ALTER TABLE conversations ADD COLUMN files TEXT DEFAULT '[]'")
-        c.commit()
-    except Exception:
-        pass
+        c.execute("PRAGMA journal_mode=WAL;")
+        c.execute("PRAGMA synchronous=NORMAL;")
+        c.execute("PRAGMA busy_timeout=30000;")
+        c.executescript(SCHEMA)
+        try:
+            c.execute("ALTER TABLE conversations ADD COLUMN files TEXT DEFAULT '[]'")
+            c.commit()
+        except Exception:
+            pass
+        _db_initialized = True
+    finally:
+        c.close()
+
+@contextmanager
+def conn():
+    if not _db_initialized:
+        _init_db()
+    c = sqlite3.connect(STATE_DB, timeout=30)
+    c.row_factory = sqlite3.Row
     try:
         yield c
         c.commit()

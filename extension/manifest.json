@@ -5,6 +5,7 @@
   "description": "Automatic real-time conversation backup from Claude Team into Chat-Save with offline queueing and deduplication.",
   "permissions": [
     "storage",
+    "unlimitedStorage",
     "alarms"
   ],
   "host_permissions": [

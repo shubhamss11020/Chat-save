@@ -4,35 +4,32 @@ platform: claude
 username: "shubham"
 title: "Testing askcruz connectors and eoxs responses"
 created_at: "2026-10-06T17:46:52.839982Z"
-updated_at: "2026-10-12 11:00:55 EDT"
+updated_at: "2026-10-12 12:37:24 EDT"
 ---
 
 # Testing askcruz connectors and eoxs responses
 
-## User (2026-10-12 11:00:55 EDT)
+## User (2026-10-12 12:37:24 EDT)
 
 give me the list of question to ask from the askcruz connectors and eoxs to test those connectors response
 
-## Claude (2026-10-12 11:00:55 EDT)
+## Claude (2026-10-12 12:37:24 EDT)
 
 I need to read the archival skills first, then ask clarifying questions before I can give you a useful test list.
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
+```
+
+```
+
 ```
 
 Before I build the test list, I need clarity on what you're testing:
@@ -47,11 +44,11 @@ Before I build the test list, I need clarity on what you're testing:
 
 5. **Rigor level?** Quick surface test (5ft deep) or comprehensive validation (50ft deep)?
 
-## User (2026-10-12 11:00:55 EDT)
+## User (2026-10-12 12:37:24 EDT)
 
 just give me 10 question which would invoking the tools of those connector to fetch the information
 
-## Claude (2026-10-12 11:00:55 EDT)
+## Claude (2026-10-12 12:37:24 EDT)
 
 1. **Get client profile** — "What's the full contact and background info for [Client Name]?" → `get_client_profile()`
 
@@ -77,31 +74,28 @@ just give me 10 question which would invoking the tools of those connector to fe
 
 These 10 will test: client retrieval, correspondence (emails/calls), internal documentation, CRM/sales data, and project management across all three connectors.
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
+```
+
+```
+
 ```
 
 I'll complete the archival. Since the vault_log_turn has been called successfully, the chat is being archived through the ThreadVault system (which is the EOXS database-backed system per the routing rules).
 
-## User (2026-10-12 11:00:55 EDT)
+## User (2026-10-12 12:37:24 EDT)
 
 tell me more about that
 
-## Claude (2026-10-12 11:00:55 EDT)
+## Claude (2026-10-12 12:37:24 EDT)
 
 Before I elaborate, what specifically do you want to know about those 10 questions?
 

@@ -3,45 +3,17 @@ conversation_id: 19f622a6-346f-49a3-bce5-359bf4f2cccc
 platform: claude
 username: "shubham"
 title: "Pending sales invoices emails"
-created_at: "2026-10-12T12:20:16.047950Z"
-updated_at: "2026-10-12 13:30:54 EDT"
+created_at: "2026-10-12 08:20:16 EDT"
+updated_at: "2026-10-12 16:20:33 EDT"
 ---
 
 # Pending sales invoices emails
 
-## User (2026-10-12 13:30:54 EDT)
+## User (2026-10-12 16:20:33 EDT)
 
 how me all emails related to pending sales invoices from September 2026
 
-## Claude (2026-10-12 13:30:54 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:33 EDT)
 
 The mail for September 2026 has little that is actually about pending sales invoices, and I could not check the ERP, so I can't confirm which invoices are open. The 3GM ERP tools are not available in this session.
 

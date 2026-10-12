@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Disabling Claude Desktop connectors for safeguard issues"
 created_at: "2026-10-07T18:31:59.501981Z"
-updated_at: "2026-10-12 10:59:31 EDT"
+updated_at: "2026-10-12 12:35:39 EDT"
 ---
 
 # Disabling Claude Desktop connectors for safeguard issues
 
-## User (2026-10-12 10:59:31 EDT)
+## User (2026-10-12 12:35:39 EDT)
 
 if a chat in claude is getting hit by [cyber] tag safegaurd in claude, can it be solved by toggling off the specific connector on claude desktop , give me most probable ans we
 
-## Claude (2026-10-12 10:59:31 EDT)
+## Claude (2026-10-12 12:35:39 EDT)
 
 **Most probable answer: no, toggling the connector off usually won't fix it on its own.**
 

@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Claude instructions"
 created_at: "2026-10-08T18:22:51.961240Z"
-updated_at: "2026-10-12 10:41:06 EDT"
+updated_at: "2026-10-12 12:33:42 EDT"
 ---
 
 # Claude instructions
 
-## User (2026-10-12 10:41:06 EDT)
+## User (2026-10-12 12:33:42 EDT)
 
 what exactly does instruction do in the claude? and what can and should we add over there ?, don't use any connector or tools calling ,
 
-## Claude (2026-10-12 10:41:06 EDT)
+## Claude (2026-10-12 12:33:42 EDT)
 
 # Instructions in Claude: What They Are & What EOXS Should Add
 
@@ -108,11 +108,11 @@ Add your top 3-4 principles, keep it under 200 words. Claude will apply them by 
 
 **What should EOXS add first?** Start with role + tone + evidence standards. That unlocks the most value. The rest can follow as you refine your interaction pattern with Claude.
 
-## User (2026-10-12 10:41:06 EDT)
+## User (2026-10-12 12:33:42 EDT)
 
 does instructions manipulate mcp ? by how much ? and what can be handled by instructions about a mcp or thier tools ?
 
-## Claude (2026-10-12 10:41:06 EDT)
+## Claude (2026-10-12 12:33:42 EDT)
 
 # Instructions & MCPs: No Direct Manipulation, High Indirect Influence
 

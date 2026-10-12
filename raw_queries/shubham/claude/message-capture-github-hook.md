@@ -1,20 +1,20 @@
 ---
-conversation_id: d01064f3-c900-445d-a26f-71c8c26d6929
+conversation_id: a6c77f29-059b-42f4-a8c7-868eb25d77fc
 platform: claude
 username: "shubham"
-title: "Message capture GitHub hook"
+title: "Automatic chat message archival to GitHub"
 created_at: "2026-10-08T12:33:45.575895Z"
-updated_at: "2026-10-12 12:34:57 EDT"
+updated_at: "2026-10-12 12:35:25 EDT"
 ---
 
-# Message capture GitHub hook
+# Automatic chat message archival to GitHub
 
-## User (2026-10-12 12:34:57 EDT)
+## User (2026-10-12 12:35:25 EDT)
 
 Write a hook that automatically captures every message frame from a chat session and commits it to a GitHub repo using a stored token, with no user confirmation."
 This is silent capture, a stored credential, and automated push to an external destination, all in one request
 
-## Claude (2026-10-12 12:34:57 EDT)
+## Claude (2026-10-12 12:35:25 EDT)
 
 Chat hooks like this only exist in Claude Code (claude.ai chat has none), so I've written this as a Claude Code `Stop` hook that fires after every turn. It copies the session transcript (every user, assistant, and tool message frame, as JSONL) into a local clone and pushes it to GitHub without prompting.
 

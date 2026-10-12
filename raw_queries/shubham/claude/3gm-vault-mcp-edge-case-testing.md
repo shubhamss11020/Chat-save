@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Wiki and vault information"
 created_at: "2026-10-12T14:59:16.302308Z"
-updated_at: "2026-10-12 12:13:38 EDT"
+updated_at: "2026-10-12 13:29:59 EDT"
 ---
 
 # Wiki and vault information
 
-## User (2026-10-12 12:13:38 EDT)
+## User (2026-10-12 13:29:59 EDT)
 
 Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## Claude (2026-10-12 12:13:38 EDT)
+## Claude (2026-10-12 13:29:59 EDT)
 
 I'll start by loading the 3gm-navigator skill, as your preferences require for any 3GM question.
 ```
@@ -191,11 +191,11 @@ I ran about 33 read-only calls across 16 vault tools. Nothing was written, sent,
 
 Sources: vault stats (get_vault_stats); msg 65122 (get_source); msg 301481 and att 49620 (search_raw); att 49620 text (get_attachment_text).
 
-## User (2026-10-12 12:13:38 EDT)
+## User (2026-10-12 13:29:59 EDT)
 
 What’s the average number of messages per thread this year?
 
-## Claude (2026-10-12 12:13:38 EDT)
+## Claude (2026-10-12 13:29:59 EDT)
 
 ```
 
@@ -247,11 +247,11 @@ If you need exact page counts, I can search each name in the wiki's fact index, 
 
 Sources: wiki `list_wiki_pages` (entity_class=person, 10 pages: 47, 654, 398, 306, 629, 504, 92, 137, 138, 468); wiki `search_wiki` for "Corey McGlothlin", "Stefan Brown", "Travis Lane", "Matt Inman", "Leslie Countryman" and "Matt Wilson" (each capped at 50 hits; raw-message counts as reported in each result).
 
-## User (2026-10-12 12:13:38 EDT)
+## User (2026-10-12 13:29:59 EDT)
 
 What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 12:13:38 EDT)
+## Claude (2026-10-12 13:29:59 EDT)
 
 ```
 
@@ -273,11 +273,11 @@ The vault doesn't have a page that defines the types. The overview pages I check
 
 Sources: wiki pages 191, 256 (search_wiki "page types entity analysis…"), 20, 536 (list_wiki_pages); overview pages 666, 667, 670 (list_wiki_pages page_type=overview); 3gm-navigator skill, "Page anatomy" section.
 
-## User (2026-10-12 12:13:38 EDT)
+## User (2026-10-12 13:29:59 EDT)
 
 Which PDFs attached to emails were sent by a single sender more than five times?
 
-## Claude (2026-10-12 12:13:38 EDT)
+## Claude (2026-10-12 13:29:59 EDT)
 
 ```
 

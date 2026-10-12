@@ -3,17 +3,17 @@ conversation_id: 80c0f824-35c4-41e5-9010-8d74bd39461f
 platform: claude
 username: "shubham"
 title: "EOXS and AskCruz connection"
-created_at: "2026-10-12T19:16:08.201706Z"
-updated_at: "2026-10-12 15:16:42 EDT"
+created_at: "2026-10-12 15:16:08 EDT"
+updated_at: "2026-10-12 16:19:57 EDT"
 ---
 
 # EOXS and AskCruz connection
 
-## User (2026-10-12 15:16:42 EDT)
+## User (2026-10-12 16:19:57 EDT)
 
 what about eoxs and askcruz how they are linked
 
-## Claude (2026-10-12 15:16:42 EDT)
+## Claude (2026-10-12 16:19:57 EDT)
 
 I'll start by reading the two skill files.
 

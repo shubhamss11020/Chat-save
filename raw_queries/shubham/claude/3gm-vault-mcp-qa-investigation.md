@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP QA investigation - Claude"
 created_at: "2026-10-09T19:53:00.743164Z"
-updated_at: "2026-10-12 11:11:10 EDT"
+updated_at: "2026-10-12 11:17:32 EDT"
 ---
 
 # 3GM Vault MCP QA investigation - Claude
 
-## User (2026-10-12 11:11:10 EDT)
+## User (2026-10-12 11:17:32 EDT)
 
 Act as an independent QA engineer investigating the 3GM Vault MCP. Explore its available capabilities and identify subtle or unexpected failure modes that ordinary testing might miss. Investigate boundary conditions, inconsistent search behavior, incorrect record associations, missing results, malformed outputs, unexpected defaults, and inconsistencies between documented and observed behavior. For every potential bug, provide a reproducible test case, actual result, expected result when verifiable, severity, and recommended next step. Do not invent bugs or claim to have tested functionality that you cannot access.
 
-## Claude (2026-10-12 11:11:10 EDT)
+## Claude (2026-10-12 11:17:32 EDT)
 
 I'll start by reading the 3gm-navigator skill, since it governs how the Vault connector should be used.
 ```
@@ -246,3 +246,79 @@ Overall the error handling is mostly good. Invalid calendar dates, unknown mailb
 | BUG-7 | Low | `find_people` | Email address returned as display name |
 
 **Sources:** msg 301381 · msg 291897 · msg 301383 · msg 301382 · msg 208716 · msg 208715 · att 49585 · att 46347 · att 46030 (+58 more matching "Storage Tracking Report.xlsx" from `list_attachments`) · wiki page 384 "3MG Roofing" · wiki page 595 "2026 Mid-Year Sales Review" (vault stats and tool responses only; no ERP queries run)
+
+## User (2026-10-12 11:17:32 EDT)
+
+Which customer complaints appear in the mail but have no entry on the customer’s wiki page?
+
+## Claude (2026-10-12 11:17:32 EDT)
+
+Claude responded: I'll start by searching the mail and the wiki for complaint language, then compare the two.
+Investigating missing complaint records on the customer's page
+Investigating missing complaint records on the customer's page
+Investigating missing complaint records on the customer's page.
+Investigating missing complaint records on the customer's page.
+
+I’ll start by searching the mail and the wiki for complaint language, then compare the two.
+
+Narrowing the search to customer-specific claim threads
+Narrowing the search to customer-specific claim threads
+Used 3gm vault
+
+Used 3gm vault
+
+The first pass found about 20 complaint threads that name a customer. Next I’ll check whether those customers have wiki pages and whether the pages record the complaints.
+
+Checking remaining customers for matching complaint records
+Checking remaining customers for matching complaint records
+Used 3gm vault
+
+Used 3gm vault
+
+Georgia Metal Center is covered: its page records the July damaged-coil complaint with its source. Next I’ll check the other customers’ pages for claim and complaint entries.
+
+Tracing unidentified complaint threads back to their customers
+Tracing unidentified complaint threads back to their customers
+Used 3gm vault
+
+Used 3gm vault
+
+Several customers have claim facts on separate analysis pages but not on the customer’s own entity page. I’ll check the customer pages directly for the complaint details, and identify two complaint threads whose customers I haven’t yet named.
+
+Listing customer threads missing claim entries on their pages
+Listing customer threads missing claim entries on their pages
+Used 3gm vault
+
+Used 3gm vault
+
+Most of the customer pages I checked either record the complaint or have it only in narrative text. One complaint thread, “Re: Damaged Coil,” still has no customer name, so I’ll open its first message to identify the customer.
+
+Drafting the gap summary table with per-customer source details
+Drafting the gap summary table with per-customer source details
+Used 3gm vault
+
+Used 3gm vault
+
+Four customers have complaints in the mail with no entry on their customer page, and two more have only narrative mentions. This is a partial answer. The complaint search returned 189 messages across 41 conversations, and I reviewed about 13 customer threads.
+
+Customer	Complaint in the mail	Customer page	Gap
+Carolina Carports Inc.	Coil claim after an accident, 28 Sep 2026 (msgs 276978, 277020)	Page 164 has no fact about a claim or damage	No entry. Full body not read
+Englert Inc.	Wrong-material claims against Wheeling-Nippon, open since 28 Sep 2026; on 12 Oct Matt Inman put the claim file at almost 130,000 lb (msgs 277095, 282378, 301465)	Page 181 has no claim or defect fact. The dispute sits only on separate page 535	No entry on the customer page. Full body not read
+Pine View Buildings, LLC	Damaged blue coil, Apr–Aug 2026 (thread from msg 48716)	Page 357 has no damage fact	No entry. Body not read
+Farris Metal Products	Customer claim on black painted coil, settled by release 8 Sep 2026	No customer page found; the only entry is analysis page 499	No customer page exists
+Porta Grace MFG	Bright White quality claim, 26 Aug–2 Sep 2026 (msgs 46952, 46955)	Page 111 mentions the claim in narrative only; detail is on pages 109 and 110	Narrative only
+B & C Metals LLC	Claim notice, 20 Aug–9 Sep 2026, closed by credit memo RINV/2026/0044	Page 606 mentions the claim in narrative; its facts record only the credit status	Narrative only
+
+Covered (complaint recorded on the customer page): Georgia Metal Center (page 217, damaged coils, msg 49409); Vertex Building Supply (page 155, damaged-coil claim, msg 47972); Swiss Metals (page 141, June claim, att 13626); Timber Building Company (page 466, PO2490 claim, msg 65764); Five Star Metal Buildings LLC (page 648, claim test results, msgs 48809 and 48829).
+
+Excluded as supplier-side claims, not customer complaints: the white-spotting claim on paint code 1K303Q1 filed against Prosperity Tieh (msg 50271), the Precoat claims, and the PT Acrylic claims. I did not check whether the Ternium Black Crinkle claim (23 messages) is a customer or supplier claim.
+
+Scope and caveats
+
+I checked structured facts on each page for claim and damage wording, plus the page excerpts. For Carolina Carports and Englert the full bodies are 85,000 and 112,000 characters, and I did not read them. A narrative mention may exist, so confirm before acting on those two.
+The rest of the 189 messages are unreviewed, so there may be more customers in the gap.
+
+Sources: page 217 (msg 49409, 49388); page 155 (msg 47972); page 141 (att 13626, msg 64769); page 466 (msg 64606, 65764); page 648 (msgs 48809, 48829, att 11931); page 62; page 499; page 111; pages 109, 110; page 606 (msg 45639); page 164 (msgs 276978, 277020); page 181 (msgs 277095, 282378, 301465); page 535; page 357 (msg 48716); msg 46952, 46955; msg 50271
+
+
+Create a spreadsheet

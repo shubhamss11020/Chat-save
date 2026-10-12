@@ -1,19 +1,19 @@
 ---
-conversation_id: 8ac252a4-ddd2-4cbf-8efc-a301b0059ee7
+conversation_id: 8e90bc54-cf94-40c4-9fbf-4d90f4bd96c9
 platform: claude
 username: "shubham"
-title: "3GM vault QA questions"
+title: "Intern leave records"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:13:50 EDT"
+updated_at: "2026-10-12 12:13:56 EDT"
 ---
 
-# 3GM vault QA questions
+# Intern leave records
 
-## User (2026-10-12 12:13:50 EDT)
+## User (2026-10-12 12:13:56 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:13:50 EDT)
+## Claude (2026-10-12 12:13:56 EDT)
 
 ```
 
@@ -81,11 +81,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 12:13:50 EDT)
+## User (2026-10-12 12:13:56 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 12:13:50 EDT)
+## Claude (2026-10-12 12:13:56 EDT)
 
 ```
 
@@ -147,11 +147,11 @@ I can check the ERP for the current Texas Star balance, the Englert credit memo,
 
 Sources: wiki pages 535, 8, 101, 520; outlook messages 277095, 280528, 282385, 46484, 46696, 46700, 48173, 49073; outlook attachments 11298, 46130
 
-## User (2026-10-12 12:13:50 EDT)
+## User (2026-10-12 12:13:56 EDT)
 
 What’s the current status of the largest open purchase order, according to the vault and the ERP?
 
-## Claude (2026-10-12 12:13:50 EDT)
+## Claude (2026-10-12 12:13:56 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 
@@ -222,11 +222,11 @@ Here are 50 more questions. The vault connection is offline right now, so I can'
 54. What's the forecast for next week?
 55. Which of our customers has the biggest birthday party coming up?
 
-## User (2026-10-12 12:13:19 EDT)
+## User (2026-10-12 12:13:56 EDT)
 
 Which supplier has the longest average lead time, and is it confirmed in both systems?
 
-## Claude (2026-10-12 12:13:19 EDT)
+## Claude (2026-10-12 12:13:56 EDT)
 
 ```
 
@@ -279,11 +279,11 @@ Current balances, aging and release status for all three accounts are ERP-owned,
 
 Sources: wiki page 516 (Red Dot Products, facts 0–60 of 380) · wiki page 180 (EMB Metal Buildings, facts 0–60 of 371) · wiki page 328 (Steel Buildings and Structures, facts 0–60 of 260) · msgs 46440, 60925, 60923, 50431, 61675, 62392, 67680, 61390, 61332, 62493, 63286, 67507, 292289 (cited on those pages)
 
-## User (2026-10-12 12:13:16 EDT)
+## User (2026-10-12 12:13:56 EDT)
 
-Which source pages are used as templates for recurring reports?
+how are we currently validating the total number of ingestion of emails are precise  in the first ingestion stage of pipeline, is that keywords or semantic search or overall meaning or what?
 
-## Claude (2026-10-12 12:13:16 EDT)
+## Claude (2026-10-12 12:13:56 EDT)
 
 ```
 

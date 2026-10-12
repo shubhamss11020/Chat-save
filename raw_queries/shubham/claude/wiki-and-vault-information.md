@@ -1,19 +1,19 @@
 ---
-conversation_id: 918b584f-cadd-449c-a676-eada8601a786
+conversation_id: 7d0ea78e-7c50-4545-824e-fea8b4455d29
 platform: claude
 username: "shubham"
-title: "3GM Steel Q1 2026 GI inquiry"
+title: "Red dot products thread"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:33:16 EDT"
+updated_at: "2026-10-12 10:33:19 EDT"
 ---
 
-# 3GM Steel Q1 2026 GI inquiry
+# Red dot products thread
 
-## User (2026-10-12 10:33:16 EDT)
+## User (2026-10-12 10:33:19 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 10:33:16 EDT)
+## Claude (2026-10-12 10:33:19 EDT)
 
 ```
 This block is not supported on your current device yet.

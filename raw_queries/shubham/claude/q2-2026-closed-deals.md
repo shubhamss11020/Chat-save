@@ -3,45 +3,17 @@ conversation_id: 8785b1c1-01c3-4761-89a6-acc97fef2d89
 platform: claude
 username: "shubham"
 title: "Q2 2026 closed deals"
-created_at: "2026-10-12T12:51:18.739465Z"
-updated_at: "2026-10-12 13:30:23 EDT"
+created_at: "2026-10-12 08:51:18 EDT"
+updated_at: "2026-10-12 16:20:04 EDT"
 ---
 
 # Q2 2026 closed deals
 
-## User (2026-10-12 13:30:23 EDT)
+## User (2026-10-12 16:20:04 EDT)
 
 Which deals closed in Q2 2026?
 
-## Claude (2026-10-12 13:30:23 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:04 EDT)
 
 I can't give you a reliable list of Q2 2026 closed deals from what I can reach right now.
 

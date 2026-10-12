@@ -4,25 +4,24 @@ platform: claude
 username: "shubham"
 title: "Available tasks in EOXS and AskCruz connectors"
 created_at: "2026-10-06T16:37:07.924342Z"
-updated_at: "2026-10-12 11:01:27 EDT"
+updated_at: "2026-10-12 12:38:04 EDT"
 ---
 
 # Available tasks in EOXS and AskCruz connectors
 
-## User (2026-10-12 11:01:27 EDT)
+## User (2026-10-12 12:38:04 EDT)
 
 list me all the tasks available currently use the eoxs or askcruz connectors
 
-## Claude (2026-10-12 11:01:27 EDT)
+## Claude (2026-10-12 12:38:04 EDT)
 
 I need to read the required skill files first before querying data. Let me pull those in.
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 Before I query for tasks, I need clarity on what you want:
@@ -37,20 +36,19 @@ With current access, I can pull `list_implementation_tasks` from Interns-mcp (co
 
 What's the intent here — checking overall project load, finding who's working on what, or something else?
 
-## User (2026-10-12 11:01:27 EDT)
+## User (2026-10-12 12:38:04 EDT)
 
 ok
 
-## Claude (2026-10-12 11:01:27 EDT)
+## Claude (2026-10-12 12:38:04 EDT)
 
 Pulling all tasks now.
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 Active tasks: 120 total across 2 EOXS clients.

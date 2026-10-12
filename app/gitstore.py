@@ -21,7 +21,7 @@ class GitError(RuntimeError):
 
 
 def _slug(s: str) -> str:
-    return re.sub(r"[^A-Za-z0-9._-]+", "-", s).strip("-")[:80] or "unknown"
+    return re.sub(r"[^a-z0-9._-]+", "-", s.lower()).strip("-")[:80] or "unknown"
 
 
 def _normalize_username(uname: str) -> str:
@@ -258,21 +258,8 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
             if len(overlap) >= 2 and len(overlap) / len(incoming_keywords) >= 0.4:
                 return f
 
-    # 5. Continuation prompt detection (e.g. user typed "similarly did for gpt", "also...", "and...")
-    # If the incoming conversation is a single turn (1-2 messages) and opens with a continuation prefix,
-    # match against the most recently modified transcript file.
-    if len(conv.messages) <= 2 and conv.messages:
-        first_user_msg = ""
-        for m in conv.messages:
-            if m.role == "user":
-                first_user_msg = m.content.strip().lower()
-                break
-        if first_user_msg:
-            is_continuation = any(first_user_msg.startswith(p) for p in CONTINUATION_PREFIXES) or len(first_user_msg.split()) <= 4
-            if is_continuation and all_files:
-                # Most recently modified file is the active thread
-                return all_files[0]
-
+    # 5. Do not guess or hijack the most recent file if this conversation has its own distinct title
+    # or if the prompt does not explicitly continue the previous discussion.
     return None
 
 

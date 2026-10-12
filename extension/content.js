@@ -78,8 +78,10 @@
         }
       }
     } else {
-      // User message
-      const userBlocks = node.querySelectorAll('.whitespace-pre-wrap, [class*="font-user-message"]');
+      // User message: clone and remove attachment chips so chip labels don't pollute prompt text
+      const clone = node.cloneNode(true);
+      clone.querySelectorAll('[data-testid*="attachment"], [data-testid*="file"], [class*="Attachment"], [class*="FileThumbnail"], [class*="thumbnail"], [class*="file-upload"]').forEach(c => c.remove());
+      const userBlocks = clone.querySelectorAll('.whitespace-pre-wrap, [class*="font-user-message"]');
       if (userBlocks && userBlocks.length > 0) {
         const parts = [];
         userBlocks.forEach(b => {
@@ -92,6 +94,9 @@
         if (parts.length > 0) {
           structured = sanitizeText(parts.join("\n\n"));
         }
+      }
+      if (!structured) {
+        structured = sanitizeText(clone.innerText || clone.textContent || "");
       }
     }
 
@@ -177,9 +182,18 @@
             if (!seenFiles.has(safeName)) {
               seenFiles.add(safeName);
               const ext = safeName.split(".").pop().toLowerCase();
+
+              // Check if chip or child contains an href or download URL
+              let fileUrl = "";
+              const anchor = chip.tagName === "A" ? chip : chip.querySelector("a");
+              if (anchor && anchor.href && !anchor.href.startsWith("javascript:")) {
+                fileUrl = anchor.href;
+              }
+
               files.push({
                 name: safeName,
                 path: `attachments/${safeName}`,
+                url: fileUrl || undefined,
                 type: ext,
                 content: chipText,
                 role: "user",

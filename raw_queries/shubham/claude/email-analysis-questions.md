@@ -3,33 +3,17 @@ conversation_id: a0d01e8a-7b52-4638-acca-372dadb731a1
 platform: claude
 username: "shubham"
 title: "Email analysis questions"
-created_at: "2026-10-12T15:14:49.830668Z"
-updated_at: "2026-10-12 13:29:45 EDT"
+created_at: "2026-10-12 11:14:49 EDT"
+updated_at: "2026-10-12 16:19:22 EDT"
 ---
 
 # Email analysis questions
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Which emails from the last week have “urgent” in the subject?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 All three emails from the last week with "urgent" in the subject are the same automated John Hancock Message Center summary, sent to Stefan's mailbox. None are in Travis's.
 
@@ -41,47 +25,11 @@ The vault connection isn't signed in, so I couldn't tell which mailbox is yours.
 
 Sources: msg 301439 · msg 301426 · msg 301412
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Who has Travis emailed but never received a reply from?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 Lucas Rollison (lucas@missionmetalsmfg.com) is the one case I confirmed: Travis has emailed him 25 times and nothing from him is in the vault. Travis's mailbox shows no message from him at any point, and his last recorded activity there is May 21, 2026.
 
@@ -93,19 +41,11 @@ If you want, I can check the next group of contacts, or look only at people Trav
 
 Sources: msg 280628 · msg 47180 · msg 224344 · msg 62484 · msg 61103 · Lucas Rollison's count comes from the vault's sender summary, not a single message (top_correspondents, travis sent, external only)
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Did Stefan ever CC Travis on messages to a supplier?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 Yes, once, as far as the vault shows. On May 27, 2026 (4:27 PM ET), Stefan emailed Daniel at PT (daniel@mail.ptgroup.com.tw) about an acrylic claim, with the attachment "PT Acrylic Claim.xlsx." Tadd Sapone and Travis were both CC'd. The excerpt says the team had been contacting potential buyers for the material after repeated claims and customer issues on those PO's.
 
@@ -117,27 +57,11 @@ Note that the vault only shows mailbox traffic. A CC to Travis on a supplier ema
 
 Sources: msg 63625 · msg 70822 · reviewed list of 194 messages in Stefan's Sent Items with Travis on CC (search_raw/list_emails, mailbox stefan, direction sent, recipient "Travis Lane", role cc)
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Which pages link to the most other pages?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 Prosperity Tieh Enterprise links out to the most other pages, with 205 outbound links. CMT Components acquisition is second with 166, and Dongkuk International Inc. is third with 88.
 
@@ -153,11 +77,11 @@ Two caveats. The counts are the vault's own tally of links it has resolved so fa
 
 Sources: wiki page 260 (Prosperity Tieh Enterprise), page 41 (CMT Components acquisition), page 166 (Dongkuk International Inc.), page 244 (MMS v. Ingram), page 307 (Mac Metal Sales, Inc.), from list_wiki_pages (all 675 pages).
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Which source pages are used as templates for recurring reports?
 
-## Claude (2026-10-12 13:29:45 EDT)
+## Claude (2026-10-12 16:19:22 EDT)
 
 The vault has 61 pages typed as "source," which the 3gm-navigator guide defines as one page per recurring report template. I took that classification from the page listing and didn't open each page to confirm it has a recurring series.
 
@@ -180,27 +104,11 @@ I can open the top few and check whether each has a recurring series section.
 
 Sources: list_wiki_pages (all 675 pages; the 61 source-type entries and their citation counts)
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Which people are mentioned on the most pages?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 I can't rank people by how many pages mention them. The wiki search tool returns at most 100 pages per query, sorted by relevance, and it doesn't report a total. Matt Inman, Stefan Brown and Travis Lane each hit that 100-page ceiling, so all three appear on a large number of pages, but I can't say which name appears on more.
 
@@ -210,47 +118,11 @@ If you want a ranking, I can count mentions in raw mail for each name with searc
 
 Sources: search_wiki for "Matt Inman", "Stefan Brown" and "Travis Lane" (each capped at 100 pages).
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 What open issues appear on analysis pages about freight?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 Six freight analysis pages show open items. All of them trace back to unpaid carriers after the freight broker GT Worldwide Logistics failed to pay them. The status on each is only as current as the newest source the page cites, and none of the pages records a settlement or a filed suit.
 
@@ -265,39 +137,11 @@ I didn't read four other freight-related analysis pages: Carolina Carports' truc
 
 Sources: wiki pages 490, 251, 474, 124, 593, 591, 271 (get_wiki_page; cited messages 68357, 71748, 70305, 63079, 63074, 71244, 70056, 70740, 71645, and attachments 17846, 19040, 19041, 18850)
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Are there any pages that contradict each other on pricing?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 Yes, but only a few, and none of them is a clear-cut price contradiction between two live pages. I checked the flags on the six pricing-related pages that came up in the search, not every page in the vault, so there may be others.
 
@@ -308,23 +152,11 @@ Yes, but only a few, and none of them is a clear-cut price contradiction between
 
 Sources: wiki pages 218, 101, 54, 2 (get_wiki_page flags); messages 48027, 48173, 48239, 48840, 48827, 48838; attachments 8766, 9126, 8819; messages 63669, 63674.
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Which customer pages say the account is on hold?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 I can't confirm which accounts are on hold right now. Credit holds are live values that sit in the ERP, and no ERP tool is available in this session, so I can only report what the wiki recorded and when.
 
@@ -340,15 +172,11 @@ To confirm current holds, the ERP's credit and hold fields (res_partner credit l
 
 Sources: wiki pages 348, 218, 432 (search_wiki excerpts; the ERP was not queried because no ERP tool is connected in this session).
 
-## User (2026-10-12 13:29:45 EDT)
+## User (2026-10-12 16:19:22 EDT)
 
 Did the price quoted to a customer in the vault match what was invoiced?
 
-## Claude (2026-10-12 13:29:45 EDT)
-
-```
-
-```
+## Claude (2026-10-12 16:19:22 EDT)
 
 I found one customer where the vault shows a quoted price and an invoiced amount that don't agree, and it's Gingco Supply (Ging Co Supply, LLC). I didn't check other customers, so this isn't a full audit.
 

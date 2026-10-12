@@ -6,7 +6,8 @@
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "alarms"
+    "alarms",
+    "tabs"
   ],
   "host_permissions": [
     "https://claude.ai/*",

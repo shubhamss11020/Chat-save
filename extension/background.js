@@ -623,6 +623,65 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (req.type === "DETECT_USER") {
+    (async () => {
+      // 1. Check cached detection
+      const stored = await chrome.storage.local.get(["chatsave_detected_user", "chatsave_config"]);
+      if (stored.chatsave_detected_user) {
+        sendResponse({ success: true, user: stored.chatsave_detected_user });
+        return;
+      }
+      if (stored.chatsave_config?.userId && stored.chatsave_config.userId !== "user" && stored.chatsave_config.userId !== "unknown") {
+        sendResponse({ success: true, user: stored.chatsave_config.userId });
+        return;
+      }
+
+      // 2. Query open Claude tabs
+      chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
+        if (!tabs || tabs.length === 0) {
+          sendResponse({
+            success: false,
+            error: "No active claude.ai tab found. Please open claude.ai in Chrome and log in, then click Auto-Detect."
+          });
+          return;
+        }
+
+        let answered = false;
+        let attempts = tabs.length;
+        let hadDisconnect = false;
+
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { type: "GET_CLAUDE_USER" }, (res) => {
+            if (chrome.runtime.lastError) {
+              hadDisconnect = true;
+            } else if (res && res.user && !answered) {
+              answered = true;
+              chrome.storage.local.set({ chatsave_detected_user: res.user });
+              sendResponse({ success: true, user: res.user });
+              return;
+            }
+
+            attempts--;
+            if (attempts === 0 && !answered) {
+              if (hadDisconnect) {
+                sendResponse({
+                  success: false,
+                  error: "Claude tab found, but was open before extension reload. Please refresh (F5) your claude.ai tab, then click Auto-Detect."
+                });
+              } else {
+                sendResponse({
+                  success: false,
+                  error: "Could not auto-detect Claude user. Make sure you are logged into claude.ai."
+                });
+              }
+            }
+          });
+        });
+      });
+    })();
+    return true;
+  }
 });
 
 /**

@@ -57,47 +57,43 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnAutoDetect = document.getElementById("btnAutoDetect");
   if (btnAutoDetect) {
     btnAutoDetect.addEventListener("click", async () => {
+      btnAutoDetect.disabled = true;
       btnAutoDetect.textContent = "Detecting...";
+
+      // Step 1: Check storage cache from content script
       try {
-        const res = await fetch("https://claude.ai/api/auth/current_user", { credentials: "include" });
-        if (res.ok) {
-          const u = await res.json();
-          const email = u.email_address || u.email || "";
-          let detected = "";
-          if (email && email.includes("@")) {
-            detected = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-          } else if (u.full_name || u.name) {
-            detected = (u.full_name || u.name).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
-          }
-          if (detected) {
-            userIdInput.value = detected;
-            showAlert(`✓ Detected Claude session user: ${detected}`, "success");
-            btnAutoDetect.textContent = "Auto-Detect";
-            return;
-          }
+        const stored = await chrome.storage.local.get(["chatsave_detected_user", "chatsave_config"]);
+        if (stored.chatsave_detected_user) {
+          userIdInput.value = stored.chatsave_detected_user;
+          showAlert(`✓ Detected Claude session user: ${stored.chatsave_detected_user}`, "success");
+          btnAutoDetect.disabled = false;
+          btnAutoDetect.textContent = "Auto-Detect";
+          return;
         }
       } catch (e) {}
 
-      try {
-        const orgsRes = await fetch("https://claude.ai/api/organizations", { credentials: "include" });
-        if (orgsRes.ok) {
-          const orgs = await orgsRes.json();
-          if (Array.isArray(orgs) && orgs.length > 0 && orgs[0].members) {
-            const self = orgs[0].members.find(m => m.is_current_user || m.self);
-            if (self && (self.email || self.email_address)) {
-              const email = self.email || self.email_address;
-              const detected = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-              userIdInput.value = detected;
-              showAlert(`✓ Detected Claude session user: ${detected}`, "success");
-              btnAutoDetect.textContent = "Auto-Detect";
-              return;
-            }
-          }
-        }
-      } catch (e) {}
+      // Step 2: Ask background service worker to query active Claude tab
+      chrome.runtime.sendMessage({ type: "DETECT_USER" }, async (res) => {
+        btnAutoDetect.disabled = false;
+        btnAutoDetect.textContent = "Auto-Detect";
 
-      showAlert("Could not auto-detect Claude user. Make sure you are logged in to claude.ai in Chrome.", "error");
-      btnAutoDetect.textContent = "Auto-Detect";
+        if (chrome.runtime.lastError) {
+          showAlert("Extension error: " + chrome.runtime.lastError.message, "error");
+          return;
+        }
+
+        if (res && res.success && res.user) {
+          userIdInput.value = res.user;
+          showAlert(`✓ Detected Claude session user: ${res.user}`, "success");
+          const cur = await chrome.storage.local.get("chatsave_config");
+          const cfg = cur.chatsave_config || {};
+          cfg.userId = res.user;
+          await chrome.storage.local.set({ chatsave_config: cfg, chatsave_detected_user: res.user });
+        } else {
+          const errMsg = res?.error || "Could not auto-detect Claude user. Please ensure claude.ai is open in Chrome and refresh the tab (F5).";
+          showAlert(errMsg, "error");
+        }
+      });
     });
   }
 

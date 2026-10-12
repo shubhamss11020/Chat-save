@@ -16,58 +16,224 @@
   let currentQueuedIds = new Set();
   let currentDlqIds = new Set();
   let detectedUser = null;
+  let isContextInvalidated = false;
+  let urlCheckInterval = null;
+  let sidebarInterval = null;
+  let domObserver = null;
+
+  // Window error boundary to silence Extension context invalidated errors
+  window.addEventListener("error", (e) => {
+    if (e.message && e.message.includes("Extension context invalidated")) {
+      markContextInvalidated();
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  });
+
+  function markContextInvalidated() {
+    if (isContextInvalidated) return;
+    isContextInvalidated = true;
+    console.info("[Chat-Save] Extension was reloaded in Chrome. Please refresh this tab (F5) to re-bind real-time sync.");
+
+    if (urlCheckInterval) { clearInterval(urlCheckInterval); urlCheckInterval = null; }
+    if (sidebarInterval) { clearInterval(sidebarInterval); sidebarInterval = null; }
+    if (observerThrottle) { clearTimeout(observerThrottle); observerThrottle = null; }
+    if (finalizeTimer) { clearTimeout(finalizeTimer); finalizeTimer = null; }
+    if (domObserver) {
+      try { domObserver.disconnect(); } catch (e) {}
+      domObserver = null;
+    }
+
+    if (hudElement) {
+      const badge = hudElement.querySelector("#chatsave-badge");
+      const label = hudElement.querySelector(".chatsave-label");
+      const dot = hudElement.querySelector(".chatsave-dot");
+      if (badge) {
+        badge.className = "chatsave-badge offline";
+        badge.title = "Extension was reloaded. Please refresh this tab (F5) to resume real-time sync.";
+      }
+      if (label) label.textContent = "Reloaded (Press F5)";
+      if (dot) dot.style.background = "#f59e0b";
+    }
+  }
+
+  function isExtensionValid() {
+    if (isContextInvalidated) return false;
+    try {
+      if (typeof chrome === "undefined" || !chrome.runtime || !chrome.runtime.id) {
+        markContextInvalidated();
+        return false;
+      }
+      return true;
+    } catch (e) {
+      markContextInvalidated();
+      return false;
+    }
+  }
+
+  function safeSendMessage(msg, callback) {
+    if (!isExtensionValid()) {
+      if (callback) callback(null);
+      return;
+    }
+    try {
+      chrome.runtime.sendMessage(msg, (res) => {
+        try {
+          if (chrome.runtime && chrome.runtime.lastError) {
+            const err = chrome.runtime.lastError.message || "";
+            if (err.includes("Extension context invalidated") || err.includes("Receiving end does not exist")) {
+              markContextInvalidated();
+            }
+          }
+        } catch (e) {
+          markContextInvalidated();
+        }
+        if (callback && !isContextInvalidated) callback(res);
+      });
+    } catch (e) {
+      markContextInvalidated();
+      if (callback) callback(null);
+    }
+  }
+
+  function safeStorageGet(keys) {
+    return new Promise((resolve) => {
+      if (!isExtensionValid()) {
+        resolve({});
+        return;
+      }
+      try {
+        chrome.storage.local.get(keys, (res) => {
+          try {
+            if (chrome.runtime && chrome.runtime.lastError) { /* consumed */ }
+          } catch (e) {}
+          resolve(res || {});
+        });
+      } catch (e) {
+        markContextInvalidated();
+        resolve({});
+      }
+    });
+  }
+
+  function safeStorageSet(items) {
+    return new Promise((resolve) => {
+      if (!isExtensionValid()) {
+        resolve();
+        return;
+      }
+      try {
+        chrome.storage.local.set(items, () => {
+          try {
+            if (chrome.runtime && chrome.runtime.lastError) { /* consumed */ }
+          } catch (e) {}
+          resolve();
+        });
+      } catch (e) {
+        markContextInvalidated();
+        resolve();
+      }
+    });
+  }
+
+  function safeStorageRemove(keys) {
+    return new Promise((resolve) => {
+      if (!isExtensionValid()) {
+        resolve();
+        return;
+      }
+      try {
+        chrome.storage.local.remove(keys, () => {
+          try {
+            if (chrome.runtime && chrome.runtime.lastError) { /* consumed */ }
+          } catch (e) {}
+          resolve();
+        });
+      } catch (e) {
+        markContextInvalidated();
+        resolve();
+      }
+    });
+  }
 
   // Auto-detect authenticated Claude user (email handle / name) from session
   async function resolveClaudeUser() {
     if (detectedUser) return detectedUser;
+    let found = null;
+
+    // 1. Direct auth current_user endpoint
     try {
       const res = await fetch("/api/auth/current_user", { credentials: "include" });
       if (res.ok) {
         const u = await res.json();
-        const email = u.email_address || u.email || "";
+        const email = u.email_address || u.email || u.account?.email_address || u.account?.email || u.user?.email || "";
         if (email && email.includes("@")) {
-          detectedUser = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-          return detectedUser;
-        }
-        const name = u.full_name || u.name || "";
-        if (name) {
-          detectedUser = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
-          return detectedUser;
+          found = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+        } else if (u.full_name || u.name || u.account?.full_name) {
+          found = (u.full_name || u.name || u.account?.full_name).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
         }
       }
     } catch (e) {}
 
-    try {
-      const orgsRes = await fetch("/api/organizations", { credentials: "include" });
-      if (orgsRes.ok) {
-        const orgs = await orgsRes.json();
-        if (Array.isArray(orgs) && orgs.length > 0) {
-          const org = orgs[0];
-          if (org.members && Array.isArray(org.members)) {
-            const self = org.members.find(m => m.is_current_user || m.self);
-            if (self && (self.email || self.email_address)) {
-              const email = self.email || self.email_address;
-              detectedUser = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-              return detectedUser;
+    // 2. Local storage session cache
+    if (!found) {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          const v = localStorage.getItem(k);
+          if (v && v.includes("@")) {
+            const m = v.match(/["']?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})["']?/);
+            if (m) {
+              const uPart = m[1].split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+              if (uPart && !["support", "anthropic", "claude", "admin", "noreply"].includes(uPart)) {
+                found = uPart;
+                break;
+              }
             }
           }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
-    try {
-      const userBtn = document.querySelector('[data-testid="user-menu-button"], [aria-label*="account"], [aria-label*="profile"]');
-      if (userBtn) {
-        const txt = userBtn.textContent || userBtn.getAttribute("aria-label") || "";
-        const m = txt.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-        if (m) {
-          detectedUser = m[1].split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-          return detectedUser;
+    // 3. Organization members
+    if (!found) {
+      try {
+        const orgsRes = await fetch("/api/organizations", { credentials: "include" });
+        if (orgsRes.ok) {
+          const orgs = await orgsRes.json();
+          if (Array.isArray(orgs) && orgs.length > 0) {
+            const org = orgs[0];
+            if (org.members && Array.isArray(org.members)) {
+              const self = org.members.find(m => m.is_current_user || m.self);
+              if (self && (self.email || self.email_address)) {
+                const email = self.email || self.email_address;
+                found = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+              }
+            }
+          }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
-    return null;
+    // 4. User profile / account button in DOM
+    if (!found) {
+      try {
+        const userBtn = document.querySelector('[data-testid="user-menu-button"], [aria-label*="account"], [aria-label*="profile"], [aria-label*="User"]');
+        if (userBtn) {
+          const txt = userBtn.textContent || userBtn.getAttribute("aria-label") || "";
+          const m = txt.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+          if (m) {
+            found = m[1].split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+          }
+        }
+      } catch (e) {}
+    }
+
+    if (found) {
+      detectedUser = found;
+      safeStorageSet({ chatsave_detected_user: found });
+    }
+    return detectedUser;
   }
 
   // 1. Extract Conversation ID from URL
@@ -582,6 +748,7 @@
 
   // 8. Capture and send conversation snapshot
   async function triggerCapture(force = false) {
+    if (!isExtensionValid()) return;
     const convId = getConversationId();
     if (!convId || convId === "new") return;
 
@@ -610,27 +777,23 @@
       captured_at: new Date().toISOString()
     };
 
-    try {
-      chrome.runtime.sendMessage(
-        { type: "INGEST_CONVERSATION", payload, force },
-        (res) => {
-          if (chrome.runtime.lastError) {
-            updateHud("offline", { error: chrome.runtime.lastError.message });
-            return;
-          }
-          if (res && res.queued) {
-            pendingCount = res.pendingCount || 0;
-            if (pendingCount > 1) {
-              updateHud("offline", { pendingCount });
-            } else {
-              updateHud("synced");
-            }
+    safeSendMessage(
+      { type: "INGEST_CONVERSATION", payload, force },
+      (res) => {
+        if (!res) {
+          updateHud("offline");
+          return;
+        }
+        if (res.queued) {
+          pendingCount = res.pendingCount || 0;
+          if (pendingCount > 1) {
+            updateHud("offline", { pendingCount });
+          } else {
+            updateHud("synced");
           }
         }
-      );
-    } catch (e) {
-      updateHud("offline");
-    }
+      }
+    );
   }
 
   // 8. Lightweight, throttled check for streaming lifecycle
@@ -685,13 +848,16 @@
 
   // 10. URL change monitor (SPA Navigation)
   let lastUrl = window.location.href;
-  setInterval(() => {
+  urlCheckInterval = setInterval(() => {
+    if (!isExtensionValid()) return;
     if (window.location.href !== lastUrl) {
       lastUrl = window.location.href;
       lastCapturedHash = "";
       updateHud("idle");
       fetchQueueStateAndUpdateSidebar();
-      setTimeout(() => triggerCapture(false), 1500);
+      setTimeout(() => {
+        if (isExtensionValid()) triggerCapture(false);
+      }, 1500);
     }
   }, 1000);
 
@@ -758,10 +924,10 @@
     });
 
     syncBtn.addEventListener("click", () => {
+      if (!isExtensionValid()) return;
       syncBtn.disabled = true;
       syncBtn.textContent = "Syncing...";
-      chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
-        if (chrome.runtime.lastError) { /* consumed */ }
+      safeSendMessage({ type: "SYNC_NOW" }, () => {
         triggerCapture(true);
         setTimeout(() => {
           syncBtn.disabled = false;
@@ -907,8 +1073,8 @@
   }
 
   function fetchQueueStateAndUpdateSidebar() {
-    chrome.runtime.sendMessage({ type: "GET_QUEUE_STATE" }, (res) => {
-      if (chrome.runtime.lastError || !res) return;
+    safeSendMessage({ type: "GET_QUEUE_STATE" }, (res) => {
+      if (!res) return;
       if (Array.isArray(res.queuedIds)) {
         currentQueuedIds = new Set(res.queuedIds);
       }
@@ -920,72 +1086,82 @@
   }
 
   // 12. Listen for background broadcast events
-  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.type === "TRIGGER_RECONCILE") {
-      reconcileStaleConversations(msg.maxDays || 7, true).then(res => {
-        sendResponse(res);
-      });
-      return true; // async reply
-    } else if (msg.type === "SYNC_SUCCESS") {
-      lastReceipt = msg.receipt;
-      pendingCount = 0;
-      updateHud("synced");
-      if (msg.conversationId) {
-        currentQueuedIds.delete(msg.conversationId);
-        currentDlqIds.delete(msg.conversationId);
-        clearSidebarDot(msg.conversationId);
-        if (msg.capturedAt) {
-          getStoredSyncedThreads().then(threads => {
-            threads[msg.conversationId] = msg.capturedAt;
-            saveStoredSyncedThreads(threads);
+  try {
+    if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
+      chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+        if (!isExtensionValid()) return;
+        if (msg.type === "GET_CLAUDE_USER") {
+          resolveClaudeUser().then(u => {
+            sendResponse({ user: u });
           });
-        }
-      }
-      fetchQueueStateAndUpdateSidebar();
-    } else if (msg.type === "SYNC_ERROR") {
-      pendingCount = msg.pendingCount || 1;
-      updateHud("offline", { error: msg.error, pendingCount });
-      fetchQueueStateAndUpdateSidebar();
-    } else if (msg.type === "DEAD_LETTER_EVENT") {
-      if (msg.conversationId) {
-        currentQueuedIds.delete(msg.conversationId);
-        currentDlqIds.add(msg.conversationId);
-        getStoredSyncedThreads().then(threads => {
-          if (threads[msg.conversationId]) {
-            delete threads[msg.conversationId];
-            saveStoredSyncedThreads(threads);
+          return true; // async reply
+        } else if (msg.type === "TRIGGER_RECONCILE") {
+          reconcileStaleConversations(msg.maxDays || 7, true).then(res => {
+            sendResponse(res);
+          });
+          return true; // async reply
+        } else if (msg.type === "SYNC_SUCCESS") {
+          lastReceipt = msg.receipt;
+          pendingCount = 0;
+          updateHud("synced");
+          if (msg.conversationId) {
+            currentQueuedIds.delete(msg.conversationId);
+            currentDlqIds.delete(msg.conversationId);
+            clearSidebarDot(msg.conversationId);
+            if (msg.capturedAt) {
+              getStoredSyncedThreads().then(threads => {
+                threads[msg.conversationId] = msg.capturedAt;
+                saveStoredSyncedThreads(threads);
+              });
+            }
           }
-        });
-      }
-      fetchQueueStateAndUpdateSidebar();
-    } else if (msg.type === "QUEUE_UPDATED") {
-      pendingCount = msg.pendingCount;
-      if (Array.isArray(msg.queuedIds)) {
-        currentQueuedIds = new Set(msg.queuedIds);
-      }
-      if (Array.isArray(msg.dlqIds)) {
-        currentDlqIds = new Set(msg.dlqIds);
-      }
-      updateSidebarDots();
+          fetchQueueStateAndUpdateSidebar();
+        } else if (msg.type === "SYNC_ERROR") {
+          pendingCount = msg.pendingCount || 1;
+          updateHud("offline", { error: msg.error, pendingCount });
+          fetchQueueStateAndUpdateSidebar();
+        } else if (msg.type === "DEAD_LETTER_EVENT") {
+          if (msg.conversationId) {
+            currentQueuedIds.delete(msg.conversationId);
+            currentDlqIds.add(msg.conversationId);
+            getStoredSyncedThreads().then(threads => {
+              if (threads[msg.conversationId]) {
+                delete threads[msg.conversationId];
+                saveStoredSyncedThreads(threads);
+              }
+            });
+          }
+          fetchQueueStateAndUpdateSidebar();
+        } else if (msg.type === "QUEUE_UPDATED") {
+          pendingCount = msg.pendingCount;
+          if (Array.isArray(msg.queuedIds)) {
+            currentQueuedIds = new Set(msg.queuedIds);
+          }
+          if (Array.isArray(msg.dlqIds)) {
+            currentDlqIds = new Set(msg.dlqIds);
+          }
+          updateSidebarDots();
 
-      if (pendingCount > 0 && hudStatus !== "syncing") {
-        updateHud("offline", { pendingCount });
-      } else if (pendingCount === 0 && hudStatus === "offline") {
-        updateHud("synced");
-      }
+          if (pendingCount > 0 && hudStatus !== "syncing") {
+            updateHud("offline", { pendingCount });
+          } else if (pendingCount === 0 && hudStatus === "offline") {
+            updateHud("synced");
+          }
+        }
+      });
     }
-  });
+  } catch (e) {}
 
   // 13. Cloud / Mobile Conversation Reconciliation Worker
   let isReconciling = false;
 
   async function getStoredSyncedThreads() {
-    const data = await new Promise(r => chrome.storage.local.get("chatsave_synced_threads", r));
+    const data = await safeStorageGet("chatsave_synced_threads");
     return data.chatsave_synced_threads || {};
   }
 
   async function saveStoredSyncedThreads(syncedMap) {
-    await new Promise(r => chrome.storage.local.set({ chatsave_synced_threads: syncedMap }, r));
+    await safeStorageSet({ chatsave_synced_threads: syncedMap });
   }
 
   // Extract complete, untruncated message text from Claude API message object
@@ -1041,6 +1217,8 @@
   let tabAutoSynced = false;
 
   async function reconcileStaleConversations(maxDays = 2, force = false, isOnTabOpen = false) {
+    if (!isExtensionValid()) return { success: false, reason: "Extension context invalidated" };
+
     // 1. In-memory check and cross-tab lock to prevent running twice
     if (isReconciling) {
       return { success: false, reason: "Reconciliation already in progress in this tab" };
@@ -1053,25 +1231,25 @@
       tabAutoSynced = true;
     }
 
-    const lockData = await new Promise(r => chrome.storage.local.get("chatsave_reconcile_lock", r));
+    const lockData = await safeStorageGet("chatsave_reconcile_lock");
     const lockTime = lockData.chatsave_reconcile_lock || 0;
     if (!force && Date.now() - lockTime < 45000) {
       return { success: true, enqueued: 0, reason: "Sync already in progress in another tab" };
     }
 
     // Set lock
-    await new Promise(r => chrome.storage.local.set({ chatsave_reconcile_lock: Date.now() }, r));
+    await safeStorageSet({ chatsave_reconcile_lock: Date.now() });
     isReconciling = true;
 
     try {
       // 2. Throttle check for non-tab-open background calls (skip if recently reconciled within 10 min)
       if (!force && !isOnTabOpen) {
-        const lastCheckData = await new Promise(r => chrome.storage.local.get("chatsave_last_reconcile_time", r));
+        const lastCheckData = await safeStorageGet("chatsave_last_reconcile_time");
         const lastCheckTime = lastCheckData.chatsave_last_reconcile_time || 0;
         const tenMinutes = 10 * 60 * 1000;
         if (Date.now() - lastCheckTime < tenMinutes) {
           isReconciling = false;
-          await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+          await safeStorageRemove("chatsave_reconcile_lock");
           return { success: true, enqueued: 0, skipped: true, reason: "Recently reconciled" };
         }
       }
@@ -1079,16 +1257,13 @@
       updateHud("syncing");
 
       // Auto-retry any items stranded in Dead Letter Queue so no conversations are missed
-      chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
-        if (chrome.runtime.lastError) {}
-      });
+      safeSendMessage({ type: "RETRY_DEAD_LETTER" });
 
       // 3. Query server for already committed conversations for true idempotency
       let serverCommitted = {};
       try {
-        const config = await new Promise(resolve => {
-          chrome.storage.local.get("chatsave_config", d => resolve(d.chatsave_config || {}));
-        });
+        const configData = await safeStorageGet("chatsave_config");
+        const config = configData.chatsave_config || {};
         const sUrl = (config.serverUrl || "http://localhost:8000").replace(/\/+$/, "");
         if (sUrl && !sUrl.includes("claude.ai")) {
           const headers = {};
@@ -1116,7 +1291,7 @@
 
       if (!orgId) {
         isReconciling = false;
-        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+        await safeStorageRemove("chatsave_reconcile_lock");
         updateHud("synced");
         return { success: false, error: "Could not resolve Claude organization" };
       }
@@ -1125,14 +1300,14 @@
       const convListRes = await fetch(`/api/organizations/${orgId}/chat_conversations`, { credentials: "include" });
       if (!convListRes.ok) {
         isReconciling = false;
-        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+        await safeStorageRemove("chatsave_reconcile_lock");
         updateHud("synced");
         return { success: false, error: `HTTP ${convListRes.status} from chat_conversations` };
       }
       const allConvs = await convListRes.json();
       if (!Array.isArray(allConvs) || allConvs.length === 0) {
         isReconciling = false;
-        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+        await safeStorageRemove("chatsave_reconcile_lock");
         updateHud("synced");
         return { success: true, enqueued: 0 };
       }
@@ -1177,9 +1352,9 @@
 
       if (staleToSync.length === 0) {
         await saveStoredSyncedThreads(syncedThreads);
-        await new Promise(r => chrome.storage.local.set({ chatsave_last_reconcile_time: Date.now() }, r));
+        await safeStorageSet({ chatsave_last_reconcile_time: Date.now() });
         isReconciling = false;
-        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+        await safeStorageRemove("chatsave_reconcile_lock");
         updateHud("synced");
         return { success: true, enqueued: 0, message: "All conversations from the past 48h are already committed" };
       }
@@ -1278,14 +1453,13 @@
             };
 
             await new Promise(resolve => {
-              chrome.runtime.sendMessage({ type: "INGEST_CONVERSATION", payload, force: false }, (res) => {
-                if (chrome.runtime.lastError) { /* consumed */ }
+              safeSendMessage({ type: "INGEST_CONVERSATION", payload, force: false }, (res) => {
                 resolve(res);
               });
             });
 
             // If this is currently the active tab conversation, also trigger live capture
-            if (convMeta.uuid === currentActiveId) {
+            if (convMeta.uuid === currentActiveId && isExtensionValid()) {
               triggerCapture(false);
             }
 
@@ -1300,15 +1474,15 @@
       }
 
       await saveStoredSyncedThreads(syncedThreads);
-      await new Promise(r => chrome.storage.local.set({ chatsave_last_reconcile_time: Date.now() }, r));
+      await safeStorageSet({ chatsave_last_reconcile_time: Date.now() });
 
       isReconciling = false;
-      await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+      await safeStorageRemove("chatsave_reconcile_lock");
       updateHud("synced");
       return { success: true, enqueued: enqueuedCount };
     } catch (err) {
       isReconciling = false;
-      await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
+      await safeStorageRemove("chatsave_reconcile_lock");
       updateHud("synced");
       return { success: false, error: err.message };
     }
@@ -1316,50 +1490,54 @@
 
   // 14. Initialization
   function init() {
+    if (!isExtensionValid()) return;
     createHud();
 
     // Fetch initial queue state and draw sidebar dots
     fetchQueueStateAndUpdateSidebar();
-    setInterval(updateSidebarDots, 2500);
+    sidebarInterval = setInterval(() => {
+      if (!isExtensionValid()) return;
+      updateSidebarDots();
+    }, 2500);
 
     // Auto-detect Claude user from active session
     resolveClaudeUser().then(user => {
-      if (user) {
+      if (user && isExtensionValid()) {
         console.log("[Chat-Save] Auto-detected Claude session user:", user);
-        chrome.storage.local.get("chatsave_config", d => {
+        safeStorageGet("chatsave_config").then(d => {
           const cfg = d.chatsave_config || {};
           if (!cfg.userId || cfg.userId === "user" || cfg.userId === "unknown" || cfg.userId === "shubham") {
             cfg.userId = user;
-            chrome.storage.local.set({ chatsave_config: cfg });
+            safeStorageSet({ chatsave_config: cfg });
           }
         });
       }
     });
 
     // Start MutationObserver on chat body
-    const observer = new MutationObserver(onDomMutated);
-    observer.observe(document.body, {
+    domObserver = new MutationObserver(onDomMutated);
+    domObserver.observe(document.body, {
       childList: true,
       subtree: true
     });
 
     // Initial capture check on current active page
     setTimeout(() => {
-      triggerCapture(false);
+      if (isExtensionValid()) triggerCapture(false);
     }, 2000);
 
     // Auto-sync on Claude opening when extension is connected (runs 3.5s after load, once per tab session)
     setTimeout(async () => {
+      if (!isExtensionValid()) return;
       try {
-        const config = await new Promise(resolve => {
-          chrome.storage.local.get("chatsave_config", d => resolve(d.chatsave_config || {}));
-        });
+        const configData = await safeStorageGet("chatsave_config");
+        const config = configData.chatsave_config || {};
         const sUrl = (config.serverUrl || "http://localhost:8000").replace(/\/+$/, "");
         if (sUrl && !sUrl.includes("claude.ai")) {
           const headers = {};
           if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
           const pingRes = await fetch(`${sUrl}/api/extension/synced-state`, { headers }).catch(() => null);
-          if (pingRes && pingRes.ok) {
+          if (pingRes && pingRes.ok && isExtensionValid()) {
             console.log("[Chat-Save] Extension connected. Auto-syncing recent Claude cloud chats (past 48h)...");
             reconcileStaleConversations(2, false, true);
           }

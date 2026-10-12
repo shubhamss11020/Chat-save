@@ -2,13 +2,30 @@
 conversation_id: b830c595-cfd8-45e4-844f-2518fec38eaf
 platform: claude
 username: "shubham"
-title: "can u give me the details about how the weekly rep"
+title: "Weekly report generation in askcruz - Claude"
 created_at: "2026-10-12T12:39:18.768Z"
-updated_at: "2026-10-12 08:39:19 EDT"
+updated_at: "2026-10-12 08:39:59 EDT"
 ---
 
-# can u give me the details about how the weekly rep
+# Weekly report generation in askcruz - Claude
 
-## User (2026-10-12 08:39:19 EDT)
+## User (2026-10-12 08:39:59 EDT)
 
 can u give me the details about how the weekly report is generated in askcruz
+
+## Claude (2026-10-12 08:39:59 EDT)
+
+The vault has no record of how AskCruz generates a weekly report, and no wiki page documents one. I found no mail describing a weekly report produced by AskCruz.
+
+What the mail does show:
+
+What AskCruz is: It’s the product behind the “Company Brain,” an AI assistant trained on 3GM’s data. It answers questions on demand about customers, orders, inventory, pricing and history, and it syncs email and ERP data. Travis described it that way on 2026-08-19, saying the goal was to get answers without pulling reports by hand (msg 47412, msg 47406).
+Reports claim: The 2026-08-14 pitch said it would automate the recurring reports Kendra and Jessica build by hand each month, covering receivables, inventory aging, supply chain, sales and financials (msg 48006). That’s a sales claim, not a documented feature.
+Data access: Email access is read-only delegated access for Travis and Stefan, with history from 2025-09-01 onward (msg 46486, att 8962).
+Timeline: The kickoff was 2026-10-01 (msg 286810). On 2026-10-03, Ron J proposed a 30-minute weekly check-in for four weeks to review how you’re using the Company Brain and gather feedback (msg 294088). He followed up on 2026-10-09 asking for a Tuesday or Thursday slot (msg 301340). I see no reply yet.
+
+Gaps: The vault has no configuration details, so I can’t say whether a weekly report is scheduled, what it contains, or who receives it. The proposal I read is the as-offered three-user version, not the signed two-user terms.
+
+If you meant a weekly report 3GM already produces, the closest match is the Detailed Weekly Footage Report (wiki page 291), which is not an AskCruz output. I can pull that instead.
+
+Sources: msg 294088 · msg 301340 · msg 286810 · msg 47412 · msg 47406 · msg 46486 · att 8962 · msg 48006 · wiki page 60 (EOXS AI Operating System Engagement)

@@ -3,45 +3,17 @@ conversation_id: 9d86e922-33f7-4758-94e0-d2cec1cd8f8c
 platform: claude
 username: "shubham"
 title: "Ace Metal Sales black 117l price"
-created_at: "2026-10-12T12:50:02.688254Z"
-updated_at: "2026-10-12 13:30:26 EDT"
+created_at: "2026-10-12 08:50:02 EDT"
+updated_at: "2026-10-12 16:20:08 EDT"
 ---
 
 # Ace Metal Sales black 117l price
 
-## User (2026-10-12 13:30:26 EDT)
+## User (2026-10-12 16:20:08 EDT)
 
 Ace Metal Sales, price for black 117l per lft?
 
-## Claude (2026-10-12 13:30:26 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:08 EDT)
 
 **$2.33/lft** is the latest black 117L price on file for Ace Metal Sales, quoted in a June 10, 2026 email. I couldn't check the ERP for a current figure, though: its tools didn't load in this session, so this comes from the vault only.
 

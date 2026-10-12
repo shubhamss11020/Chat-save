@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Claude instructions vs memory"
 created_at: "2026-10-09T15:01:38.182927Z"
-updated_at: "2026-10-12 10:35:35 EDT"
+updated_at: "2026-10-12 12:33:08 EDT"
 ---
 
 # Claude instructions vs memory
 
-## User (2026-10-12 10:35:35 EDT)
+## User (2026-10-12 12:33:08 EDT)
 
 what is the differnence of instruction and memory in claude, instruction is something that claude executes and hardcoded and memory is something claude updates about us as we continues to use the claude and chat with it, correct me and teach me
 
-## Claude (2026-10-12 10:35:35 EDT)
+## Claude (2026-10-12 12:33:08 EDT)
 
 You're mostly right, with a few corrections.
 
@@ -49,11 +49,11 @@ You're mostly right, with a few corrections.
 
 Want an example of when to use each for your own workflow?
 
-## User (2026-10-12 10:35:35 EDT)
+## User (2026-10-12 12:33:08 EDT)
 
 like i wanted to know, that where does this instruction go, because like llm take a peice of text only, but when user prompts, the instruction text gets added with prompts ? does this happens in the architecture of claude llm response?
 
-## Claude (2026-10-12 10:35:35 EDT)
+## Claude (2026-10-12 12:33:08 EDT)
 
 Yes, that's essentially what happens. You've understood the key point: **an LLM only ever sees one sequence of text (tokens).** There is no separate "instruction slot" inside the model.
 
@@ -91,11 +91,11 @@ The model then continues that text with its answer.
 
 If you want to go deeper, the next concepts to look at are **system prompts vs. user prompts** (roles), **context windows**, and **tokens**.
 
-## User (2026-10-12 10:35:35 EDT)
+## User (2026-10-12 12:33:08 EDT)
 
 like can you  show me the example what text goes in when we add instruction with prompt, and memory ,   and what do you mean by instruction weights more than prompt and memoery ?
 
-## Claude (2026-10-12 10:35:35 EDT)
+## Claude (2026-10-12 12:33:08 EDT)
 
 Here's a simplified example. The real format is more complex (special tokens, structured roles), but the idea is the same.
 

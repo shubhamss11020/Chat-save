@@ -1,23 +1,20 @@
 ---
-conversation_id: 1d5db655-8fb3-4774-b9a6-2d4c574ef2e7
+conversation_id: 3a5c3641-c925-4eed-98b1-176b7ca36ae0
 platform: claude
 username: "shubham"
 title: "Red dot products thread"
 created_at: "2026-10-12T11:00:37.366370Z"
-updated_at: "2026-10-12 12:31:29 EDT"
+updated_at: "2026-10-12 12:31:59 EDT"
 ---
 
 # Red dot products thread
 
-## User (2026-10-12 12:31:29 EDT)
+## User (2026-10-12 12:31:59 EDT)
 
 what's the latest on the red dot products forthcoming thread?
+travis
 
-## Claude (2026-10-12 12:31:29 EDT)
-
-```
-
-```
+## Claude (2026-10-12 12:31:59 EDT)
 
 ```
 
@@ -39,15 +36,18 @@ what's the latest on the red dot products forthcoming thread?
 
 ```
 
-The latest is a June 30 reply from Leslie Countryman, which says "LET'S GO!!!!" after Matt Inman reported another payment from Red Dot of $498,297.98. Nothing newer is in the vault, so the thread has been quiet since then.
+The thread's last message is from **June 30, 2026 (8:23 AM ET)**, and it says the Red Dot freight issue is settled. Leslie Countryman replied "LET'S GO!!!!" to Matt Inman's note that Merle had just paid another $498,297.98. The thread has been quiet for about three and a half months since then.
 
-Where it stands:
+The settlement, set out in Matt's June 29 message:
 
-- **Freight is settled.** On June 29 Matt set the final freight at $3.27/cwt to Denver (up $1.42) and $4.03/cwt to Newville (up $2.18). 3GM absorbs $0.60/cwt of each from its margin. Red Dot's delivered prices become $89.82 (Denver) and $90.58 (Newville).
-- **Additional freight invoice: $29,292.90.** That is $21,629.28 for 2,637,717 lb to Denver and $7,663.62 for 485,039 lb to Newville, 3,122,756 lb in total. Jessica said the numbers look correct. Matt asked for one last review before the invoice goes to Merle. The vault doesn't show it being sent.
-- **Account balance.** Jessica's June 29 statement showed $532,440.16 due, including the open freight invoice. My own arithmetic after the June 30 payment gives about $34,142.18 open. That is unconfirmed, and the statement may include items I can't see.
-- **Still open.** Jessica had not seen the Dongkuk warehouse invoices, so it is unclear what the $80/MT port adder covers. Storage after 5 free days is listed at $3.09/MT for days 6–89, rising at 90, 180 and 360 days.
+- **Freight to Denver** rose to $3.27/cwt (up $1.42). **To Newville** it rose to $4.03/cwt (up $2.18).
+- **3GM absorbs $0.60/cwt** on each destination, taken from its margin. Matt's note gives the total margin impact as 5.57% delivered to Denver and 5.52% to Newville.
+- **Merle's customer-delivered prices** are now $89.82/cwt (Denver) and $90.58/cwt (Newville), up $0.82 and $1.58.
+- **One additional freight invoice of $29,292.90** goes to Merle: $21,629.28 for 2,637,717 lb to Denver and $7,663.62 for 485,039 lb to Newville. I checked both figures and the total against the stated weights.
+- Jessica's June 29 account statement showed **$532,440.16 total due**. Stefan Brown wrote that close to $1mm has already come in from Merle, and the June 30 payment is part of that.
 
-I did not check the ERP. Its tools aren't loaded in this session, so the balance, the payment and whether the freight invoice went out need confirming there.
+The earlier part of the thread covers the cause: DK coils ran heavy, so trucks carried 4 coils instead of 5, and freight was billed on weight, so the extra trucks cost 3GM more. Travis's view on June 17 was that 3GM should not take more than the $0.60/cwt concession.
 
-Sources: msg 60902 (June 29–30 messages, including Matt's freight calculation and Jessica's statement), msg 61874 (thread start, June 17), msg 61866 (Matt's June 17 reply on margin and billing), find_thread results for "red dot products forthcoming" (22 messages, 2 branches, June 2–30, 2026).
+I did not check the ERP, so the $532,440.16 balance is as of June 29 and may have moved since. Jessica's June 17 message also gives the mill cost as $1,718/MT, while the January PO used $1,776/MT, which is a separate discrepancy I haven't reconciled.
+
+Sources: msg 60902 (June 30 reply, with the June 29 invoice, statement and margin messages quoted inside it) · msg 61866 (Matt, June 17, on the 6.65% concession and load weights) · msg 61874 (Travis, June 17, thread starter)

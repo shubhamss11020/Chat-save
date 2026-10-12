@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "2028 Olympic Games information"
 created_at: "2026-10-12T19:09:51.422519Z"
-updated_at: "2026-10-12 15:09:56 EDT"
+updated_at: "2026-10-12 15:11:34 EDT"
 ---
 
 # 2028 Olympic Games information
 
-## User (2026-10-12 15:09:56 EDT)
+## User (2026-10-12 15:11:34 EDT)
 
 olympic 2028 details
 
-## Claude (2026-10-12 15:09:56 EDT)
+## Claude (2026-10-12 15:11:34 EDT)
 
 I'll start by reading the two skill files.
 
@@ -42,3 +42,28 @@ The 2028 Summer Olympics are in Los Angeles, and the opening ceremony is July 14
 Ticket phases and prices change, so check the official LA28 site before buying. I can go deeper on any sport or on travel planning if you like.
 
 Separately, the archive-saving tool (`save_chat_transcript`) isn't connected in this session, so this conversation wasn't saved to the team archive.
+
+## User (2026-10-12 15:11:34 EDT)
+
+give me details about 2036
+
+## Claude (2026-10-12 15:11:34 EDT)
+
+The host for the 2036 Summer Olympics hasn't been chosen yet. It's an open contest, and the winner will be picked by a vote.
+
+**Where the race stands (as of early October 2026)**
+- On October 6, 2026, the IOC said seven countries, including India and Qatar, have expressed interest. The deadline for other national Olympic bodies to join is October 31.
+- The IOC plans to pick the winner through a contested vote in 2029.
+- The IOC executive board will make key decisions over the next 2½ years, guided by a 30-page document the IOC published for bidders.
+- In March, the executive board is due to approve a shortlist of candidates to develop detailed projects.
+- IOC President Kirsty Coventry paused the fast-track selection process on taking office in June 2025. That process had let Brisbane be picked as the 2032 host 11 years in advance, without a contested vote.
+
+**Bids named so far**
+- **India:** The plan centers on Ahmedabad, which hosts the Commonwealth Games in 2030 and has the world's largest cricket stadium.
+- **Qatar:** The bid is built around Doha, and it could expand to send some events to Gulf neighbors. A Qatar-hosted Games would likely mean moving the Summer Games out of the July-August slot used at every edition from 2004 through 2032.
+- **South Korea:** The bid would be anchored in Seoul, which hosted the 1988 Games, and spread across the country.
+- **South Africa:** The bid is national and centered on Cape Town, which would make it the first African host of the Summer Games.
+
+The articles I found name only four of the seven bidders. Earlier interest from Poland and Indonesia (a bid centered on Nusantara, its future capital) was reported in earlier years, and Mexico withdrew its bid, citing tough competition. I can't confirm from these sources which countries make up the seven today, so check the IOC announcement for the full list.
+
+The conversation still isn't being saved to the team archive, because the saving tool isn't connected in this session.

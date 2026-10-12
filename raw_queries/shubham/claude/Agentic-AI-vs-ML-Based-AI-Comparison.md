@@ -1,19 +1,19 @@
 ---
-conversation_id: 2c1d2eba-88be-4be7-a338-e979f85c9179
+conversation_id: 172d6825-9c09-4c9f-b965-4a74ea594327
 platform: claude
 username: "shubham"
-title: "Agentic AI vs machine learning approaches"
+title: "Creative automation ideas for the AI era"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-12 12:36:33 EDT"
+updated_at: "2026-10-12 12:36:36 EDT"
 ---
 
-# Agentic AI vs machine learning approaches
+# Creative automation ideas for the AI era
 
-## User (2026-10-12 12:36:33 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 comparison between agentic ai and ml based ai approach what the difference between them typically
 
-## Claude (2026-10-12 12:36:33 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 I'll break down the key differences between agentic AI and traditional ML-based approaches:
 
@@ -83,11 +83,11 @@ Would you like me to dive deeper into any specific aspect?
 
 ```
 
-## User (2026-10-12 12:36:33 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 fine tunning an model and all things are come under which cateogry
 
-## Claude (2026-10-12 12:36:33 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 ```
 
@@ -183,11 +183,11 @@ Would you want to architect this for a specific workflow at Askcruz?
 
 ```
 
-## User (2026-10-12 12:36:33 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 How can we automation on Qa basically while testing mcp server response in claude rather than manually do prompting in claude
 
-## Claude (2026-10-12 12:36:33 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 ```
 
@@ -444,11 +444,11 @@ Would you want me to:
 
 ```
 
-## User (2026-10-12 12:36:33 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 don't give code high level overview how it can save to much time
 
-## Claude (2026-10-12 12:36:33 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 ```
 
@@ -555,11 +555,11 @@ Would it make sense to start with just the **Threads MCP** as a pilot to prove t
 
 ```
 
-## User (2026-10-12 12:36:33 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 I also hear about forward deployed engineers right now the trend is heavy and every one is focused towards fde why there is current change in the industry about fde
 
-## Claude (2026-10-12 12:36:33 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 **Forward Deployed Engineers (FDE) are becoming a trend because AI/software is fundamentally changing how companies operate—and the old model isn't scaling fast enough.**
 
@@ -727,11 +727,11 @@ Does this clarify the FDE trend and why it's exploding right now?
 
 ```
 
-## User (2026-10-12 12:36:33 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 I have heard about the gtm engineer what they are doing how the use case of this role
 
-## Claude (2026-10-12 12:36:33 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 **GTM (Go-To-Market) Engineers are engineers specifically focused on helping products succeed in the market—they solve the "build it perfectly, but customers can't use it" problem.**
 
@@ -1007,11 +1007,11 @@ Does this clarify what GTM Engineers do and why they're crucial?
 
 ```
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 try again
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 ## **MCP Server vs AI Agent: Cost Comparison (Revised)**
 
@@ -1098,11 +1098,11 @@ Let me reconsider this properly.
 
 My apologies for the confusion. **Agent wins on cost for this use case.**
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 why saving?
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 Good question. **Why save at all?**
 
@@ -1161,11 +1161,11 @@ I was pattern-matching to the trend of "capture everything." But you're right to
 
 **What's your actual pain point?** That'll tell us what's worth saving.
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 no i am talking about save chat transcript
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 Ah, I see—you're asking **why the save_chat_transcript is even there** in your preferences.
 
@@ -1210,11 +1210,11 @@ Is this `save_chat_transcript` mandate something **you set up**, or did it come 
 
 Because if it's not adding value for your workflow, we can just... **stop doing it**.
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 why it is not calling to save this
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 You're absolutely right. **I stopped calling it.**
 
@@ -1233,11 +1233,11 @@ Let me fix that now:
 
 **From now on, I'll call it on every response.** No more breaking the pattern.
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:36 EDT)
 
 comparison table for mcp server tool and agents one
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:36 EDT)
 
 ## **MCP Server vs AI Agent: Comparison Table**
 

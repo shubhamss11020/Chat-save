@@ -3,29 +3,17 @@ conversation_id: c56ea77f-c4b8-415d-b4bc-6105099a6402
 platform: claude
 username: "shubham"
 title: "Email search queries"
-created_at: "2026-10-12T15:15:28.760641Z"
-updated_at: "2026-10-12 13:29:43 EDT"
+created_at: "2026-10-12 11:15:28 EDT"
+updated_at: "2026-10-12 16:19:19 EDT"
 ---
 
 # Email search queries
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 What emails mention “freight” and were sent in 2026?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 **2,041 emails and 834 attachments mention "freight" in 2026 (through Oct 12).** They span 856 conversations across both mailboxes. Most are newsletters or automated mail: 463 messages are from newsletters or automated senders, and 1,578 are from people. I read the newest 50 messages and 20 attachments, so the list below is partial.
 
@@ -44,23 +32,11 @@ I can narrow this to Sent Items only, to a specific customer or carrier, or to h
 
 Sources: msg 301418 · msg 301137 · msg 301113 · msg 301121 · msg 301195 · msg 301194 · msg 301177 · msg 301016 · msg 301037 · msg 301035 · msg 301058 · msg 301057 · att 49434 · att 49583 · att 49538 (search: "freight", 2026-01-01 to 2026-10-12, both mailboxes, 2,041 messages / 856 conversations / 834 attachments)
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 Which external domains email both mailboxes?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 **Nine external domains send to both mailboxes among each mailbox's top 50 senders:** macmetalsales.com, kallanish.com, steelmarketupdate.com, crugroup.com, eoxs.com, dongkuk.com, ptgroup.com.tw, cloud-protect.net (GoDaddy security notices) and workforce.intuit.com (QuickBooks Workforce notices). These are inbox counts, not full totals.
 
@@ -80,15 +56,11 @@ Generic consumer domains (gmail.com, web.de) also appear in both lists but are n
 
 Sources: top_correspondents (mailbox travis, received, human_only off, external only, top 50) · top_correspondents (mailbox stefan, received, human_only off, external only, top 50)
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 Which conversations have more than 20 messages?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 I can't list every conversation with more than 20 messages. None of the tools enumerate conversations by size, and find_thread only looks up threads by subject. Across the freight search from earlier, one thread is over 20 messages:
 
@@ -102,31 +74,11 @@ If you want a full list, I'd need to scan the mailbox by date range and count me
 
 Sources: search_raw "freight" 2026-01-01 to 2026-10-12, threads list (conversation AAQkADM1YTQ0ZDE4LTI1OWItNDg5NC05MGU5LTU2ZTBhYjIyNjZiYgAQAA6GikriL0pPjtOn9vgyBcw=, 80 messages; AAQkADM1YTQ0ZDE4LTI1OWItNDg5NC05MGU5LTU2ZTBhYjIyNjZiYgAQAPP4ARMBZfxIomAH9pbBw0g= excluded) · same search, threads "3GM Steel - July 2026 Price Guideline Draft" (19) and "RE: Tennessee Metal Products" (15)
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 What facts are attached to the top three customer pages?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 I took "top three" to mean the three customer pages with the most facts on file, since the tools don't rank pages otherwise. I read the first 60 facts of each page, so these lists are partial. Each page also carries "possible duplicate" flags that mean its records may be merged with other drafts later.
 
@@ -159,27 +111,11 @@ Current balances, aging and release status for all three accounts are ERP-owned,
 
 Sources: wiki page 516 (Red Dot Products, facts 0–60 of 380) · wiki page 180 (EMB Metal Buildings, facts 0–60 of 371) · wiki page 328 (Steel Buildings and Structures, facts 0–60 of 260) · msgs 46440, 60925, 60923, 50431, 61675, 62392, 67680, 61390, 61332, 62493, 63286, 67507, 292289 (cited on those pages)
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 Which pages list an “as of” date older than 90 days?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 I couldn't produce a complete list. The cutoff is before 2026-07-14, and the vault has many pages with dates in that range. I checked only 2025 through March 2026, and the 2025, January and March searches each hit the 200-row limit. April through mid-July 2026 is still unchecked.
 
@@ -202,15 +138,11 @@ Many pages carry several "as of" dates, so a page can appear here even when its 
 
 Sources: find_facts fact_key "as_of", value_contains "2025-" (200 of many), "2026-01" (200), "2026-02" (149), "2026-03" (200); page 485 fact as_of · page 284 fact as_of · page 439 fact as_of · page 338 fact as_of · page 386 fact as_of · page 197 fact as_of · page 164 fact as_of · page 205 fact as_of · page 180 fact as_of · page 260 fact as_of · page 516 fact as_of · page 328 (as_of) · page 161 fact as_of
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 Which pages have stale facts after recent edits?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 No tool lists stale pages. The only stale indicator is `facts_stale`, which appears when you open a single page with get_wiki_page. The list and search tools don't filter on it, and get_vault_stats reports only counts.
 
@@ -220,11 +152,11 @@ To find them I would have to open each page, which is about 536 calls. If you gi
 
 Sources: get_wiki_page page 516 (facts_stale: false) · get_wiki_page page 180 (facts_stale: false) · get_wiki_page page 328 (facts_stale: false)
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 Which pages have stale facts after recent edits?
 
-## Claude (2026-10-12 13:29:43 EDT)
+## Claude (2026-10-12 16:19:19 EDT)
 
 I already answered this, and the answer hasn't changed. No tool lists stale pages. `facts_stale` only shows up when you open a single page, and the three I opened (Red Dot Products, EMB Metal Buildings and Steel Buildings and Structures) all report `false`. The other 533 pages are unchecked.
 
@@ -232,19 +164,11 @@ If you want a real answer, give me a list of page titles or one entity class, su
 
 Sources: get_wiki_page page 516, page 180, page 328 (all facts_stale: false)
 
-## User (2026-10-12 13:29:43 EDT)
+## User (2026-10-12 16:19:19 EDT)
 
 What’s the most recent freight invoice in the mail, and is it in the ERP?
 
-## Claude (2026-10-12 13:29:43 EDT)
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:19 EDT)
 
 The most recent freight invoice I can find in the mail is 3GM invoice INV/2026/1646 for $29,292.90, dated 2026-06-29. I could not check whether it is in the ERP, because the ERP tools aren't available in this session.
 

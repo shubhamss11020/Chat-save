@@ -1,19 +1,19 @@
 ---
-conversation_id: d0ae7098-7960-491b-bcf8-1dbb588bfee2
+conversation_id: 3c761f35-c313-400d-868d-39c84eca2432
 platform: claude
 username: "shubham"
-title: "PDF quotation from July 2026"
+title: "Mac Metal sales invoice"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:14:40 EDT"
+updated_at: "2026-10-12 12:14:57 EDT"
 ---
 
-# PDF quotation from July 2026
+# Mac Metal sales invoice
 
-## User (2026-10-12 12:14:40 EDT)
+## User (2026-10-12 12:14:57 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:14:40 EDT)
+## Claude (2026-10-12 12:14:57 EDT)
 
 ```
 

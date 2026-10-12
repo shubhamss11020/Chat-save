@@ -1,19 +1,19 @@
 ---
-conversation_id: 457adc46-5641-495b-9e04-6712eb3b9b9b
+conversation_id: c56ea77f-c4b8-415d-b4bc-6105099a6402
 platform: claude
 username: "shubham"
-title: "Stefan's replies and forwarded emails"
+title: "Email search queries"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:13:11 EDT"
+updated_at: "2026-10-12 12:13:13 EDT"
 ---
 
-# Stefan's replies and forwarded emails
+# Email search queries
 
-## User (2026-10-12 12:13:11 EDT)
+## User (2026-10-12 12:13:13 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 ```
 
@@ -81,11 +81,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 12:13:11 EDT)
+## User (2026-10-12 12:13:13 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 ```
 
@@ -147,11 +147,11 @@ I can check the ERP for the current Texas Star balance, the Englert credit memo,
 
 Sources: wiki pages 535, 8, 101, 520; outlook messages 277095, 280528, 282385, 46484, 46696, 46700, 48173, 49073; outlook attachments 11298, 46130
 
-## User (2026-10-12 12:13:11 EDT)
+## User (2026-10-12 12:13:13 EDT)
 
 What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 
@@ -222,35 +222,11 @@ Here are 50 more questions. The vault connection is offline right now, so I can'
 54. What's the forecast for next week?
 55. Which of our customers has the biggest birthday party coming up?
 
-## User (2026-10-12 12:13:11 EDT)
+## User (2026-10-12 12:13:13 EDT)
 
 How many messages were sent on weekends in the past quarter?
 
-## Claude (2026-10-12 12:13:11 EDT)
-
-```
-
-```
-
-I can't give you a reliable list of unanswered January emails yet, for two reasons.
-
-- **Whose inbox?** You didn't say. January has 841 person-to-person emails across Travis's and Stefan's mailboxes, and "unanswered" means something different for each. Which one do you mean?
-- **The tools don't report reply status.** To tell whether a message was answered, I'd have to check each conversation for a reply from that mailbox owner after the message arrived. For 841 messages that's too many lookups to do reliably in one pass.
-
-A narrower scope would work better. For example:
-- One mailbox (Travis or Stefan), and January 2026 only
-- Only messages from outside 3GM, such as customers, suppliers and banks, where a reply is most likely expected
-- A specific sender, subject or customer
-
-Tell me which, and I'll check those threads for replies and list the ones with no response from the mailbox owner.
-
-Sources: vault list_emails, both mailboxes, 2026-01-01 to 2026-01-31 ET, human_only (first 50 of 841 shown; ids 202065–202160).
-
-## User (2026-10-12 12:13:11 EDT)
-
-What’s the most common entity class in the wiki?
-
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 ```
 
@@ -260,22 +236,97 @@ What’s the most common entity class in the wiki?
 
 ```
 
-I couldn't find documentation of how the first ingestion stage is validated, so I can't say whether it relies on keywords, semantic search, or meaning.
+```
 
-What the vault does show:
-- **Batch-based ingestion:** Some support-ticket sources were "ingested in three date-sorted batches by parallel agents," each covering a date window. For example, one batch covered 165 tickets with IDs T04447–T05159. Source: wiki page 842, Discount Pipe & Steel support tickets.
-- **Email archives are split by date and batch:** Archive pages are organized by batch number and date range, for example "batch 13, 2025-09-09 to 2025-10-16." Source: wiki pages 931 and 983.
-- **Counts appear to be checked by ID range and date window,** not by content. The pages describe what was ingested by range, but none of the pages I searched explains how completeness was verified.
+```
 
-I found no mention of keyword matching, semantic search, or meaning-based checks in the ingestion records, so I can't confirm any of them is the validation method.
+```
 
-To answer this properly, I'd need the pipeline's design notes, the ingestion script, or the "Study Time" session where the ingestion approach was discussed. I can search the call transcripts for "ingestion" or "validation" if you want me to try that.
+```
 
-## User (2026-10-12 12:13:11 EDT)
+```
+
+```
+
+I took "top three" to mean the three customer pages with the most facts on file, since the tools don't rank pages otherwise. I read the first 60 facts of each page, so these lists are partial. Each page also carries "possible duplicate" flags that mean its records may be merged with other drafts later.
+
+**1. Red Dot Products (380 facts)**
+- Past-due invoice INV/2026/1426 for $34,142.18, dated 2026-06-12, due 2026-07-12, Net 30. The customer's remittance of 2026-07-14 paid it in full.
+- Freight invoice INV/2026/1646 for $29,292.90, dated 2026-06-29. The page records it as circulated internally for approval, not confirmed as sent to the customer.
+- Mill source is Dongkuk: 1,400 MT Liner Panel Coil at $1,696/MT to NOLA, $89.00/cwt delivered.
+- Payment terms conflict: the ERP sales order says NET30, but Red Dot's own PO says COD.
+- The 06/29 statement shows a $500,000 credit limit, $678,640.16 credit used and a $532,440.16 balance. The page flags that these figures don't reconcile.
+- Account owner is Matt Inman, with his title given two different ways.
+
+**2. EMB Metal Buildings (371 facts)**
+- Account owner is Tadd Sapone. The account is at the Port of Vancouver, with storage running since early 2026.
+- Credit reference from March 2026: sold since 2024, Net 30, pays within terms, recent high credit $238,615.29.
+- ACH payment of $117,306.29 initiated 2026-04-02.
+- Balance owed after pending payments was $426,216.89 as of 2026-06-18, quoted secondhand.
+- Two amounts are recorded for storage invoice INV/2026/1411: $12,774.23 and $17,296.83.
+- Resolution plan from June 2026 was to invoice the full amount and have Esiquil Lara sign a payment commitment. The page does not confirm that was done.
+- The page also records a 2026-09-01 summary from the mid-year review: 10 past-due invoices totaling $367,062.13, balance $430,366.44, last payment $102,743.86 on 8/27. Those are dated observations, not current balances.
+
+**3. Steel Buildings and Structures (260 facts)**
+- Counterparty domain is sbsihq.com, based in Mt. Airy, NC. Contacts include Alfonso Herrera.
+- Credit limit is $500,000, raised from $250,000 in April 2026 per the Allianz Trade permitted-limit decision.
+- Payments of $114,033.40 on 2026-06-01 and $156,714.69 on 2026-06-08.
+- Storage on PO GM-003 / S08897 at $19.50/NT, 120 days old as of 2026-06-10. Storage invoice INV/2026/1402 is $7,700.55, with a warning about $275,700.53 in potential additional storage billing.
+- Customer statement of 06/30/2026: $360,921.43 balance, all of it within 60 days.
+- Customer's "4 past-due invoices" must be paid before new material is released.
+
+Current balances, aging and release status for all three accounts are ERP-owned, so check the ERP before relying on these numbers.
+
+Sources: wiki page 516 (Red Dot Products, facts 0–60 of 380) · wiki page 180 (EMB Metal Buildings, facts 0–60 of 371) · wiki page 328 (Steel Buildings and Structures, facts 0–60 of 260) · msgs 46440, 60925, 60923, 50431, 61675, 62392, 67680, 61390, 61332, 62493, 63286, 67507, 292289 (cited on those pages)
+
+## User (2026-10-12 12:13:13 EDT)
+
+Which pages list an “as of” date older than 90 days?
+
+## Claude (2026-10-12 12:13:13 EDT)
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+I couldn't produce a complete list. The cutoff is before 2026-07-14, and the vault has many pages with dates in that range. I checked only 2025 through March 2026, and the 2025, January and March searches each hit the 200-row limit. April through mid-July 2026 is still unchecked.
+
+Here is a sample of pages with at least one "as of" date before 2026-07-14:
+
+- **2B Holdings LLC** (page 485): 2025-09-08 to 2025-12-17
+- **3GM Loan Plan** (page 284): 2025-12-09
+- **3GM–POSCO 2026 Supply MoU** (page 439): 2025-09-22
+- **Aged Inventory Clear-Out** (page 338): 2025-10-30
+- **American Steel Carports Inc** (page 386): 2025-10-01 to 2026-01-16
+- **Big River Steel** (page 197): 2025-09-05 to 2026-03-18
+- **Carolina Carports Inc.** (page 164): 2025-09-24 to 2026-02-05
+- **Dongkuk** (page 205): 2025-09-03 to 2026-03-30
+- **EMB Metal Buildings** (page 180): 2025-10-29 to 2026-02-24
+- **Prosperity Tieh Enterprise** (page 260): 2026-01-06 to 2026-03-30
+- **Red Dot Products** (page 516): includes a 2026-06-29 date, and older dates from January 2026
+- **Steel Buildings and Structures** and **Access World (USA) LLC** (page 161): both have dates in early 2026
+
+Many pages carry several "as of" dates, so a page can appear here even when its most recent date is current. Tell me whether you want any date that is older than 90 days, or only pages whose latest date is. I can then run April through mid-July 2026 and page through the results.
+
+Sources: find_facts fact_key "as_of", value_contains "2025-" (200 of many), "2026-01" (200), "2026-02" (149), "2026-03" (200); page 485 fact as_of · page 284 fact as_of · page 439 fact as_of · page 338 fact as_of · page 386 fact as_of · page 197 fact as_of · page 164 fact as_of · page 205 fact as_of · page 180 fact as_of · page 260 fact as_of · page 516 fact as_of · page 328 (as_of) · page 161 fact as_of
+
+## User (2026-10-12 12:13:13 EDT)
 
 Which pages were created from a single source message?
 
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 **Within the first 100 entity pages (A through E), 19 pages cite only one source message.** That's a partial answer. The wiki has 675 pages in total, and the list tool can't filter by citation count, so I'd have to scan the rest to finish.
 
@@ -288,11 +339,11 @@ Two caveats. A citation count of 1 means one citation, not necessarily one messa
 
 Sources: list_wiki_pages (page_type entity, first 100 of 410, citation_count field)
 
-## User (2026-10-12 12:13:11 EDT)
+## User (2026-10-12 12:13:13 EDT)
 
 What are the most common fact keys across the wiki?
 
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 ```
 
@@ -306,11 +357,11 @@ To get a real answer, I'd have to read facts page by page and tally the keys mys
 
 Tell me which you'd like, and I'll run it.
 
-## User (2026-10-12 12:13:11 EDT)
+## User (2026-10-12 12:13:13 EDT)
 
 How many open quotes are in the vault, and how many of those are in the ERP?
 
-## Claude (2026-10-12 12:13:11 EDT)
+## Claude (2026-10-12 12:13:13 EDT)
 
 ```
 
@@ -320,17 +371,15 @@ How many open quotes are in the vault, and how many of those are in the ERP?
 
 ```
 
-```
+The most recent freight invoice I can find in the mail is 3GM invoice INV/2026/1646 for $29,292.90, dated 2026-06-29. I could not check whether it is in the ERP, because the ERP tools aren't available in this session.
 
-```
+- **Invoice:** the attached invoice (att 13250, on msg 60923) is for the additional freight on the Red Dot Products Denver and Newville deliveries. The invoice itself shows no customer PO, release number or sales order, and its line-item grid is empty apart from a zero freight row.
+- **Status in mail:** the thread shows it circulated internally for sign-off on 2026-06-29. The latest message that mentions it is msg 60902, sent 2026-06-30 08:23 ET, which attaches the Red Dot account statement with the open freight invoice. Nothing I read confirms the invoice was sent to the customer or paid.
+- **Newer hit, not an invoice:** the GoDaddy quarantine notice from 2026-10-10 (msg 301418) lists "freight invoices" in a message from Ryan Hollis. That is a held message, not a 3GM invoice, and I did not open it.
 
-I can't answer either half of this yet.
+The newest "freight" mail is from July 2026, but those are discussions about pass-through freight costs, not invoices.
 
-**ERP:** The 3GM ERP connector isn't available in this session. I searched for its tools and none loaded, so I can't check which quotes are open there. You'd need to connect the ERP for this chat before I can answer that part.
-
-**Vault:** The vault doesn't record quote status as a field, so I can't count open quotes directly. The closest I could get is searching mail for "quote" and checking each thread by hand. That would show quotes that were discussed, not which are still open. Searching mail won't tell you whether a quote is still live.
-
-Once the ERP is connected, I can count open quotes there (draft or sent quotations) and check them against the vault threads. Let me know when it's connected, or tell me if you'd rather I only look at the vault mail.
+Sources: search_raw "freight invoice" (2026-01-01 to 2026-10-12, both mailboxes); msg 60923 and att 13250 (INV/2026/1646); msg 60902 (2026-06-30); msg 301418 (quarantine notice, not opened); wiki page 516 (Red Dot Products, flags on invoice status). ERP: not checked, tools unavailable in this session.
 
 ## Claude (2026-10-12 12:13:08 EDT)
 

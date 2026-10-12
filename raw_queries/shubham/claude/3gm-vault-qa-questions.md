@@ -3,29 +3,17 @@ conversation_id: 8ac252a4-ddd2-4cbf-8efc-a301b0059ee7
 platform: claude
 username: "shubham"
 title: "3GM vault QA questions"
-created_at: "2026-10-12T14:25:39.231690Z"
-updated_at: "2026-10-12 13:30:09 EDT"
+created_at: "2026-10-12 10:25:39 EDT"
+updated_at: "2026-10-12 16:19:48 EDT"
 ---
 
 # 3GM vault QA questions
 
-## User (2026-10-12 13:30:09 EDT)
+## User (2026-10-12 16:19:48 EDT)
 
 provide me with all the questions which i can query to do a QA on the 3gm vault. give me atleast 20 questions
 
-## Claude (2026-10-12 13:30:09 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:48 EDT)
 
 I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't check these against live data. The questions below are built from the 3gm-navigator skill's documented coverage. Replace the bracketed placeholders with real names, subjects and dates before you run them.
 
@@ -81,19 +69,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 13:30:09 EDT)
+## User (2026-10-12 16:19:48 EDT)
 
 give me more general random questions
 
-## Claude (2026-10-12 13:30:09 EDT)
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:48 EDT)
 
 The vault is now connected. Correction to my last reply: I said the connectors couldn't be loaded, but I was searching under the wrong names. They're available now, and the stats are below.
 
@@ -129,11 +109,11 @@ Current vault: 675 wiki pages (410 entity, 163 analysis, 55 source, 44 concept, 
 
 Sources: vault stats call (get_vault_stats), 2026-10-12.
 
-## User (2026-10-12 13:30:09 EDT)
+## User (2026-10-12 16:19:48 EDT)
 
 give me 50 more questions
 
-## Claude (2026-10-12 13:30:09 EDT)
+## Claude (2026-10-12 16:19:48 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 

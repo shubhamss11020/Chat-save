@@ -3,37 +3,17 @@ conversation_id: 7e64ca64-2c83-49d3-8821-62700a76e66c
 platform: claude
 username: "shubham"
 title: "Wiki pages analysis"
-created_at: "2026-10-12T14:29:38.671184Z"
-updated_at: "2026-10-12 13:29:59 EDT"
+created_at: "2026-10-12 10:29:38 EDT"
+updated_at: "2026-10-12 16:19:36 EDT"
 ---
 
 # Wiki pages analysis
 
-## User (2026-10-12 13:29:59 EDT)
+## User (2026-10-12 16:19:36 EDT)
 
 How many wiki pages do we have on customers, and how many on suppliers?
 
-## Claude (2026-10-12 13:29:59 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:36 EDT)
 
 **Customers: 223 wiki pages. Suppliers: 32 wiki pages.**
 
@@ -41,43 +21,11 @@ Several customer pages look like duplicates of the same company, so the number o
 
 Sources: wiki list_wiki_pages (entity_class=customer, 223 pages; entity_class=supplier, 32 pages); get_vault_stats (675 live pages, 410 entity). ERP not consulted, since this is a count of wiki pages.
 
-## User (2026-10-12 13:29:59 EDT)
+## User (2026-10-12 16:19:36 EDT)
 
 Which people appear in the most wiki pages?
 
-## Claude (2026-10-12 13:29:59 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:36 EDT)
 
 I can't give exact wiki-page counts per person with these tools. Travis Lane and Stefan Brown are the most-mentioned people by a wide margin, and that holds in the wiki too: both hit the 50-page cap on every search.
 
@@ -97,11 +45,11 @@ If you need exact page counts, I can search each name in the wiki's fact index, 
 
 Sources: wiki `list_wiki_pages` (entity_class=person, 10 pages: 47, 654, 398, 306, 629, 504, 92, 137, 138, 468); wiki `search_wiki` for "Corey McGlothlin", "Stefan Brown", "Travis Lane", "Matt Inman", "Leslie Countryman" and "Matt Wilson" (each capped at 50 hits; raw-message counts as reported in each result).
 
-## User (2026-10-12 13:29:59 EDT)
+## User (2026-10-12 16:19:36 EDT)
 
 What did Stefan send Travis yesterday?
 
-## Claude (2026-10-12 13:29:59 EDT)
+## Claude (2026-10-12 16:19:36 EDT)
 
 I can't answer this right now. The 3GM Vault connector has disconnected, so I can't read Stefan's mail. I haven't guessed at the contents.
 

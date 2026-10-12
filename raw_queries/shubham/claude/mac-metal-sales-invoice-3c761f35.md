@@ -3,57 +3,17 @@ conversation_id: 3c761f35-c313-400d-868d-39c84eca2432
 platform: claude
 username: "shubham"
 title: "Mac Metal sales invoice"
-created_at: "2026-10-12T12:20:08.778224Z"
-updated_at: "2026-10-12 13:56:27 EDT"
+created_at: "2026-10-12 08:20:08 EDT"
+updated_at: "2026-10-12 16:20:34 EDT"
 ---
 
 # Mac Metal sales invoice
 
-## User (2026-10-12 13:56:27 EDT)
+## User (2026-10-12 16:20:34 EDT)
 
 What's the latest on the Mac Metal sales invoice thread?
 
-## Claude (2026-10-12 13:56:27 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:34 EDT)
 
 The latest message is Stefan's reply on Sept 24 at 3:15 PM ET, after Jessica forwarded Mid-Ship invoice #62279773 for $15,600. Stefan's reply says the barges are being left at the port on purpose. The invoice itself is for barge demurrage on Mac Metal's July '26 shipment.
 

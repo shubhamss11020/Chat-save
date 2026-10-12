@@ -1,19 +1,19 @@
 ---
-conversation_id: c054066d-fa12-4755-942c-4da00c98f776
+conversation_id: 9ac24c87-8b9b-4fea-a8da-f491ab671760
 platform: claude
 username: "shubham"
-title: "Askcruz clients and issues"
+title: "AskCruz clients and issues"
 created_at: "2026-10-09T15:18:29.384110Z"
-updated_at: "2026-10-12 12:33:02 EDT"
+updated_at: "2026-10-12 12:33:05 EDT"
 ---
 
-# Askcruz clients and issues
+# AskCruz clients and issues
 
-## User (2026-10-12 12:33:02 EDT)
+## User (2026-10-12 12:33:05 EDT)
 
 can u give me the information about all the clients of askcruz and also represent all the issues they are facing
 
-## Claude (2026-10-12 12:33:02 EDT)
+## Claude (2026-10-12 12:33:05 EDT)
 
 I'll pull the client list from Askcruz first, then look at each client's profile, calls, and emails to find the issues they're facing.
 ```
@@ -183,3 +183,48 @@ Askcruz has 8 clients. Six run EOXS (Odoo) instances, and two (Brannon, Conklin)
 - I can turn this into a shareable document, or pull the open ticket counts per client from Odoo.
 
 Sources: Askcruz client profiles for all 8 clients, plus wiki pages on RW Conklin contract dispute, Brannon MTR Inventory Module escalation, Ohio Strip Steel ERP/AI overview request, and Sabre Alloys Outage-Credit Dispute.
+
+## User (2026-10-12 12:33:05 EDT)
+
+can u give me the information about all the clients of askcruz and also represent all the issues they are facing
+
+## Claude (2026-10-12 12:33:05 EDT)
+
+```
+
+```
+
+```
+
+```
+
+The Askcruz connector still isn't available in this chat. I checked again just now and none of its tools loaded, so I can't pull current client data. Here is the same summary as before, from the last information I have.
+
+**Clients (8 active, all steel and metals)**
+
+| Client | Instance | Contacts |
+|---|---|---|
+| Sabre Alloys | sabre.eoxs.com | 9 |
+| 3GM Steel | 3gm.eoxs.com | 3 |
+| Discount Pipe & Steel | discountpipesteel.eoxs.com | 8+, including Alt Digital AI consultants |
+| Eastern States Steel | ess.eoxs.com | 6 |
+| Ohio Strip Steel / Greer Steel | greersteel.eoxs.com | 7 |
+| PPC Metals | ppc.eoxs.com | 9+ |
+| Brannon Steel | no Odoo instance | 5 |
+| RW Conklin Steel | no Odoo instance | 4 |
+
+**Issues**
+- **Revenue:** Retained clients fell about 29% from Q2 to Q3.
+- **At risk (30%+ decline):** Sabre Alloys, Discount Pipe & Steel and PPC Speciality Metals.
+- **Growth:** Only Greer Steel grew.
+- **Order frequency:** It dropped from 2.8 to 2.0 orders per quarter.
+- **Churn:** Hansen Metallurgical Services left, a small account.
+- **Eastern States Steel open intake items (Implementation Phase 1):**
+  - Purchase Order Intake #51905, with PO178360 waiting to become a sales order (owner: Ryan Capinski)
+  - Rename Tax Label on Invoice #30371 (dev team)
+  - Incorrect Actual Weight Display #30370 (Humaira)
+  - Update Weight Mapping on Invoice Weight Field #30369 (Humaira)
+  - Update Invoice Footer Text #30368 (Humaira)
+  - Website To Do #30193 (Ryan Capinski)
+
+I have no issue-level detail for the other seven clients. To get that, enable the Askcruz connector for this chat in the connector or tools menu and send the message again, and I'll list every client's open tasks and problems.

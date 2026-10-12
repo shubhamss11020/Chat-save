@@ -1,19 +1,19 @@
 ---
-conversation_id: 068e5c02-9df5-4da6-8423-6a36a770e3c2
+conversation_id: b830c595-cfd8-45e4-844f-2518fec38eaf
 platform: claude
 username: "shubham"
-title: "Updated purchase order email"
+title: "Weekly report generation criteria"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:14:34 EDT"
+updated_at: "2026-10-12 12:14:40 EDT"
 ---
 
-# Updated purchase order email
+# Weekly report generation criteria
 
-## User (2026-10-12 12:14:34 EDT)
+## User (2026-10-12 12:14:40 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:14:34 EDT)
+## Claude (2026-10-12 12:14:40 EDT)
 
 ```
 
@@ -81,11 +81,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 12:14:28 EDT)
+## User (2026-10-12 12:14:40 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 12:14:28 EDT)
+## Claude (2026-10-12 12:14:40 EDT)
 
 ```
 
@@ -147,11 +147,11 @@ I can check the ERP for the current Texas Star balance, the Englert credit memo,
 
 Sources: wiki pages 535, 8, 101, 520; outlook messages 277095, 280528, 282385, 46484, 46696, 46700, 48173, 49073; outlook attachments 11298, 46130
 
-## User (2026-10-12 12:13:56 EDT)
+## User (2026-10-12 12:14:40 EDT)
 
 What’s the current status of the largest open purchase order, according to the vault and the ERP?
 
-## Claude (2026-10-12 12:13:56 EDT)
+## Claude (2026-10-12 12:14:40 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 
@@ -222,11 +222,11 @@ Here are 50 more questions. The vault connection is offline right now, so I can'
 54. What's the forecast for next week?
 55. Which of our customers has the biggest birthday party coming up?
 
-## User (2026-10-12 12:13:56 EDT)
+## User (2026-10-12 12:14:40 EDT)
 
 Which supplier has the longest average lead time, and is it confirmed in both systems?
 
-## Claude (2026-10-12 12:13:56 EDT)
+## Claude (2026-10-12 12:14:40 EDT)
 
 ```
 

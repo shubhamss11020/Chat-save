@@ -1,19 +1,19 @@
 ---
-conversation_id: 020d9e69-0ebf-4c06-acbd-d0f575d7f722
+conversation_id: fdb508b8-ee9e-4bcb-8125-1dac4f1d8a41
 platform: claude
 username: "shubham"
-title: "Vault messages and Stefan's analysis"
+title: "Vault customer and overview pages"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:28:57 EDT"
+updated_at: "2026-10-12 10:29:00 EDT"
 ---
 
-# Vault messages and Stefan's analysis
+# Vault customer and overview pages
 
-## User (2026-10-12 10:28:57 EDT)
+## User (2026-10-12 10:29:00 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 10:28:57 EDT)
+## Claude (2026-10-12 10:29:00 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -83,11 +83,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 10:28:57 EDT)
+## User (2026-10-12 10:29:00 EDT)
 
-What are the open questions on the Stefan’s recent analysis pages?
+What’s in the overview pages, and how do they differ from the entity pages?
 
-## Claude (2026-10-12 10:28:57 EDT)
+## Claude (2026-10-12 10:29:00 EDT)
 
 ```
 This block is not supported on your current device yet.

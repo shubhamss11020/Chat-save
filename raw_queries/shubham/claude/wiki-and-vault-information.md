@@ -1,19 +1,19 @@
 ---
-conversation_id: 8ac252a4-ddd2-4cbf-8efc-a301b0059ee7
+conversation_id: afd47173-e8e8-4b7b-b95f-ce67cba11c4a
 platform: claude
 username: "shubham"
-title: "3GM vault QA questions"
+title: "Travis's most frequent CC"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:28:21 EDT"
+updated_at: "2026-10-12 10:28:33 EDT"
 ---
 
-# 3GM vault QA questions
+# Travis's most frequent CC
 
-## User (2026-10-12 10:28:21 EDT)
+## User (2026-10-12 10:28:33 EDT)
 
 provide me with all the questions which i can query to do a QA on the 3gm vault. give me atleast 20 questions
 
-## Claude (2026-10-12 10:28:21 EDT)
+## Claude (2026-10-12 10:28:33 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -83,11 +83,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 10:28:21 EDT)
+## User (2026-10-12 10:28:33 EDT)
 
-What’s the newest email in the vault, and who sent it?
+Which threads has Stefan replied to most often this month?
 
-## Claude (2026-10-12 10:28:21 EDT)
+## Claude (2026-10-12 10:28:33 EDT)
 
 ```
 This block is not supported on your current device yet.

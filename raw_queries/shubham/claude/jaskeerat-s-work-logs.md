@@ -1,19 +1,19 @@
 ---
-conversation_id: 1db3c22e-3d57-4c35-a3aa-c09f7f60aca8
+conversation_id: bc548d03-47b1-4a67-a777-c60de58c68a2
 platform: claude
 username: "shubham"
-title: "Jaskeerat's work logs"
+title: "Last week log notes"
 created_at: "2026-10-08T16:54:05.711991Z"
-updated_at: "2026-10-12 12:34:13 EDT"
+updated_at: "2026-10-12 12:34:16 EDT"
 ---
 
-# Jaskeerat's work logs
+# Last week log notes
 
-## User (2026-10-12 12:34:13 EDT)
+## User (2026-10-12 12:34:16 EDT)
 
 can u tell me last week log note what jaskeerat put in the board
 
-## Claude (2026-10-12 12:34:13 EDT)
+## Claude (2026-10-12 12:34:16 EDT)
 
 ```
 
@@ -58,52 +58,40 @@ Jaskeerat posted **6 log notes last week (28 Sep – 4 Oct)**, all on the **Bran
 
 Sources: eoxs-teams (live Odoo), `mail_message` log notes on tasks 8057, 8072, 8073.
 
-## User (2026-10-12 12:34:13 EDT)
+## User (2026-10-12 12:34:16 EDT)
 
-can u tell me what jaskeerat work in september month
+can u tell me last week log note what jaskeerat put in the board
 
-## Claude (2026-10-12 12:34:13 EDT)
+## Claude (2026-10-12 12:34:16 EDT)
 
-**Routing:** Contribution question → task boards. Only eoxs-teams is reachable this session (askcruz connector not loaded), so I'm checking his assigned tasks there plus his September log notes.
+**Routing:** Same as before, log notes live on the board chatter. The askcruz board connector (Read-only SQL) has disconnected since the last query, so I can only check **eoxs-teams** right now.
 ```
 
 ```
 
-In September, Jaskeerat worked only on **Brannon** work: **9 tasks** on the EOXS Teams board. **7 are completed and 2 are in QA.**
+On EOXS Teams, Jaskeerat posted **6 log notes across 3 tasks last week, all on 28 Sep and 1 Oct**. This is incomplete: the askcruz board couldn't be checked because that connector disconnected. Ayan tagged him on four askcruz tasks on 5 Oct (DO servers, System Visibility, OAuth, ChatGPT MCP), so any replies would be there.
 
-**Brannon Support Desk (8 tasks)**
+**Task 8057, "heat X meets spec Y" check (28 Sep, re-posted in full 1 Oct)**
+- **Cause:** On 23 Jul the route to the deterministic spec checker was removed. Since then the AI answered these questions itself and compared temperatures the wrong way round. Heat 3777T6 only looked right because −50 °F really is colder.
+- **Fix:** These questions go back to the deterministic checker, which decides pass or fail in code. The AI also has an explicit temperature-direction rule as a backup.
+- **Verified:** Heats 1377T6-02 and 2645T6-04 (−20 °F) now fail LW0940, and 3777T6 still passes. The boundary is correct: −22 passes, −21.9 fails.
 
-| Created | Task | Stage | Notes |
-|---|---|---|---|
-| 5 Sep | MTRs with matched status not displayed | Completed | 1 |
-| 5 Sep | Stop-generation button + scroll during response | Completed | 1 |
-| 5 Sep | Chatbot failing to return matched heat | Completed | 1 |
-| 10 Sep | New MTRs stuck in Pending | Completed | 2 |
-| 15 Sep | AI spec reading for conditional requirements | Completed | 3 |
-| 28 Sep | Impact threshold wrongly passing MTRs | Completed | 1 |
-| 29 Sep | Wrong impact temp from spec LW5725 | QA | 0 |
-| 29 Sep | Impact orientation read from wrong field | QA | 0 |
+**Task 8072, LW5725 wrong spec limit (1 Oct)**
+- **Cause:** The data was wrong, not the AI. On PDF import, "0 °F" was read as 0 °C and stored as 32 °F, so MTRs tested between 0 and 32 °F were wrongly accepted.
+- **Fix:** A migration (v13.0.2.1.12) corrects the 4 impact rows to 0 °F. The importer now warns when an impact temperature comes out above 0 °F.
+- **Checked:** He compared the other 21 specs against their PDFs; only LW5725 was affected.
 
-**EOXS project (1 task)**
+**Task 8073, impact orientation (1 Oct)**
+- **Fix:** The false orientation warning is removed. The stored direction is actually the tensile test direction, not impact.
+- **Pending:** Real orientation checking needs the client's decision, and can't apply to MTRs already processed.
+- **Verified:** Tested on 12 phrasings with no change in verdicts. His next step: merge `fix/impact-orientation-rule`, restart Odoo, and re-run the client's heats.
 
-| Created | Task | Stage | Notes |
-|---|---|---|---|
-| 15 Sep | Temporary MTR upload & spec validation for Brannon | Completed | 3 |
+**What stands out**
+- **The work quality is strong.** Each note gives root cause, fix and boundary tests.
+- **The LW5725 bug is a real compliance exposure.** MTRs between 0 and 32 °F were accepted when they should have failed. It's worth confirming whether past MTRs or shipments certified against LW5725 were re-checked; the note doesn't say.
+- **Nothing on EOXS Teams after 1 Oct.** Combined with Ayan's 5 Oct chasers, his askcruz notes are the open question.
 
-The Notes column counts the log notes he posted in September.
-
-**Takeaways:**
-- He is effectively the dedicated engineer for Brannon's MTR/spec-validation chatbot. All of his September output went to that one client.
-- Most of the work was fixing bugs Brannon reported, not building new features. The only enhancements were spec reading for conditional requirements and the stop-generation button.
-- Several of the bugs were silent correctness failures, where the system gave wrong pass verdicts. That points to a missing regression test suite for spec-checking logic, which is worth asking about.
-
-**Caveats:**
-- `date_end` is empty on every task, so I can't tell exactly when each one was closed. "Completed" is the current stage, not proof it was finished in September.
-- I checked only the EOXS Teams board. The askcruz board connector isn't loaded in this session.
-
-I can pull the full note text for any task if you want the details.
-
-Sources: eoxs-teams (live Odoo): `project_task` assignments and `mail_message` log notes, 1–30 Sep 2026 IST.
+Sources: eoxs-teams (`mail_message` comment notes, 28 Sep–8 Oct). teams-askcruz was not queried because the connector was disconnected. Reconnect it and I'll pull his askcruz notes.
 
 ## User (2026-10-12 12:34:13 EDT)
 

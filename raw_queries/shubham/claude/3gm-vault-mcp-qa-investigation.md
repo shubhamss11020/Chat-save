@@ -1,15 +1,15 @@
 ---
-conversation_id: 1f80a0e1-611d-44fc-a427-0275a308d43c
+conversation_id: 0506a4f8-9548-4277-b479-079071411ba2
 platform: claude
 username: "shubham"
-title: "3GM Vault MCP QA investigation"
+title: "Act as an independent QA engineer investigating th"
 created_at: "2026-10-09T19:53:00.743164Z"
-updated_at: "2026-10-12 10:34:41 EDT"
+updated_at: "2026-10-12 10:55:12 EDT"
 ---
 
-# 3GM Vault MCP QA investigation
+# Act as an independent QA engineer investigating th
 
-## User (2026-10-12 10:34:41 EDT)
+## User (2026-10-12 10:55:12 EDT)
 
 Act as an independent QA engineer investigating the 3GM Vault MCP. Explore its available capabilities and identify subtle or unexpected failure modes that ordinary testing might miss. Investigate boundary conditions, inconsistent search behavior, incorrect record associations, missing results, malformed outputs, unexpected defaults, and inconsistencies between documented and observed behavior. For every potential bug, provide a reproducible test case, actual result, expected result when verifiable, severity, and recommended next step. Do not invent bugs or claim to have tested functionality that you cannot access.
 

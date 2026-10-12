@@ -4,126 +4,106 @@ platform: claude
 username: "shubham"
 title: "Askcruz clients and issues"
 created_at: "2026-10-09T15:18:29.384110Z"
-updated_at: "2026-10-12 10:35:29 EDT"
+updated_at: "2026-10-12 12:33:02 EDT"
 ---
 
 # Askcruz clients and issues
 
-## User (2026-10-12 10:35:29 EDT)
+## User (2026-10-12 12:33:02 EDT)
 
 can u give me the information about all the clients of askcruz and also represent all the issues they are facing
 
-## Claude (2026-10-12 10:35:29 EDT)
+## Claude (2026-10-12 12:33:02 EDT)
 
 I'll pull the client list from Askcruz first, then look at each client's profile, calls, and emails to find the issues they're facing.
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-
-
 
 I have the overview for all 8 clients. A few of them (Conklin, Brannon, Ohio Strip Steel) have thin issue data in their profiles, so I'll read their key wiki pages to fill the gaps.
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
+
+```
 
 Askcruz has 8 clients. Six run EOXS (Odoo) instances, and two (Brannon, Conklin) have no instance listed. The issues below come from the client wiki pages, implementation tasks, and recent emails and calls, as of Oct 9, 2026.
 

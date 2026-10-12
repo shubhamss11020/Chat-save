@@ -2,18 +2,18 @@
 conversation_id: 749ee3d4-8092-4077-8915-710eaa83a412
 platform: claude
 username: "shubham"
-title: "Mac Metal sales invoice - Claude"
+title: "PT July Quote search - Claude"
 created_at: "2026-10-12T14:59:34.316Z"
-updated_at: "2026-10-12 12:20:56 EDT"
+updated_at: "2026-10-12 12:45:17 EDT"
 ---
 
-# Mac Metal sales invoice - Claude
+# PT July Quote search - Claude
 
-## User (2026-10-12 12:20:56 EDT)
+## User (2026-10-12 12:45:17 EDT)
 
 Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## Claude (2026-10-12 12:20:56 EDT)
+## Claude (2026-10-12 12:45:17 EDT)
 
 Answer: The most recent invoice titled “Mac Metal Sales - Invoice #” in the vault is MID-SHIP Logistics invoice #62279773, dated September 24, 2026, for $15,600.00. It bills Mac Metal Sales for barge demurrage, not for steel. I could not query the 3GM ERP, so I can’t confirm whether it has a matching ERP sales invoice.
 

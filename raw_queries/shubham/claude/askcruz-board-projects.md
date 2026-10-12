@@ -4,54 +4,49 @@ platform: claude
 username: "shubham"
 title: "Askcruz board projects"
 created_at: "2026-10-09T16:07:49.252675Z"
-updated_at: "2026-10-12 10:35:21 EDT"
+updated_at: "2026-10-12 12:32:55 EDT"
 ---
 
 # Askcruz board projects
 
-## User (2026-10-12 10:35:21 EDT)
+## User (2026-10-12 12:32:55 EDT)
 
 can u give me the information about all the projects in askcruz board
 
-## Claude (2026-10-12 10:35:21 EDT)
+## Claude (2026-10-12 12:32:55 EDT)
 
 I'll start by reading the thread-wiki skill and loading the Askcruz and transcript-saving tools.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
+
+```
+
+```
+
+```
 
 The summary is above, and this chat is saved as `askcruz-board-projects-overview`.
 
-## User (2026-10-12 10:35:21 EDT)
+## User (2026-10-12 12:32:55 EDT)
 
 Give some five to 10 comprehensive prompt which can use all the connectors efficiently
 
-## Claude (2026-10-12 10:35:21 EDT)
+## Claude (2026-10-12 12:32:55 EDT)
 
 Two caveats first:
 - **Thread-wiki and Threads-Ov disconnected in this session**, so I couldn't save this turn's transcript. Prompts that use them need those connectors back.
@@ -95,11 +90,11 @@ Each prompt names a rigor level (and a craft level where it builds something), s
 
 Prompts 1, 4 and 7 use the most connectors and give the most value. Prompts 6, 8 and 10 need Thread-wiki and Threads-Ov reconnected. If you tell me which workflows you run weekly, I can tighten these into reusable templates with fixed output formats.
 
-## User (2026-10-12 10:35:21 EDT)
+## User (2026-10-12 12:32:55 EDT)
 
 please give prompt related to askcruz and eoxs
 
-## Claude (2026-10-12 10:35:21 EDT)
+## Claude (2026-10-12 12:32:55 EDT)
 
 Two assumptions:
 - I haven't inspected the Eoxs-Teams schema, so each prompt tells Claude to check it first.

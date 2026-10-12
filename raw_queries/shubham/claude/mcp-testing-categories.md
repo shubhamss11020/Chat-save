@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "MCP testing categories"
 created_at: "2026-10-08T13:30:01.080743Z"
-updated_at: "2026-10-12 10:41:57 EDT"
+updated_at: "2026-10-12 12:34:39 EDT"
 ---
 
 # MCP testing categories
 
-## User (2026-10-12 10:41:57 EDT)
+## User (2026-10-12 12:34:39 EDT)
 
 so, our task is to test our mcp working properly or not, is there something to flag, so now tell me the every category we could possibly get with their probability
 
-## Claude (2026-10-12 10:41:57 EDT)
+## Claude (2026-10-12 12:34:39 EDT)
 
 These probabilities are my priors for a single tool call against a typical remote MCP connector. I haven't measured them, since I don't know which MCP you're testing or have its run history. Treat them as a starting point for test design.
 
@@ -38,11 +38,11 @@ These probabilities are my priors for a single tool call against a typical remot
 
 Tell me which MCP and which tools are in scope, and I'll turn this into a concrete test matrix with an expected result per case. After your first runs, replace these priors with the measured rates.
 
-## User (2026-10-12 10:41:57 EDT)
+## User (2026-10-12 12:34:39 EDT)
 
 the object is to identify the flags in the response of claude
 
-## Claude (2026-10-12 10:41:57 EDT)
+## Claude (2026-10-12 12:34:39 EDT)
 
 Understood. My last table scored the MCP server, but you want flags in Claude's response when it uses the MCP. These are untested priors, one primary outcome per response (so they sum to 100%), and I'm assuming a quick 5ft-level pass.
 

@@ -1,19 +1,19 @@
 ---
-conversation_id: 1e7c88e7-ab73-478d-8cc9-567fc7b21513
+conversation_id: 7e64ca64-2c83-49d3-8821-62700a76e66c
 platform: claude
 username: "shubham"
-title: "Wiki and vault information"
+title: "Wiki pages analysis"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:28:16 EDT"
+updated_at: "2026-10-12 10:28:19 EDT"
 ---
 
-# Wiki and vault information
+# Wiki pages analysis
 
-## User (2026-10-12 10:28:16 EDT)
+## User (2026-10-12 10:28:19 EDT)
 
-What are the three most recent analysis pages in the wiki?
+How many wiki pages do we have on customers, and how many on suppliers?
 
-## Claude (2026-10-12 10:28:16 EDT)
+## Claude (2026-10-12 10:28:19 EDT)
 
 ```
 This block is not supported on your current device yet.
@@ -69,32 +69,74 @@ The wiki's list view doesn't expose creation or update timestamps, so I ranked t
 
 Sources: wiki pages 558 (outlook_message 301133, 301144), 546 (outlook_message 301027, outlook_attachment 49411), 536 (outlook_message 277303, 277332); list_wiki_pages(page_type=analysis), 163 pages total.
 
-## User (2026-10-12 10:28:16 EDT)
+## User (2026-10-12 10:28:19 EDT)
 
 What’s the newest email in the vault, and who sent it?
 
-## Claude (2026-10-12 10:28:16 EDT)
+## Claude (2026-10-12 10:28:19 EDT)
+
+```
+This block is not supported on your current device yet.
+```
 
 ```
 This block is not supported on your current device yet.
 ```
 
 
+
 ```
 This block is not supported on your current device yet.
 ```
 
-The newest email in the vault is "CMT Insurance," sent by Stefan Brown (stefan@3gmsteel.com) to Calvin Nissley (calvin@cmtcomponents.com) on 2026-10-12 at 08:53 ET. It has no attachments. In the excerpt, Stefan asks Calvin for his latest insurance policy on the real estate, and says the attorneys are still working through the redline reply on the PA and the noncompetes.
+```
+This block is not supported on your current device yet.
+```
 
-It appears only in Stefan's Sent Items, so it's an outgoing message from his mailbox.
+```
+This block is not supported on your current device yet.
+```
 
-Sources: msg 301455 (list_emails, newest first)
+```
+This block is not supported on your current device yet.
+```
 
-## User (2026-10-12 10:28:16 EDT)
+```
+This block is not supported on your current device yet.
+```
+
+```
+This block is not supported on your current device yet.
+```
+
+
+
+
+
+
+I can't give exact wiki-page counts per person with these tools. Travis Lane and Stefan Brown are the most-mentioned people by a wide margin, and that holds in the wiki too: both hit the 50-page cap on every search.
+
+- **Wiki search cap:** `search_wiki` returns at most 50 pages per query, ranked by relevance, so any name with 50 hits is truncated. Travis Lane, Stefan Brown, Matt Inman, Corey McGlothlin and Leslie Countryman all reached the cap. No tool here counts pages directly.
+- **Proxy from raw mail:** The search results also report how many raw messages contain each name. Roughly in order:
+  - Travis Lane: 8,873 messages
+  - Stefan Brown: 8,802
+  - Matt Inman: 3,229
+  - Leslie Countryman: 1,400
+  - Corey McGlothlin: 1,103
+  - Matt Wilson: 10 (the name search also matched Matt Inman on "Matt", so the true count is lower)
+
+  These count messages, not wiki pages, so treat them as a proxy.
+- **Person pages:** Only 10 wiki pages are classed as people. Stefan Brown and Travis Lane each have their own page, and Corey McGlothlin, Matt Inman, Leslie Countryman and Matt Wilson also do. Most people appear only inside company and deal pages, which is why these ranks don't reflect page counts.
+
+If you need exact page counts, I can search each name in the wiki's fact index, which has a different limit. Tell me if you want that.
+
+Sources: wiki `list_wiki_pages` (entity_class=person, 10 pages: 47, 654, 398, 306, 629, 504, 92, 137, 138, 468); wiki `search_wiki` for "Corey McGlothlin", "Stefan Brown", "Travis Lane", "Matt Inman", "Leslie Countryman" and "Matt Wilson" (each capped at 50 hits; raw-message counts as reported in each result).
+
+## User (2026-10-12 10:28:19 EDT)
 
 What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 10:28:16 EDT)
+## Claude (2026-10-12 10:28:19 EDT)
 
 ```
 This block is not supported on your current device yet.

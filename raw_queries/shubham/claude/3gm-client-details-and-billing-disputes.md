@@ -4,211 +4,173 @@ platform: claude
 username: "shubham"
 title: "3GM client details and billing disputes"
 created_at: "2026-10-08T13:45:35.793438Z"
-updated_at: "2026-10-12 10:41:54 EDT"
+updated_at: "2026-10-12 12:34:35 EDT"
 ---
 
 # 3GM client details and billing disputes
 
-## User (2026-10-12 10:41:54 EDT)
+## User (2026-10-12 12:34:35 EDT)
 
 I want to have full details about the 3gm clients from start and what the services we have provided to them and also all the flagged issues they are facing all details
 
-## Claude (2026-10-12 10:41:54 EDT)
+## Claude (2026-10-12 12:34:35 EDT)
 
 I'll pull the 3GM client records, the services delivered, and the flagged issues from the EOXS data connectors.
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
-
-
-
 
-
-
-
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
-
-
-
-
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
+```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
 
+```
 
 3GM Steel is EOXS's longest-tenured client, live since July 18, 2022, and it has chronic invoicing and coil-data defects that keep recurring. Several are open right now. This is built from the Askcruz wiki, which synthesizes emails, calls and tasks. I did not open the raw threads. All dollar amounts are redacted on this connection.
 
@@ -283,46 +245,41 @@ This block is not supported on your current device yet.
 
 Sources (all Askcruz wiki): 3GM Steel — Support Tickets; Ongoing Operations; Invoicing & Billing; Server & Platform Maintenance; Feature Expansion & Reporting; Data Integration & Inventory Setup; Sales & Onboarding; Implementation Kanban (Odoo); the INV/2026/2368 and 2403 page (Oct 6); the INV/2026/2434 page; the P04612–P04615 page; the coil-upload page; the 12-coil page; the Reliable Metal Buildings page; the CNJ/OUT/00074 page; the SRTI./OUT/03994 page; and the AskCruz proposal, invoice and Outlook pages.
 
-## User (2026-10-12 10:41:54 EDT)
+## User (2026-10-12 12:34:35 EDT)
 
 Billing disputes: INV/2022/0014 and the MAC licensing charge in 2022–23 strained the relationship. can u give me more details about in depth
 
-## Claude (2026-10-12 10:41:54 EDT)
+## Claude (2026-10-12 12:34:35 EDT)
 
 I'll pull the rest of the billing pages and the original email threads for the INV/2022/0014 dispute.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
 
 Pulling the three key raw threads: the Dec 2022 dispute, the March 2023 "3GM and Mac Invoices" thread, and the Aug 2022 licensing-waiver email.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
-
-
 
 Both disputes come down to charges 3GM's management says they never approved, and EOXS had no written approval trail. The Dec 2022 dispute was about the tonnage order and dashboard work (INV/2022/0014). The Mar 2023 dispute was about the monthly license for MAC Metal Sales. This is from the raw threads, with amounts redacted. Whether either dispute was formally settled is not recorded.
 
@@ -399,21 +356,20 @@ I can pull the April 2023 threads and the Phase II quote to find out how these w
 
 Sources (Askcruz): raj_gmail threads "RE: Eoxs Invoice (Ref INV/2022/0014)" (id 1432), "3GM and Mac Invoices" (id 5034) and "Happy Monday!" (id 9818); wiki pages 3GM Steel — Invoicing & Billing and 3GM Steel — Feature Expansion & Reporting.
 
-## User (2026-10-12 10:41:54 EDT)
+## User (2026-10-12 12:34:35 EDT)
 
 Aug–Oct 2026	AskCruz "Company Brain" upsell. The first invoice and the kickoff call (Oct 1) are done. The second invoice, covering the remaining 50% of implementation plus the first month of licensing, went out Oct 5. Weekly check-ins were proposed Oct 3.
 
-## Claude (2026-10-12 10:41:54 EDT)
+## Claude (2026-10-12 12:34:35 EDT)
 
 You pasted the AskCruz line without a question, so I'm assuming you want the full detail on that deal. I'm pulling the rest of the proposal thread and the Oct 1 kickoff call.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 3GM's AskCruz "Company Brain" deal is signed and live, but the proposal EOXS sent was wrong in several places and payment on both invoices is unconfirmed. This comes from the wiki pages plus the Oct 1 kickoff transcript. Amounts are redacted throughout.
 
@@ -473,36 +429,33 @@ Ron's answers on Aug 17:
 
 Sources (Askcruz): wiki pages on the AskCruz proposal call, the Company Brain invoice and weekly check-ins, and the Outlook OAuth issue; Fathom call 2516 ("AskCruz Kickoff | 3GM Steel", Oct 1, 2026).
 
-## User (2026-10-12 10:41:54 EDT)
+## User (2026-10-12 12:34:35 EDT)
 
 can we have payroll details or discussion whatever happened related to that
 
-## Claude (2026-10-12 10:41:54 EDT)
+## Claude (2026-10-12 12:34:35 EDT)
 
 I'll check the wiki, emails and calls for anything on payroll.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
-
-
 
 Two hits look relevant: a 3GM stakeholder tied to payroll, and an ICP note on payroll as a product gap. I'll read both.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 I found no payroll discussion for 3GM in the wiki, emails or calls. The only mention is that a 3GM finance contact, Gerri, pays the bills and manages payroll. She had low expected involvement in the system during the 2022 go-live. Payroll was never raised as a feature request, a ticket or a dispute for this account.
 
@@ -514,11 +467,11 @@ Did you mean something else? For example, payroll processing inside the EOXS ERP
 
 Sources (Askcruz): wiki page 3GM Steel — Data Integration & Inventory Setup, plus wiki, email and call searches on "payroll".
 
-## User (2026-10-12 10:41:54 EDT)
+## User (2026-10-12 12:34:35 EDT)
 
 overall it means not able to access due to access tier?
 
-## Claude (2026-10-12 10:41:54 EDT)
+## Claude (2026-10-12 12:34:35 EDT)
 
 I can't tell. What I know is that the data connections have access levels and content restrictions. Dollar amounts and some other content are redacted, and I can't confirm or deny whether anything specific, payroll included, sits behind a restriction. Searches for restricted material return the same "not found" as material that doesn't exist.
 

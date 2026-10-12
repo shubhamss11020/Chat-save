@@ -4,31 +4,67 @@ platform: claude
 username: "shubham"
 title: "Weekly report generation in askcruz - Claude"
 created_at: "2026-10-12T12:39:18.768Z"
-updated_at: "2026-10-12 08:44:56 EDT"
+updated_at: "2026-10-12 08:45:41 EDT"
 ---
 
 # Weekly report generation in askcruz - Claude
 
-## User (2026-10-12 08:44:56 EDT)
+## User (2026-10-12 08:45:41 EDT)
 
 can u give me the details about how the weekly report is generated in askcruz
 
-## Claude (2026-10-12 08:44:56 EDT)
+## Claude (2026-10-12 08:45:41 EDT)
 
-The vault has no record of how AskCruz generates a weekly report, and no wiki page documents one. I found no mail describing a weekly report produced by AskCruz.
+Claude responded: The weekly report is a self-addressed scrum report that Rajat's automation generates from the AskCruz project board in the teams-askcruz Odoo instance.
+Using Askcruz: Search emails
+Using Askcruz: Search emails
+Used Askcruz
 
-What the mail does show:
+Used Askcruz
+Figuring out how weekly report generation works for askcruz.
+Loaded
+Askcruz
+Searched Askcruz wiki
+weekly report generation askcruz
 
-What AskCruz is: It’s the product behind the “Company Brain,” an AI assistant trained on 3GM’s data. It answers questions on demand about customers, orders, inventory, pricing and history, and it syncs email and ERP data. Travis described it that way on 2026-08-19, saying the goal was to get answers without pulling reports by hand (msg 47412, msg 47406).
-Reports claim: The 2026-08-14 pitch said it would automate the recurring reports Kendra and Jessica build by hand each month, covering receivables, inventory aging, supply chain, sales and financials (msg 48006). That’s a sales claim, not a documented feature.
-Data access: Email access is read-only delegated access for Travis and Stefan, with history from 2025-09-01 onward (msg 46486, att 8962).
-Timeline: The kickoff was 2026-10-01 (msg 286810). On 2026-10-03, Ron J proposed a 30-minute weekly check-in for four weeks to review how you’re using the Company Brain and gather feedback (msg 294088). He followed up on 2026-10-09 asking for a Tuesday or Thursday slot (msg 301340). I see no reply yet.
+Searched Askcruz repo docs
+weekly report
 
-Gaps: The vault has no configuration details, so I can’t say whether a weekly report is scheduled, what it contains, or who receives it. The proposal I read is the as-offered three-user version, not the signed two-user terms.
+Fetched Askcruz wiki page
+AskCruz Board Scrum Reporting (Daily/Weekly Team Engagement Reports)
 
-If you meant a weekly report 3GM already produces, the closest match is the Detailed Weekly Footage Report (wiki page 291), which is not an AskCruz output. I can pull that instead.
+Fetched Askcruz wiki page
+AskCruz Board Scrum Reporting (Daily/Weekly Team Engagement Reports)
 
-Sources: msg 294088 · msg 301340 · msg 286810 · msg 47412 · msg 47406 · msg 46486 · att 8962 · msg 48006 · wiki page 60 (EOXS AI Operating System Engagement)
+Figuring out how the generated page comes together.
+Searched Askcruz emails
+Weekly AskCruz Board Scrum Report
+
+
+The weekly report is a self-addressed scrum report that Rajat’s automation generates from the AskCruz project board in the teams-askcruz Odoo instance. It’s one of two recurring reports (the other is daily). Its last run in the record I can see is August 18, 2026, so I can’t tell from here whether it still runs as of today, October 12.
+
+How it works
+
+Data source: Live Odoo data from the board (project_id=6, 39 active tasks as of Aug 17): task records, stage changes, and chatter (log notes). The report describes itself as pulled from live data, not compiled by hand.
+Window: The weekly report covers the previous 7 days. The Aug 18 run covered Aug 11 19:22 to Aug 18 19:22.
+Scoring: Each assignee gets a score out of 10. The Aug 17 version used five sub-metrics:
+Ack: share of open tasks the assignee personally acknowledged with a note
+Movement: weighted stage advances
+Completions
+Depth: note specificity. The report itself calls this a low-confidence text proxy.
+Scope: whether a high-priority task was touched
+Delivery: It is sent by email to Rajat’s own address (raj_gmail), so it appears in the mailbox.
+
+Known problems
+
+Two conflicting reports for the same window. On Aug 17 two weekly reports covering Aug 11–17 disagree. One says 6 tasks were completed and the other says 3. Per-person scores also differ, e.g. Ron is 6.4/10 in one and 3/10 in the other. Neither report explains the gap.
+Shutdown order not carried out. At 15:17 UTC on Aug 17, Rajat wrote “Shut this automation down, please.” The next day a new weekly report ran with a larger scope: 6 boards and 128 tasks instead of one board. The record has no explanation for this.
+Ack metric ignores authorship. Ron scored 100% on Ack even though every note on his tasks was written by others. The metric doesn’t check who wrote the note.
+Scores mostly track chasing. Most of the logged activity is Rajat chasing assignees rather than assignees updating their own tasks. The reports say so themselves.
+
+What I couldn’t confirm: the vault has no weekly report after August 18. If it still runs, the September and October reports aren’t in this record. Whether the shutdown order was ever applied is also unresolved.
+
+Sources: wiki page “AskCruz Board Scrum Reporting (Daily/Weekly Team Engagement Reports)” (id 1779). Underlying emails: 66381 (Aug 17 report), 66431 (Aug 17 second report), 66615 (Aug 18 report).
 
 ## User (2026-10-12 08:44:34 EDT)
 

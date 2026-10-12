@@ -2,18 +2,18 @@
 conversation_id: 927df246-8470-4dbb-abb3-f0cc926c54af
 platform: claude
 username: "shubham"
-title: "Semantic search and database mapping - Claude"
+title: "Semantic search and database mapping"
 created_at: "2026-10-12T19:05:03.218660Z"
-updated_at: "2026-10-12 15:09:52 EDT"
+updated_at: "2026-10-12 15:09:59 EDT"
 ---
 
-# Semantic search and database mapping - Claude
+# Semantic search and database mapping
 
-## User (2026-10-12 15:09:52 EDT)
+## User (2026-10-12 15:09:59 EDT)
 
 Give me details about semantic search how it basically mapping with the db
 
-## User (2026-10-12 15:09:52 EDT)
+## User (2026-10-12 15:09:59 EDT)
 
 PS C:\Users\vaibhav\Desktop\branon> docker exec -it odoo-db psql -U odoo -d eoxteams -c "select v.id, v.name, v.model, d.module from ir_ui_view v left join ir_model_data d on d.model='ir.ui.view' and d.res_id=v.id where not v.active and v.type='kanban' and v.mode='primary' order by v.model;"  id  |         name         |  model   | module------+----------------------+----------+--------- 4670 | vrm.lead.kanban.lead | vrm.lead | odx_vrm(1 row)
 
@@ -21,7 +21,7 @@ What's next:    Try Docker Debug for seamless, persistent debugging tools in any
 
 PS C:\Users\vaibhav\Desktop\branon>
 
-## Claude (2026-10-12 15:09:52 EDT)
+## Claude (2026-10-12 15:09:59 EDT)
 
 Semantic search finds records by meaning rather than exact keywords, and it maps back to your database by storing a vector for each piece of text next to the row it came from.
 
@@ -94,11 +94,11 @@ If you're asking about the AskCruz connector specifically, the same pattern appl
 
 One note: I couldn't archive this conversation. The Threads-OV save tool isn't connected in this session, so `save_chat_transcript` wasn't available. Reconnecting it in Settings → Connectors will restore archiving.
 
-## User (2026-10-12 15:09:52 EDT)
+## User (2026-10-12 15:09:59 EDT)
 
 now create a log note of the work we have done till now in a 2 line bullets and give me 8 bullets the log not should be professional and it should look like it is written by an intern
 
-## Claude (2026-10-12 15:09:52 EDT)
+## Claude (2026-10-12 15:09:59 EDT)
 
 Log Note: MTR Module, n8n and Odoo Setup
 

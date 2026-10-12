@@ -4,141 +4,120 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP tools analysis"
 created_at: "2026-10-09T19:58:07.495656Z"
-updated_at: "2026-10-12 10:34:35 EDT"
+updated_at: "2026-10-12 12:32:07 EDT"
 ---
 
 # 3GM Vault MCP tools analysis
 
-## User (2026-10-12 10:34:35 EDT)
+## User (2026-10-12 12:32:07 EDT)
 
 Examine all tools and operations exposed by the 3GM Vault MCP. For each available operation, determine its intended purpose, required inputs, optional parameters, expected output, and error behavior from the available documentation and observed results. Identify missing tools, inconsistent parameter handling, unexpected output formats, unclear errors, and operations that appear to behave differently from their documented purpose. Do not execute destructive operations or modify production data during testing.
 
-## Claude (2026-10-12 10:34:35 EDT)
+## Claude (2026-10-12 12:32:07 EDT)
 
 I'll start by loading the vault tool schemas and the 3gm-navigator skill, since your preferences require the skill before any 3GM query.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 The skill is loaded. Next I'll run read-only probes across the vault tools, including a few deliberately malformed calls to check error behavior.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-
 
 Every call failed with the same error: `user_exact_quote` is reported as required, even though the schema marks it optional with a null default. I'll retry with that field populated from your message to see whether the tools work once it's supplied.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-
 
 The main operations now respond. I'll run one more batch of read-only checks on the remaining tools.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
+
 ```
-
-
-
-
 
 ## Vault MCP audit
 

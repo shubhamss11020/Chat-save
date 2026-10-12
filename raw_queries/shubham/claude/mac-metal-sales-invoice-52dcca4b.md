@@ -1,0 +1,100 @@
+---
+conversation_id: 52dcca4b-a943-49be-bf4d-4b72f8f81e22
+platform: claude
+username: "shubham"
+title: "Mac Metal sales invoice"
+created_at: "2026-10-12T15:35:06.863561Z"
+updated_at: "2026-10-12 13:29:28 EDT"
+---
+
+# Mac Metal sales invoice
+
+## User (2026-10-12 13:29:28 EDT)
+
+Show me all available information about the Mac Metal sales invoice, and identify which sources you searched
+
+## Claude (2026-10-12 13:29:28 EDT)
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+**There is no single "Mac Metal sales invoice" in the vault.** The matches are mostly freight and demurrage invoices from MID-SHIP Logistics billed to Mac Metal Sales. I read two of them in full. I could not check any of them against the ERP, because no ERP tool was available in this session.
+
+**The two invoices I read in full (both billed to Mac Metal Sales, 1650 West Highway 80, Somerset, KY; Net 30; from MID-SHIP Logistics, Port Washington, NY):**
+
+- **Invoice 62279773, dated 24 Sep 2026, total $15,600.00.** Project 52321, "Royal Orion / Mac Metal Sales / July '26". Five barge demurrage charges at $400/day, from 6 to 11 billable days each. Jessica Worley forwarded it to Stefan Brown at 14:56 ET on 24 Sep, and Stefan replied at 15:15 ET (msg 262385). Source: att 46001, msg 262337.
+- **Invoice 62269694, dated 14 Sep 2026, total $5,200.00.** Project 52601, "Q3 2026 General Contract Barge Demurrage". One barge (AEP-7179B, MV Star Tokyo), 13 days at $400/day. Jessica forwarded it at 11:04 ET; Stefan and Jessica discussed it at 11:07 and 11:12 ET. Source: att 45698, msg 223888.
+
+**Other invoices in the same pattern (subject lines only; I did not open them):**
+- 62253988 (25–26 Aug), 62243604 (21 Aug; Jessica says it covers 7 barges on one vessel), 62240359 (12 Aug), 62231490 (11 Aug), 62189947 (28 Jul), 62219341 (21 Jul), 62201733 (30 Jun), 62183376 (9–10 Jun), 62137865 (20 Apr), 62101040 (3 Apr).
+- Sales Inv# 94638315, "MAC METAL (3GM / PHILLIPS) / PO# P04090-P04091 / MV. TOMONI FELICITY 145.540MT / TAMPA" (7 Jul 2026). This one is a 3GM sales invoice naming Mac Metal, so it may be the closest match to what you meant. I did not open it.
+
+**Context from the vault:**
+- Jessica Worley's 25 Aug note says the demurrage invoices "probably cancel out" the barge discounts she tracks in a spreadsheet (msg 47039).
+- On 23 Sep, Jessica wrote that for Mac Metal KY 3GM invoices only the cost of the coils and then adds freight to the invoice (att 45986, msg 258649).
+- A sales order, S12241, transferred six coils (60,000 lbs) from 3GM's Somerset warehouse to Mac Metal on 18 Aug at $1.90/lft (msg 47654). This is an order, not an invoice.
+- Mac Metal's Sep 2026 AR aging and the 6 Jul 2026 report both carry an intercompany receivable from 3GM of $9,907,850.00 (att 12469). This is a balance, not an invoice.
+
+**Not available:**
+- **ERP:** I could not query it. Invoice status, payment, and the current balance are ERP-owned, so none of the above is confirmed as posted or paid.
+- **Mailbox coverage:** the vault covers only Travis's and Stefan's mailboxes.
+
+**Sources searched:**
+- Vault wiki: search "Mac Metal sales invoice" (10 hits). Read "Mac Metal Sales, Inc." (page 307), first 40,000 of 118,886 characters and its first facts. The rest of the page was not read.
+- Vault raw mail: "Mac Metal invoice" across both mailboxes. 422 messages in 128 conversations, plus 390 attachments. I read the first 50 messages and 100 conversations, so this is not complete.
+- Vault attachments: filename search "mac" (587 matches, first 50 read). Full text read for att 46001 and att 45698.
+- Vault raw mail, sender "MID-SHIP" (sender matches only; no messages read).
+- ERP: not reachable in this session.
+
+Sources: msg 262337 · msg 262385 · msg 223888 · msg 223896 · msg 223905 · msg 47039 · msg 47654 · msg 258649 · att 46001 · att 45698 · att 45986 · att 12469 · wiki page 307 · sales order S12241 (not read in ERP) · Sales Inv# 94638315 (not opened)
+
+Do you want me to open the 94638315 sales invoice, or pull the rest of the Mac Metal Sales wiki page?

@@ -1,17 +1,17 @@
 ---
-conversation_id: a5c3730b-eb08-4aa6-b91d-f53e37177d79
+conversation_id: 69fd346f-5fb2-40b9-9bff-b42bbfe77c82
 platform: claude
 username: "shubham"
-title: "Weekly report generation in askcruz - Claude"
+title: "can u give me the details about how the weekly rep"
 created_at: "2026-10-12T12:39:18.768Z"
-updated_at: "2026-10-12 08:45:41 EDT"
+updated_at: "2026-10-12 08:48:12 EDT"
 ---
 
-# Weekly report generation in askcruz - Claude
+# can u give me the details about how the weekly rep
 
-## User (2026-10-12 08:45:41 EDT)
+## User (2026-10-12 08:48:12 EDT)
 
-can u give me the details about how the weekly report is generated in askcruz
+can u give me the details about how the weekly report of employeee  generated in askcruz
 
 ## Claude (2026-10-12 08:45:41 EDT)
 

@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Threads in synthesized page"
 created_at: "2026-10-08T18:42:48.109592Z"
-updated_at: "2026-10-12 10:40:54 EDT"
+updated_at: "2026-10-12 12:33:31 EDT"
 ---
 
 # Threads in synthesized page
 
-## User (2026-10-12 10:40:54 EDT)
+## User (2026-10-12 12:33:31 EDT)
 
 Which threads fed into this synthesized page
 
-## Claude (2026-10-12 10:40:54 EDT)
+## Claude (2026-10-12 12:33:31 EDT)
 
 I need to clarify what you're referring to before I can answer.
 

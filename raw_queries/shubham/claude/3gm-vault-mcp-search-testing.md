@@ -1,21 +1,21 @@
 ---
-conversation_id: 86ef6ced-aaaa-4542-831a-93037223fe65
+conversation_id: 739c8b5d-2ec2-4646-be19-457c0b965c4d
 platform: claude
 username: "shubham"
-title: "3GM Vault MCP search testing"
+title: "3GM Vault MCP testing"
 created_at: "2026-10-09T21:14:35.054198Z"
-updated_at: "2026-10-12 12:31:23 EDT"
+updated_at: "2026-10-12 12:32:04 EDT"
 ---
 
-# 3GM Vault MCP search testing
+# 3GM Vault MCP testing
 
-## User (2026-10-12 12:31:23 EDT)
+## User (2026-10-12 12:32:04 EDT)
 
 Test the search and retrieval capabilities of the 3GM Vault MCP using different search terms, partial names, exact matches, similar terms, and available filters. Check for relevant records that are missed, irrelevant records that are returned, inconsistent results for equivalent queries, and failures to retrieve information that is demonstrably available. Document reproducible examples and explain the likely cause of each issue.
 
-## Claude (2026-10-12 12:31:23 EDT)
+## Claude (2026-10-12 12:32:04 EDT)
 
-I'll start by loading the navigator skill and the vault tool schemas.
+I'll start by loading the 3GM navigator skill, as your preferences require, and then load the vault tools.
 ```
 
 ```
@@ -24,7 +24,7 @@ I'll start by loading the navigator skill and the vault tool schemas.
 
 ```
 
-The skill is loaded and the tools are available. I'll start with baseline checks: identity, corpus size, and a known counterparty searched several ways.
+The vault tools are loaded. I'll start with the vault's own scale figures and a baseline check of how the wiki and the raw mail agree.
 ```
 
 ```
@@ -37,6 +37,7 @@ The skill is loaded and the tools are available. I'll start with baseline checks
 
 ```
 
+The first pass already shows one thing to check: the vault stats (659 pages, 25,164 messages) are well past the snapshot figures in the skill (536 pages, 22,026 messages on 2026-09-30). That could be ordinary growth, but I'll keep it in view. Next I'll test a wiki figure against its cited source, and check whether the same storage report reads the same way across tools.
 ```
 
 ```
@@ -49,7 +50,7 @@ The skill is loaded and the tools are available. I'll start with baseline checks
 
 ```
 
-The first batch shows a few things worth checking further: the connection isn't signed in, the stats differ from the skill's snapshot, and "Dongkuk Steel" pulls in unrelated "Steel" pages. The raw-mail counts also differ between spellings ("Dongkuk" 879–951 vs "Dong Kuk" and "Dongkok" 0). Next I'll test the raw mail search directly.
+Three things need checking now. The Ace Metal Sales page holds two different values for the same price fact with no contradiction flag. The "Storage Tracking Report" subject search returns 45 threads in one call and 72 in another. And `find_thread` appears to merge exact-subject conversations that are more than 30 days apart, which its own description says it shouldn't. I'll pull the two cited sources and the 10/9 storage attachment.
 ```
 
 ```
@@ -62,6 +63,7 @@ The first batch shows a few things worth checking further: the connection isn't 
 
 ```
 
+The Ace Metal Sales discrepancy is confirmed, and it's a substantive one. The 2.20 figure is a March order. The 2.33 figure comes from a June email where Jessica is asking whether an order should be priced at the "monthly quoted price" of $2.33, so it is a reference price, not a sold price. Both sit under the same fact key with no flag, and the March fact has no date even though its source carries one. Next I'll check the storage report figures against the attachment itself and against the wiki.
 ```
 
 ```
@@ -74,7 +76,7 @@ The first batch shows a few things worth checking further: the connection isn't 
 
 ```
 
-The raw search does spelling correction ("Dongkok" → "Dongkuk", 951 hits), but "Dong Kuk" matches nothing, and the wiki's raw-count disagrees with the raw search. Next I'll test people resolution and sender filters, where the skill makes specific claims.
+The 10/9 storage figures in the email match the attached workbook (Reliable 422.04 MT and Swiss 146.07 MT, both ending 12/7). The wiki's storage fact is a different claim, so I'll check it against its own citation and against the storage template page.
 ```
 
 ```
@@ -83,6 +85,7 @@ The raw search does spelling correction ("Dongkok" → "Dongkuk", 951 hits), but
 
 ```
 
+The 362 MT storage figure matches its citation (the 9/1 email), so that one is accurate. The check on the storage template page returned no facts at all, which I'll note. Next I'll test whether counts agree across tools for the same subject, and look for the ERP so I can cross-check credit figures.
 ```
 
 ```
@@ -95,6 +98,7 @@ The raw search does spelling correction ("Dongkok" → "Dongkuk", 951 hits), but
 
 ```
 
+The subject search counts agree between `list_emails` and `find_thread` (81 messages), but they group the messages differently: 57 conversations versus 45 threads. More important is that `find_thread` merges five separate exact-subject conversations that span more than 30 days apart, which its own rule forbids. The ERP tools don't appear in this session. I'll make one more attempt to find them, and read how the Ace page's body describes the $2.33 figure.
 ```
 
 ```
@@ -103,11 +107,11 @@ The raw search does spelling correction ("Dongkok" → "Dongkuk", 951 hits), but
 
 ```
 
+The Ace page is internally coherent, and its own flags admit that several of its citations are unverified. The page's body and fact list cite four messages (63980, 63948, 63942, 63911) as the basis for its 2026-05 narrative, and a flag says a related draft's citations "fail to resolve to any real message." I'll check those four citations directly.
 ```
 
 ```
 
-Sender-name resolution works for the exact name, and a misspelling still resolves. Two things to probe further: surname-only "Worley" also pulls in a different person (madyson.worley@kloeckner.com), and the Jessie Choi display name carries literal quote marks. Next I'll run the same sender query with and without a date window, plus the duplicate-page and fact checks.
 ```
 
 ```
@@ -120,85 +124,46 @@ Sender-name resolution works for the exact name, and a misspelling still resolve
 
 ```
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-Both wiki page reads returned far more than the requested limits, which I'll note. The "Dongkuk Intl" lookup also resolved to the "Dongkuk" page rather than "Dongkuk International Inc.", so I'll check how facts split across the two duplicate pages and whether a cited source resolves cleanly.
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-The vault's search is strong on misspellings, exact phrases, sender resolution, and date windows. It is weak on company-name variants, on duplicate entity pages, and on payload control. Every finding below comes from the calls I ran in this session. The causes are inferred from the outputs, not confirmed against the code.
-
-**Connection:** `whoami` returned `signed_in: false`, so `mailbox="mine"` is unavailable here. The call failed cleanly with the expected message. I used `travis`, `stefan`, or no mailbox filter.
-
-**What works**
-
-- **Typo correction (raw search and subject search):** `search_raw "Dongkok"` was corrected to "dongkuk" and returned 951 matches, the same as the correct spelling. `list_emails subject="Bluscope contract prce build sheet"` corrected both words and found the thread.
-- **Sender resolution:** `list_emails sender="Jessca Worley"` resolved to Jessica Worley and returned the same 19 messages as the exact name.
-- **Exact phrases:** `search_raw "DK Inventory Shipment"` matched the phrase in 19 messages across 4 conversations.
-- **Conversation grouping:** the subject "BlueScope Contract Price Build Sheet" correctly split into a 7-message exact-subject conversation and a separate 2-message "RE:" conversation, and flagged both.
-- **Filters:** Eastern date windows are inclusive and counts are consistent (19 messages from Jessica, Oct 1–10). `human_only=true` removed all newsletters from the result.
-- **Retrieval by id:** `get_source` returned msg 301284 with full headers and quoted thread.
-- **Invalid parameters:** passing `date=` was rejected with the valid parameter list.
-
-**Issues, with reproducible calls**
-
-1. **Spaced company name finds nothing in mail.** `search_raw "Dong Kuk"` returns 0 messages, 0 threads, with `matched_as` falling back to "dong" AND "kuk". `search_raw "Dongkuk"` returns 951. `search_wiki "Dong Kuk"` still returns the Dongkuk pages (page 205 score 0.545), with `raw_mail_matches: 0`. Likely cause: the raw index treats "Dongkuk" as one token, and spelling correction only handles edit distance, not word splits. The wiki search matches the title by fuzzy trigram, so it finds the company while the mail search cannot.
-
-2. **The wiki count ignores the spelling correction.** `search_raw "Dongkok"` is corrected to "dongkuk" (951 matches), but `search_wiki "Dongkok"` reports `raw_mail_matches: 0`. Likely cause: correction is applied only in the raw path.
-
-3. **Common-word noise in wiki search.** `search_wiki "Dongkuk Steel"` returns Gideon Steel Panel (score 0.324), Steel Dynamics (0.318), Real Steel (0.316), and Leggett Steel (0.273) alongside the Dongkuk pages. Only the Dongkuk pages are relevant. The phrase is not required, so the shared word "Steel" drives the ranking.
-
-4. **Two live pages for one counterparty, and the ranking flips.** Page 205 "Dongkuk" and page 166 "Dongkuk International Inc." describe the same company. Their own flags say "identity unproven". The top hit changes with the query:
-   - `search_wiki "Dongkuk"` (entity filter): 205 first (score 1.1), 166 second (0.433).
-   - `search_wiki "Dongkuk Steel"`: 166 first (0.938), 205 second (0.757).
-
-   Facts are split as well. `find_facts page="Dongkuk" key_words="price per mt"` returns only page 205 facts (SW RMP price per MT, P04224 prices). The same query on page 166 returns different facts (net-30 and net-60 prices, prior price). A "what did we quote Dongkuk" question sees only part of the record unless both pages are queried.
-
-5. **Abbreviated title resolves to the wrong duplicate.** `get_wiki_page title="Dongkuk Intl"` returned page 205 "Dongkuk" with `title_match: closest`, listing 166 only as "other close title", even though "Intl" abbreviates 166's title. Likely cause: fuzzy title matching favours the shorter stem.
-
-6. **Surname-only sender pulls in a second person.** `list_emails sender="Worley"` (mailbox travis, Oct 1–10) lists `madyson.worley@kloeckner.com` in `senders_used` and marks him `used: true`. The counts and `by_person` show only Jessica (19 messages). The "used" list and the counts disagree. In the no-date version the total is 1,449, again Jessica only. Anyone reading `senders_used` would think two people were matched.
+**Short answer:** Yes, the vault returned wrong or misleading results in two places. `find_thread` merges unrelated conversations against its own stated rule, and `find_facts` returns two different prices for one fact key with no flag. Most other checks were consistent.
 
-7. **Display names carry literal quote marks.** `find_people "Jessie Choi"` returns the name as `'Jessie Choi'`, with the apostrophes. Matching still works, but the quotes show in every name that is printed.
+## Discrepancies
 
-8. **Requested limits are not honoured on wiki pages.** `get_wiki_page title="Dongkuk" facts_limit=5 body_chars=800` returned 10 facts and a 1,000-character body. The response exceeded the transport limit and was truncated twice (once for each DK page call). Citations and links are returned without any cap.
+**1. `find_thread` merges separate conversations (high severity)**
+- **Input:** `find_thread(subject="Storage Tracking Report", limit=10)`
+- **Observed:** One thread flagged `exact_subject: true`, `recurring_series: true`, 6 messages, 5 branches, spanning 2025-09-04 to 2026-05-12 ET. It combines five separate conversations. The gaps between them are about 22, 35, 105 and 88 days.
+- **Expected:** The tool description says a thread has "no gap over 30 days", and its `answer_guide` says exact-subject threads are different conversations and must not be merged.
+- **Cross-check:** `list_emails(subject=...)` and `search_raw` both list those same five as separate conversations, each marked `exact_subject: true`. `find_thread` reports `exact_subject_threads: 1`.
+- **Counts for the same subject disagree:**
+  - `list_emails`: 81 messages in 57 conversations.
+  - `find_thread`: 81 messages in 45 threads.
+  - `search_raw` (exact phrase, body and attachments): 140 messages in 72 conversations.
+- **Impact:** The navigator skill sends "who started X" and "latest on the X thread" to `find_thread`. For this subject it names Kristen Candido as starter on 2025-09-04, which is only one of five unrelated conversations.
 
-9. **Search excerpts show drafting metadata, not content.** `search_wiki "Dongkuk"` leads with "[Merged from a draft by outlook_3gm_stefan_outlook] This draft is an addition to the existing Dongkuk drafts (staging 63, 64, 471…)". The page-166 excerpt begins "[Reviewed draft 3019, unknown source]". The excerpt is taken from the drafting preamble, so it is useless for triage.
+**2. Two prices under one fact key, no flag (medium severity)**
+- **Input:** `find_facts(page="Ace Metal Sales", key_words="price black 117l per lft")`
+- **Observed:**
+  - `price_black_117l_per_lft_usd` = 2.20, from msg 69023, with `as_of: null`.
+  - `price_black_117l_per_lft_usd` = 2.33, `as_of` 2026-06-10, from msg 62300.
+- **Verified:**
+  - Msg 69023 (2026-03-17) reads "2- black 117L @2.20". Correct.
+  - Msg 62300 (2026-06-10) is Jessica Worley asking "Is this being sold at their monthly quoted price?" and listing "3-Black 117L - $2.33/lft". The value is correct, but it is a reference price in a question, not a price charged.
+- **Expected:** Either separate keys for quoted and sold prices, or a label and an ambiguity flag. The page has no contradiction flag. The 2.20 fact also has no date, although its source is dated 2026-03-17.
 
-10. **A pre-archive window looks like "no mail".** `list_emails since=2025-08-01 until=2025-08-31` returns 0 messages with `coverage.complete: true` and no archive-start notice. The archive starts 2025-09-01. A user would reasonably read this as "nothing happened".
+## Checks that passed
+- **Storage Tracking Report 10/9:** The email gives Reliable (Heartland) 422 MT and Swiss 146 MT, both ending 12/7. The attached workbook (att 49585) shows 422.04 and 146.07, ending 2026-12-07. Consistent.
+- **Ace Metal Sales citations:** Messages 63980, 63948, 63942 and 63911 all resolve. Their content matches the page's 2026-05 narrative: 2.25 loads, Flack at $2.47 against list at $2.45, the last heavy black sold to Millers, and 5 heavy green in stock. A sibling draft (staging 2935) is flagged for unresolved citations. I could not see that draft, so I have not verified that claim.
+- **Storage fact, page 328:** "362 MT at South Carolina Port, storage ended 8/10/2026" matches msg 46440 (sent 2026-09-01 ET).
+- **Subject count stability:** `list_emails` returns 81 with and without a date window.
 
-11. **Navigator skill figures are out of date.** The skill's snapshot (2026-09-30) gives 536 pages, 11,728 facts, 22,026 messages, and 10,781 attachments. Live stats today are 659 pages, 31,509 facts, 25,178 messages, and 14,226 attachments. The skill says to check `get_vault_stats`, so this is staleness rather than a retrieval fault.
+## Inconclusive or not testable
+- **Storage template page (269):** `find_facts(page="Storage Tracking Report", key_words="remaining storage ends Swiss Reliable")` returned 0 rows, although `search_wiki` ranks the page first and the page reports 120 facts. I did not enumerate those facts, so I can't say whether the 10/9 figures are missing or stored under different keys. This needs reproducing.
+- **ERP cross-check:** No ERP tools are loaded in this session, so I could not verify the EMB figures in the 9/1 email (balance $430,366.44 against a $500,000 limit) or any other live value.
+- **Stale snapshot:** `get_vault_stats` now shows 659 pages, 31,230 facts, 25,164 messages and 14,215 attachments. The navigator skill's snapshot from 2026-09-30 says 536, 11,728, 22,026 and 10,781. Ten days of growth could explain this, but the message increase of about 3,100 is large. Treat the skill's counts as stale.
 
-**Not tested:** `find_thread`, `top_correspondents`, `list_attachments`, paging with `offset`, `get_attachment_text` pagination, `find_facts` with `value_contains`, and `human_only` on wiki search.
+## Reproduction
+1. `find_thread(subject="Storage Tracking Report", limit=10)`, then compare the 2025-09-04 and 2026-05-12 entries against `list_emails(subject="Storage Tracking Report", limit=3)`.
+2. `find_facts(page="Ace Metal Sales", key_words="price black 117l per lft")`, then `get_source` on 69023 and 62300.
+3. `get_source(outlook_message, 63980)` (and 63948, 63942, 63911) to confirm the Ace citations.
+4. `find_facts(page="Storage Tracking Report", key_words="remaining storage ends Swiss Reliable")`, and compare with `get_wiki_page(page_id=269)`.
 
-Sources: msg 301284 · msg 301391 · msg 301313 · msg 67328 · msg 65277 · msg 65263 · att 49397 (msg 301017) · att 46274 (msg 291481) · wiki page 205 "Dongkuk" · wiki page 166 "Dongkuk International Inc." · wiki page 81 "KG Steel USA, Inc." · wiki page 424 "Korea CORE Antidumping Duty Review" · wiki page 449 "3GM Steel 101" · ERP: none queried
+Sources: msg 301381 · att 49585 · att 49584 · msg 291897 · msg 267020 · msg 69023 · msg 62300 · msg 63980 · msg 63948 · msg 63942 · msg 63911 · msg 46440 · page 337 (Ace Metal Sales) · page 269 (Storage Tracking Report) · page 328 (Steel Buildings and Structures) · tools: find_thread, list_emails, search_raw, find_facts, get_source, get_vault_stats (no ERP records checked)

@@ -1,18 +1,18 @@
 ---
-conversation_id: test-conv-ext-1791816716
+conversation_id: test-conv-ext-1791820202
 platform: claude
 username: "alex"
 title: "Debugging Kubernetes Networking"
 created_at: "2026-10-10T20:13:58.211685"
-updated_at: "2026-10-12 10:52:10 EDT"
+updated_at: "2026-10-12 11:50:26 EDT"
 ---
 
 # Debugging Kubernetes Networking
 
-## User (2026-10-12 10:52:10 EDT)
+## User (2026-10-12 11:50:26 EDT)
 
 Why is my service returning 503?
 
-## Claude (2026-10-12 10:52:10 EDT)
+## Claude (2026-10-12 11:50:26 EDT)
 
 A 503 Service Unavailable typically indicates no healthy endpoints.

@@ -1,19 +1,19 @@
 ---
-conversation_id: 5d0a5d3b-e6a3-4c6c-80da-cedc9a27b7a2
+conversation_id: 1c2be0c5-96f0-4c0a-a928-2e9cd30d4e77
 platform: claude
 username: "shubham"
-title: "3GM Vault MCP edge case testing"
+title: "3GM Vault MCP reliability assessment"
 created_at: "2026-10-12T14:59:16.302308Z"
-updated_at: "2026-10-12 12:13:22 EDT"
+updated_at: "2026-10-12 12:13:24 EDT"
 ---
 
-# 3GM Vault MCP edge case testing
+# 3GM Vault MCP reliability assessment
 
-## User (2026-10-12 12:13:22 EDT)
+## User (2026-10-12 12:13:24 EDT)
 
-Evaluate how the 3GM Vault MCP handles edge cases, including empty searches, missing parameters, invalid identifiers, nonexistent records, unusually long inputs, special characters, ambiguous queries, and unsupported request formats. Use safe, read-only tests wherever possible. Record unexpected failures, unclear error messages, inconsistent responses, and cases where the MCP reports success without returning the expected information.
+Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## Claude (2026-10-12 12:13:22 EDT)
+## Claude (2026-10-12 12:13:24 EDT)
 
 I'll start by loading the 3gm-navigator skill, as your preferences require for any 3GM question.
 ```

@@ -3,29 +3,17 @@ conversation_id: c84cf201-a14c-4472-ace0-84c28a6fffa6
 platform: claude
 username: "shubham"
 title: "Travis's most frequent emailers"
-created_at: "2026-10-12T12:55:06.362390Z"
-updated_at: "2026-10-12 13:30:19 EDT"
+created_at: "2026-10-12 08:55:06 EDT"
+updated_at: "2026-10-12 16:20:00 EDT"
 ---
 
 # Travis's most frequent emailers
 
-## User (2026-10-12 13:30:19 EDT)
+## User (2026-10-12 16:20:00 EDT)
 
 Which people email Travis the most, excluding newsletters?
 
-## Claude (2026-10-12 13:30:19 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:00 EDT)
 
 Jessica Worley emails Travis the most, with 1,450 messages in his inbox since the archive starts on 2025-09-01.
 

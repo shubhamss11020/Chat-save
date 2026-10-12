@@ -1,19 +1,19 @@
 ---
-conversation_id: ae67f091-4272-4085-859d-cbec0c96a936
+conversation_id: 6874eca4-5990-4a35-a412-b0abbfe9e9b6
 platform: claude
 username: "shubham"
-title: "3GM client information"
+title: "Accessing 3GM payroll details"
 created_at: "2026-10-07 09:40:59 EDT"
-updated_at: "2026-10-12 11:00:12 EDT"
+updated_at: "2026-10-12 11:38:39 EDT"
 ---
 
-# 3GM client information
+# Accessing 3GM payroll details
 
-## User (2026-10-12 11:00:12 EDT)
+## User (2026-10-12 11:38:39 EDT)
 
 i want basically each and every small details of the 3gm whatever u have represent it here
 
-## Claude (2026-10-12 11:00:12 EDT)
+## Claude (2026-10-12 11:38:39 EDT)
 
 I'll help you get information about the 3gm client. Let me search the EOXS data for their details.
 ```

@@ -3,41 +3,17 @@ conversation_id: bc456f2b-23eb-4a37-9f14-a37b9d1d5e68
 platform: claude
 username: "shubham"
 title: "Inventory tracking documents"
-created_at: "2026-10-12T15:34:51.056378Z"
-updated_at: "2026-10-12 13:29:35 EDT"
+created_at: "2026-10-12 11:34:51 EDT"
+updated_at: "2026-10-12 16:19:07 EDT"
 ---
 
 # Inventory tracking documents
 
-## User (2026-10-12 13:29:35 EDT)
+## User (2026-10-12 16:19:07 EDT)
 
 Find documents related to inventory tracking, including files with different names that may cover the same topic
 
-## Claude (2026-10-12 13:29:35 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:07 EDT)
 
 The vault has about 25 documents that track inventory, and several series share one report under different names: the "Available & HFI" files and the "Inventory Update" files are the same kind of snapshot. The newest full snapshot is the 1 Oct 2026 "3GM Inventory Update" workbook. These are dated snapshots, not live stock. For current on-hand inventory, the ERP is the authority.
 

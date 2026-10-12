@@ -2,18 +2,18 @@
 conversation_id: 43a28e16-72af-4d6b-be72-5a729d7f295f
 platform: claude
 username: "shubham"
-title: "Running PostgreSQL, Odoo, and n8n with Docker - Claude"
+title: "Semantic search in vector databases"
 created_at: "2026-10-12T18:16:49.771379Z"
-updated_at: "2026-10-12 15:08:38 EDT"
+updated_at: "2026-10-12 15:08:48 EDT"
 ---
 
-# Running PostgreSQL, Odoo, and n8n with Docker - Claude
+# Semantic search in vector databases
 
-## User (2026-10-12 15:08:38 EDT)
+## User (2026-10-12 15:08:48 EDT)
 
 what is semantic search in vector db how it is happening and how basically it makes the retrieval fast
 
-## User (2026-10-12 15:08:38 EDT)
+## User (2026-10-12 15:08:48 EDT)
 
 PS C:\Users\vaibhav\Desktop\branon> docker exec -it odoo-db psql -U odoo -d eoxteams -c "select v.id, v.name, v.model, d.module from ir_ui_view v left join ir_model_data d on d.model='ir.ui.view' and d.res_id=v.id where not v.active and v.type='kanban' and v.mode='primary' order by v.model;"  id  |         name         |  model   | module------+----------------------+----------+--------- 4670 | vrm.lead.kanban.lead | vrm.lead | odx_vrm(1 row)
 
@@ -21,7 +21,7 @@ What's next:    Try Docker Debug for seamless, persistent debugging tools in any
 
 PS C:\Users\vaibhav\Desktop\branon>
 
-## Claude (2026-10-12 15:08:38 EDT)
+## Claude (2026-10-12 15:08:48 EDT)
 
 I'll start by reading the two skill files.
 
@@ -71,11 +71,11 @@ Popular options include pgvector (Postgres), Pinecone, Weaviate, Qdrant, Milvus,
 
 If you're considering pgvector for a Postgres-backed system, I can go into HNSW vs IVFFlat tuning, chunking strategy, or hybrid (keyword + semantic) search next.
 
-## User (2026-10-12 15:08:38 EDT)
+## User (2026-10-12 15:08:48 EDT)
 
 now create a log note of the work we have done till now in a 2 line bullets and give me 8 bullets the log not should be professional and it should look like it is written by an intern
 
-## Claude (2026-10-12 15:08:38 EDT)
+## Claude (2026-10-12 15:08:48 EDT)
 
 Log Note: MTR Module, n8n and Odoo Setup
 

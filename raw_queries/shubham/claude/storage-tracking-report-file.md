@@ -1,19 +1,19 @@
 ---
-conversation_id: 780c9157-c2e8-46c1-8aea-acd5b9bad789
+conversation_id: 85b86380-131c-4891-9263-406c862e4bd0
 platform: claude
 username: "shubham"
 title: "Storage Tracking Report file"
 created_at: "2026-10-12T12:43:35.964226Z"
-updated_at: "2026-10-12 12:14:46 EDT"
+updated_at: "2026-10-12 12:15:15 EDT"
 ---
 
 # Storage Tracking Report file
 
-## User (2026-10-12 12:14:46 EDT)
+## User (2026-10-12 12:15:15 EDT)
 
 Find the Storage Tracking Report file someone sent.
 
-## Claude (2026-10-12 12:14:46 EDT)
+## Claude (2026-10-12 12:15:15 EDT)
 
 ```
 
@@ -31,10 +31,14 @@ Find the Storage Tracking Report file someone sent.
 
 ```
 
-The most recent Storage Tracking Report is attached to Kendra Jasper's email "Storage Tracking Report 10/9," sent Friday, October 9, 2026 at 3:06 PM ET. The attachment is **Storage Tracking Report.xlsx** (about 27.5 KB). It went to Travis Lane, Jessica Worley, Stefan Brown and Corey McGlothlin.
+```
 
-The email body summarises each account. The excerpt I can see shows Reliable (Heartland) with 422 MT remaining, storage ending 12/7. I haven't opened the workbook itself, so I can't confirm the other accounts. If you want its full contents, I can extract them.
+```
 
-If you meant an earlier report, Kendra sent a weekly one each Friday, the previous on October 2 (attachment 46347). Other people also sent reports under the same name, including Kristen, Leslie and Travis in the spring and summer.
+The most recent one is **Storage Tracking Report 10/9**, sent by Kendra Jasper on Monday, October 9, 2026 at 3:06 PM ET. It went to Travis Lane, Jessica Worley, Stefan Brown and Corey McGlothlin. The file is `Storage Tracking Report.xlsx` (attachment 49585, about 27 KB).
 
-Sources: msg 301381 · att 49585 (Storage Tracking Report.xlsx, 10/9) · msg 291897 · att 46347 (10/2)
+Kendra sends this report roughly weekly, so there are many similar files. Her previous sends were 10/2, 9/25, 9/17, 9/11, 9/4 and 8/28. Travis also sent his own copy of the same filename on August 6 (attachment 46749), which is the only one from someone other than Kendra that I found.
+
+I couldn't tell which mailbox you're asking from, because the vault connection isn't signed in to a user. I searched both Travis's and Stefan's mailboxes. If you meant a specific sender or date, tell me and I'll narrow it down.
+
+Sources: att 49585 (msg 301381, "Storage Tracking Report 10/9") · att 46347 (msg 291897, 10/2) · att 46749 (msg 299794, Travis, 8/6) · att 46030 (msg 267020, 9/25) · att 45808 (msg 235396, 9/17)

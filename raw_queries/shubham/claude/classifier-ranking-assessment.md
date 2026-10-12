@@ -4,12 +4,12 @@ platform: claude
 username: "shubham"
 title: "Classifier ranking assessment"
 created_at: "2026-10-07T17:56:41.696084Z"
-updated_at: "2026-10-12 10:59:55 EDT"
+updated_at: "2026-10-12 12:36:09 EDT"
 ---
 
 # Classifier ranking assessment
 
-## Claude (2026-10-12 10:59:55 EDT)
+## Claude (2026-10-12 12:36:09 EDT)
 
 I can't see the classifier internals, so this ranking is my best judgment of what trips these safeguards, not a confirmed diagnosis.
 

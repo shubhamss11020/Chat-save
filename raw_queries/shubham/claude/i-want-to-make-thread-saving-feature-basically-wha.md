@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Thread saving MCP server feature"
 created_at: "2026-10-12T13:46:12.732Z"
-updated_at: "2026-10-12 12:13:53 EDT"
+updated_at: "2026-10-12 13:30:10 EDT"
 ---
 
 # Thread saving MCP server feature
 
-## User (2026-10-12 12:13:53 EDT)
+## User (2026-10-12 13:30:10 EDT)
 
 i want to make thread saving feature basically what the user did prompt in claude basically it should have mcp server basically connected to claude desktop which basically saves each and every what user prompting whenever the connector toggle on it should commit in repo github ok each turn should be saved because i know llm is not determinstic if we rely on llm to do tool call of mcp every time it might miss the save tool call and one thing i found add in project instruction every time save the chat tool call told the instruction to do before any prompt but i want it should don't dependent on this ok how supermemory have done basically the saving one only
 
-## Claude (2026-10-12 12:13:53 EDT)
+## Claude (2026-10-12 13:30:10 EDT)
 
 The core problem is that an MCP server only runs when the model decides to call it. Claude Desktop has no per-turn hook it can fire on your behalf, so the "connector toggle" can't trigger saves. Any design that depends on the model calling a save tool will miss turns, and project instructions have the same flaw. Deterministic capture has to happen outside the model, in code that runs on every turn.
 

@@ -1,19 +1,19 @@
 ---
-conversation_id: 172d6825-9c09-4c9f-b965-4a74ea594327
+conversation_id: 2c1d2eba-88be-4be7-a338-e979f85c9179
 platform: claude
 username: "shubham"
-title: "Creative automation ideas for the AI era"
+title: "Agentic AI vs machine learning approaches"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-12 11:00:19 EDT"
+updated_at: "2026-10-12 12:36:33 EDT"
 ---
 
-# Creative automation ideas for the AI era
+# Agentic AI vs machine learning approaches
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:33 EDT)
 
 comparison between agentic ai and ml based ai approach what the difference between them typically
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:33 EDT)
 
 I'll break down the key differences between agentic AI and traditional ML-based approaches:
 
@@ -76,22 +76,21 @@ Would you like me to dive deeper into any specific aspect?
 
 ---
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
-## User (2026-10-12 11:00:19 EDT)
+```
+
+## User (2026-10-12 12:36:33 EDT)
 
 fine tunning an model and all things are come under which cateogry
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:33 EDT)
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ## Multi-modal Context Agents: Deep Dive
@@ -177,22 +176,21 @@ You get:
 
 Would you want to architect this for a specific workflow at Askcruz?
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
-## User (2026-10-12 11:00:19 EDT)
+```
+
+## User (2026-10-12 12:36:33 EDT)
 
 How can we automation on Qa basically while testing mcp server response in claude rather than manually do prompting in claude
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:33 EDT)
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 Perfect timing—this directly relates to your [threads-mcp-qa-automation](link) area. Here's a **fully automated MCP testing framework** that eliminates manual Claude prompting:
@@ -439,22 +437,21 @@ Would you want me to:
 - Create the YAML test suite template for Threads MCP?
 - Set up the GitHub Actions workflow?
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
-## User (2026-10-12 11:00:19 EDT)
+```
+
+## User (2026-10-12 12:36:33 EDT)
 
 don't give code high level overview how it can save to much time
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:33 EDT)
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ## **Time Savings: High-Level Overview**
@@ -555,14 +552,14 @@ By month 6, with 5+ MCP servers running:
 
 Would it make sense to start with just the **Threads MCP** as a pilot to prove the model?
 ```
-This block is not supported on your current device yet.
+
 ```
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:33 EDT)
 
 I also hear about forward deployed engineers right now the trend is heavy and every one is focused towards fde why there is current change in the industry about fde
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:33 EDT)
 
 **Forward Deployed Engineers (FDE) are becoming a trend because AI/software is fundamentally changing how companies operate—and the old model isn't scaling fast enough.**
 
@@ -727,14 +724,14 @@ If you're building AI products or services:
 
 Does this clarify the FDE trend and why it's exploding right now?
 ```
-This block is not supported on your current device yet.
+
 ```
 
-## User (2026-10-12 11:00:19 EDT)
+## User (2026-10-12 12:36:33 EDT)
 
 I have heard about the gtm engineer what they are doing how the use case of this role
 
-## Claude (2026-10-12 11:00:19 EDT)
+## Claude (2026-10-12 12:36:33 EDT)
 
 **GTM (Go-To-Market) Engineers are engineers specifically focused on helping products succeed in the market—they solve the "build it perfectly, but customers can't use it" problem.**
 
@@ -1007,7 +1004,7 @@ Agentic AI: "I'm an agent that helps multiple FDEs/GTM Engineers"
 
 Does this clarify what GTM Engineers do and why they're crucial?
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ## User (2026-10-12 11:00:19 EDT)
@@ -1231,7 +1228,7 @@ I broke that pattern and didn't call it. My bad.
 
 Let me fix that now:
 ```
-This block is not supported on your current device yet.
+
 ```
 
 **From now on, I'll call it on every response.** No more breaking the pattern.
@@ -1298,5 +1295,5 @@ comparison table for mcp server tool and agents one
 
 For transcript saving? **Agent.** You're just intercepting existing calls—no need for a server.
 ```
-This block is not supported on your current device yet.
+
 ```

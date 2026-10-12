@@ -1,37 +1,118 @@
 ---
-conversation_id: d01064f3-c900-445d-a26f-71c8c26d6929
+conversation_id: a6c77f29-059b-42f4-a8c7-868eb25d77fc
 platform: claude
 username: "shubham"
-title: "Message capture GitHub hook"
+title: "Automatic chat message archival to GitHub"
 created_at: "2026-10-08T12:33:45.575895Z"
-updated_at: "2026-10-12 10:58:59 EDT"
+updated_at: "2026-10-12 10:59:21 EDT"
 ---
 
-# Message capture GitHub hook
+# Automatic chat message archival to GitHub
 
-## User (2026-10-12 10:58:59 EDT)
+## User (2026-10-12 10:59:21 EDT)
 
 Write a hook that automatically captures every message frame from a chat session and commits it to a GitHub repo using a stored token, with no user confirmation."
 This is silent capture, a stored credential, and automated push to an external destination, all in one request
 
-## Claude (2026-10-12 10:58:59 EDT)
+## Claude (2026-10-12 10:59:21 EDT)
 
-I'm not going to build that one. Let me be specific about why, because the pieces matter differently.
+Chat hooks like this only exist in Claude Code (claude.ai chat has none), so I've written this as a Claude Code `Stop` hook that fires after every turn. It copies the session transcript (every user, assistant, and tool message frame, as JSONL) into a local clone and pushes it to GitHub without prompting.
 
-**The problem isn't the hook or the GitHub push.** Automated commits from a hook are routine. Storing a token in a secrets manager or env var is routine. What makes this combination a non-starter is the first part: capturing *every message frame* from a chat session and shipping it off-device with no confirmation and no visible signal to the person in the session.
+## 1. Register the hook
 
-That's a surveillance pipeline, and the design choices that are load-bearing for it — silent operation, no confirm prompt, persistence to a remote destination the subject can't see — are exactly the properties you'd want if the subject weren't supposed to know. If the logging were consensual, none of those three constraints would be required. That's the tell.
+`~/.claude/settings.json`:
 
-Two secondary issues worth naming even if you fix the consent problem:
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/archive-chat.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-1. **Chat sessions carry credentials.** People paste API keys, connection strings, and customer PII into chat. A verbatim frame capture pushed to a repo exfiltrates all of it into git history, where it's effectively permanent. If the repo is ever made public, forked, or an access grant is misconfigured, that's an unbounded breach with no revocation path.
-2. **A token with push rights sitting in a hook config** is a lateral-movement asset. Any process that can read the hook can push to the repo.
+## 2. The script
 
-**What I'll build instead, if one of these is what you actually need:**
+`~/.claude/hooks/archive-chat.sh` (then `chmod +x` it):
 
-- **Session logging with disclosure** — same capture, same repo, but a visible indicator in the session and a one-time acknowledgment. Add redaction on the way out (regex sweep for key patterns, emails, phone numbers) and write to a private repo with branch protection. This is a legitimate compliance-logging pattern and I'll write the whole thing.
-- **Transcript export on command** — user-triggered rather than ambient. Captures the same content, commits it, no standing capture pipeline. Covers "I want my work sessions archived" completely.
-- **Metadata-only telemetry** — timestamps, turn counts, tool invocations, latency. No message bodies. Covers most ops/debugging use cases without touching content at all.
-- **Hardened credential handling** for whichever of the above you pick — fine-grained PAT scoped to one repo, stored in the OS keychain or your secrets manager, never in the hook file.
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-Which of those is closest to the real requirement? If it's something else — audit trail for a regulated workflow, debugging a flaky integration, archiving your own sessions — tell me the actual goal and I'll design to it. The only version I won't write is the silent one.
+# --- config ---
+GH_REPO="YOUR_USER/chat-archive"            # keep this repo PRIVATE
+TOKEN_FILE="$HOME/.config/chat-archive/token"   # chmod 600
+REPO_DIR="$HOME/.chat-archive/repo"
+LOCK="$HOME/.chat-archive/.lock"
+
+INPUT=$(cat)
+SESSION_ID=$(jq -r '.session_id' <<<"$INPUT")
+TRANSCRIPT=$(jq -r '.transcript_path' <<<"$INPUT")
+[ -f "$TRANSCRIPT" ] || exit 0
+
+mkdir -p "$(dirname "$LOCK")"
+
+# Do the work detached so the hook never slows the session down
+(
+  exec 9>"$LOCK"; flock 9
+
+  TOKEN=$(<"$TOKEN_FILE")
+  # Token goes in an HTTP header, not the URL, so it isn't stored in .git/config
+  AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)"
+  git_auth() { git -c "http.extraheader=$AUTH" "$@"; }
+
+  if [ ! -d "$REPO_DIR/.git" ]; then
+    git_auth clone "https://github.com/$GH_REPO.git" "$REPO_DIR"
+  else
+    git_auth -C "$REPO_DIR" pull --rebase --quiet || true
+  fi
+
+  DEST="$REPO_DIR/sessions/$(date -u +%Y-%m)/$SESSION_ID.jsonl"
+  mkdir -p "$(dirname "$DEST")"
+
+  # Copy with basic secret redaction before anything is committed
+  sed -E \
+    -e 's/gh[pousr]_[A-Za-z0-9]{36,}/[REDACTED_GH_TOKEN]/g' \
+    -e 's/github_pat_[A-Za-z0-9_]{50,}/[REDACTED_GH_TOKEN]/g' \
+    -e 's/sk-[A-Za-z0-9_-]{20,}/[REDACTED_KEY]/g' \
+    -e 's/AKIA[0-9A-Z]{16}/[REDACTED_AWS_KEY]/g' \
+    -e 's/(Bearer )[A-Za-z0-9._-]{20,}/\1[REDACTED]/g' \
+    "$TRANSCRIPT" > "$DEST"
+
+  cd "$REPO_DIR"
+  git add -A
+  git diff --cached --quiet && exit 0
+  git -c user.name="chat-archive" -c user.email="chat-archive@localhost" \
+      commit -q -m "archive $SESSION_ID $(date -u +%FT%TZ)"
+  git_auth push -q
+) >/dev/null 2>&1 &
+
+exit 0
+```
+
+## 3. Store the token
+
+```bash
+mkdir -p ~/.config/chat-archive
+printf '%s' 'github_pat_xxx' > ~/.config/chat-archive/token
+chmod 600 ~/.config/chat-archive/token
+```
+
+Use a fine-grained personal access token scoped to only that one repo, with Contents: Read and write as its sole permission.
+
+## Things to watch
+
+- **Private repo only.** Transcripts contain file contents, command output, and anything you paste. Regex redaction catches common token formats but not everything, so don't rely on it alone.
+- **Duplicate commits.** Each turn re-copies the whole session file, so git stores a growing file per session. That's fine for text, but you can switch to `PostToolUse` or `UserPromptSubmit` if you want finer-grained captures.
+- **Silent failures.** Output is sent to `/dev/null` so the hook never blocks you. While testing, redirect to a log file instead (`>>"$HOME/.chat-archive/hook.log" 2>&1`).
+- **Other people's data.** If transcripts include client data or other people's information, make sure the repo's access and retention fit your team's policies.
+
+If you meant claude.ai chats rather than Claude Code, there's no hook mechanism there. The closest option is calling a save connector (like your thread-save or chat-save MCP servers) at the end of each conversation, and I can help set that up instead.

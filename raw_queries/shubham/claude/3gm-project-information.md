@@ -4,30 +4,28 @@ platform: claude
 username: "shubham"
 title: "3GM project information"
 created_at: "2026-10-09T18:09:36.953509Z"
-updated_at: "2026-10-12 10:34:56 EDT"
+updated_at: "2026-10-12 12:32:31 EDT"
 ---
 
 # 3GM project information
 
-## User (2026-10-12 10:34:56 EDT)
+## User (2026-10-12 12:32:31 EDT)
 
 tell me abouth the project of 3gm
 
-## Claude (2026-10-12 10:34:56 EDT)
+## Claude (2026-10-12 12:32:31 EDT)
 
 Reading the threads-wiki skill first, as your preferences require, then checking for the askcruz-internal-team skill.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 I haven't researched anything yet. A few things need settling first.
@@ -51,36 +49,32 @@ I haven't researched anything yet. A few things need settling first.
 
 Also tell me if you'd like the answer as a plain reply or as a document. If it's a document, I'll ask for a craft level.
 
-## User (2026-10-12 10:34:56 EDT)
+## User (2026-10-12 12:32:31 EDT)
 
 use the mcp and give answer
 
-## Claude (2026-10-12 10:34:56 EDT)
+## Claude (2026-10-12 12:32:31 EDT)
 
 Querying the 3gm vault now. I'm treating this as a quick first pass (5ft deep) since you didn't pick a level.
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
+
+```
+
+```
+
+```
 
 "3GM" returned many projects, not one. I read one page in full (Monthly Pricing Project) and only the search excerpts for the rest. All of it is from wiki summaries, which the vault flags as needing checks against raw emails. The vault covers only Stefan Brown's and Travis Lane's mailboxes, so anything outside those is missing.
 
@@ -111,156 +105,128 @@ This block is not supported on your current device yet.
 
 If you say "all of them," I'd run 10ft deep (verified against raw emails) on one at a time. That is the only way to get a reliable status.
 
-## User (2026-10-12 10:34:56 EDT)
+## User (2026-10-12 12:32:31 EDT)
 
 Investigate the 3GM Vault MCP for missing or inaccessible information. Check whether expected records, documents, fields, metadata, and relationships are available through the MCP. Identify cases where information appears to exist in one accessible source but cannot be retrieved through another relevant operation. Explain the evidence, possible cause, and recommended fix.
 
-## Claude (2026-10-12 10:34:56 EDT)
+## Claude (2026-10-12 12:32:31 EDT)
 
 Testing the vault's tools against each other: wiki pages versus raw messages, attachments, facts, citations and links. First I'm loading the remaining tool schemas.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
-```
-
-
-
 
 I found 10 gaps. I tested one cluster in depth: the "Monthly Pricing Project" wiki page (id 98), its source threads and attachments, plus its sibling page "Monthly Pricing Guideline" (id 2). I also ran vault-wide checks. This is a sample, not an audit of all 659 pages or 25,157 messages, and I only read about 10% of the cited messages in full. I did not review the vault's other mailboxes, ERP-linked data, or attachment extraction quality outside this cluster.
 

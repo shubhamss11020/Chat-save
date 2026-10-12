@@ -4,20 +4,20 @@ platform: claude
 username: "shubham"
 title: "Quantum computing's future impact on tech markets"
 created_at: "2026-10-07 09:35:59 EDT"
-updated_at: "2026-10-12 11:00:16 EDT"
+updated_at: "2026-10-12 12:36:32 EDT"
 ---
 
 # Quantum computing's future impact on tech markets
 
-## User (2026-10-12 11:00:16 EDT)
+## User (2026-10-12 12:36:32 EDT)
 
 Can u predict more about quantum computing future in tech industry how it will going to affect the current market standards in future
 
-## Claude (2026-10-12 11:00:16 EDT)
+## Claude (2026-10-12 12:36:32 EDT)
 
 I'll give you a comprehensive overview of quantum computing's likely impact on the tech industry. Let me search for the latest developments to provide the most current perspective.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ## Quantum Computing's Future Impact on Tech Industry
@@ -72,12 +72,11 @@ The key insight: quantum computing won't replace classical computing—it will c
 
 Now let me save this conversation:
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 Done! I've saved this conversation. The quantum computing landscape is poised for explosive growth—expect significant shifts in cybersecurity, AI optimization, and scientific computing over the next 5-10 years.

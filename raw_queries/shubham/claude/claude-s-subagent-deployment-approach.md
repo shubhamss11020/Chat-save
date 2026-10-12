@@ -1,19 +1,19 @@
 ---
-conversation_id: b3eedffa-5f19-4b47-be5b-84a13da26096
+conversation_id: 0025189a-68b6-47c1-afa7-857fde31762c
 platform: claude
 username: "shubham"
 title: "Claude's subagent deployment approach"
 created_at: "2026-10-06T13:52:36.624899Z"
-updated_at: "2026-10-12 12:38:12 EDT"
+updated_at: "2026-10-12 12:38:40 EDT"
 ---
 
 # Claude's subagent deployment approach
 
-## User (2026-10-12 12:38:12 EDT)
+## User (2026-10-12 12:38:40 EDT)
 
 How claude is basically deploy subagents according to the prompts or task basically
 
-## Claude (2026-10-12 12:38:12 EDT)
+## Claude (2026-10-12 12:38:40 EDT)
 
 Subagent deployment is a pattern called **orchestrator-worker**. Claude doesn't have a hidden "spawn" mechanism. It decides to delegate through a **tool call**, the same way it decides to call a search tool.
 
@@ -47,11 +47,11 @@ Since you're building an MCP project, one practical point: subagents can use MCP
 
 If you'd like, I can show a sample subagent definition file or a minimal orchestrator example with the Agent SDK.
 
-## User (2026-10-12 12:38:12 EDT)
+## User (2026-10-12 12:38:40 EDT)
 
 don't u think suppose fetching from each different website one by one gather info from each store locally and then after merge all the website info and llm give enhanced response after that take to much time and have impact user experience but how claude do very fastly
 
-## Claude (2026-10-12 12:38:12 EDT)
+## Claude (2026-10-12 12:38:40 EDT)
 
 Ah, got it! You're asking about how Claude **efficiently handles a single prompt that needs data from multiple sources**. Let me explain that:
 
@@ -166,11 +166,11 @@ Single Claude Prompt
 
 Is this what you were asking about? Are you looking to optimize how your MCP connectors handle multi-source queries?
 
-## User (2026-10-12 11:01:53 EDT)
+## User (2026-10-12 12:38:40 EDT)
 
 suppose the prompts require info from github and some from google and some from stack overflow different website then how it works
 
-## Claude (2026-10-12 11:01:53 EDT)
+## Claude (2026-10-12 12:38:40 EDT)
 
 Excellent question! This is where it gets more **limited and strategic**. Let me break it down:
 
@@ -374,11 +374,11 @@ Unified response combining GitHub + StackOverflow + Gmail
 
 Does this clarify how Claude would handle multi-source external data? Would you want to extend your Gmail Email MCP to include GitHub + StackOverflow connectors?
 
-## User (2026-10-12 11:01:53 EDT)
+## User (2026-10-12 12:38:40 EDT)
 
 don't u think suppose fetching from each different website one by one gather info from each store locally and then after merge all the website info and llm give enhanced response after that take to much time and have impact user experience but how claude do very fastly
 
-## Claude (2026-10-12 11:01:53 EDT)
+## Claude (2026-10-12 12:38:40 EDT)
 
 Excellent catch! You're absolutely right that sequential fetching would be slow. Let me explain the **actual optimization techniques** Claude uses:
 
@@ -630,11 +630,11 @@ Claude gets **one fast response** with all data already merged.
 
 Does this answer how Claude handles multi-source queries efficiently?
 
-## User (2026-10-12 11:01:53 EDT)
+## User (2026-10-12 12:38:40 EDT)
 
 ohkay now simple but longer with 100 words , 1 word per line
 
-## Claude (2026-10-12 11:01:53 EDT)
+## Claude (2026-10-12 12:38:40 EDT)
 
 Claude
 handles

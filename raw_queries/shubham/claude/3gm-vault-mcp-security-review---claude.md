@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP security review"
 created_at: "2026-10-12T15:10:22.411Z"
-updated_at: "2026-10-12 12:13:27 EDT"
+updated_at: "2026-10-12 13:29:52 EDT"
 ---
 
 # 3GM Vault MCP security review
 
-## User (2026-10-12 12:13:27 EDT)
+## User (2026-10-12 13:29:52 EDT)
 
 Review the 3GM Vault MCP for potential security and access-control weaknesses using authorized, non-destructive checks. Examine whether exposed operations appear to enforce expected permissions, whether error messages reveal unnecessary internal details, and whether records could potentially be accessed outside their intended authorization boundaries. Do not retrieve or expose sensitive data, change permissions, or attempt destructive actions. Document potential issues and recommend safe verification steps.
 
-## Claude (2026-10-12 12:13:27 EDT)
+## Claude (2026-10-12 13:29:52 EDT)
 
 I'll start with the 3gm-navigator skill, as your preferences require for 3GM work, then load the Vault tool schemas.
 ```

@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Travis's most frequent emailers"
 created_at: "2026-10-12T12:55:06.362390Z"
-updated_at: "2026-10-12 12:14:09 EDT"
+updated_at: "2026-10-12 13:30:19 EDT"
 ---
 
 # Travis's most frequent emailers
 
-## User (2026-10-12 12:14:09 EDT)
+## User (2026-10-12 13:30:19 EDT)
 
 Which people email Travis the most, excluding newsletters?
 
-## Claude (2026-10-12 12:14:09 EDT)
+## Claude (2026-10-12 13:30:19 EDT)
 
 ```
 

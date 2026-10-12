@@ -2,9 +2,9 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 
-from . import capture, outbox, state
+from . import capture, outbox, s3, state
 from .auth import TokenAuth, current_user
 from .config import CAPTURE, RECONCILE_SECONDS
 from .mcp_server import mcp
@@ -14,6 +14,8 @@ from .models import (
     ExtensionHeartbeat,
     ExtensionIngestPayload,
     ExtensionIngestResponse,
+    PresignUploadRequest,
+    PresignUploadResponse,
 )
 from .sources.claude_code import ClaudeSource
 from .sources.claude_desktop import ClaudeDesktopSource
@@ -145,6 +147,39 @@ def retry_dead_letter_queue(bg: BackgroundTasks):
 def reconcile_now(bg: BackgroundTasks):
     bg.add_task(_tick)
     return {"started": True}
+
+
+@app.get("/api/attachments/status")
+def attachment_storage_status():
+    """Check if S3 attachment storage is configured and active."""
+    return {
+        "s3_configured": s3.is_s3_configured(),
+        "bucket": s3.S3_BUCKET_NAME,
+        "region": s3.S3_REGION,
+        "endpoint": s3.S3_ENDPOINT_URL,
+    }
+
+
+@app.post("/api/attachments/presign", response_model=PresignUploadResponse)
+def presign_attachment_upload(req: PresignUploadRequest):
+    """Generate a presigned PUT URL for direct browser-to-S3 upload."""
+    if not s3.is_s3_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="S3 storage is not configured on the server. Set S3_BUCKET_NAME in environment."
+        )
+    effective_user = current_user.get() or "user"
+    try:
+        data = s3.generate_presigned_upload_url(
+            filename=req.filename,
+            content_type=req.content_type,
+            conversation_id=req.conversation_id or "default",
+            user_id=effective_user,
+        )
+        return data
+    except Exception as e:
+        log.exception("Failed to generate presigned upload URL")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 app.mount("/", mcp_app)  # serves /mcp; keep last so API routes win

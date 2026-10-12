@@ -386,4 +386,86 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     })();
     return true;
   }
+
+  if (req.type === "GET_S3_STATUS") {
+    (async () => {
+      try {
+        const config = await getConfig();
+        const res = await fetch(`${config.serverUrl}/api/attachments/status`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        sendResponse({ success: true, ...data });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message, s3_configured: false });
+      }
+    })();
+    return true;
+  }
+
+  if (req.type === "PRESIGN_ATTACHMENT") {
+    (async () => {
+      try {
+        const config = await getConfig();
+        const headers = { "Content-Type": "application/json" };
+        if (config.authToken) {
+          headers["Authorization"] = `Bearer ${config.authToken}`;
+        }
+        const res = await fetch(`${config.serverUrl}/api/attachments/presign`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            filename: req.filename,
+            content_type: req.content_type || "application/octet-stream",
+            conversation_id: req.conversation_id || "default",
+            size_bytes: req.size_bytes || null,
+          }),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        sendResponse({ success: true, ...data });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+
+  if (req.type === "UPLOAD_TO_S3") {
+    (async () => {
+      try {
+        const uploadUrl = req.upload_url;
+        const contentType = req.content_type || "application/octet-stream";
+        let body = req.body;
+
+        // If body is base64 string, convert to ArrayBuffer / Blob
+        if (typeof body === "string" && body.includes(";base64,")) {
+          const b64 = body.split(";base64,")[1];
+          const binaryStr = atob(b64);
+          const bytes = new Uint8Array(binaryStr.length);
+          for (let i = 0; i < binaryStr.length; i++) {
+            bytes[i] = binaryStr.charCodeAt(i);
+          }
+          body = bytes;
+        }
+
+        const res = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": contentType,
+            ...(req.headers || {})
+          },
+          body: body,
+        });
+
+        if (!res.ok) throw new Error(`S3 upload failed: HTTP ${res.status}`);
+        sendResponse({ success: true, file_url: req.file_url });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
 });

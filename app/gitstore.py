@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from . import s3
 from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, USERNAME
 from .models import Conversation, Message
 
@@ -95,8 +96,8 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
             out += ["**Attachments:**"]
             for att in turn_attachments:
                 att_name = att.get("name") or "attachment"
-                att_path = att.get("path") or f"attachments/{att_name}"
-                rel_link = f"{files_folder}/{att_path}"
+                # Prefer permanent S3/public URL if available, else relative local file path
+                rel_link = att.get("url") or f"{files_folder}/{(att.get('path') or f'attachments/{att_name}')}"
                 att_type = (att.get("type") or "").lower()
                 if att_type in ("image", "png", "jpg", "jpeg", "gif", "webp", "svg") or any(att_name.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg")):
                     out += [f"- ![{att_name}]({rel_link})"]
@@ -337,19 +338,45 @@ def commit_snapshot(conv: Conversation) -> None:
     elif existing_messages:
         conv.messages = existing_messages
 
+    # S3 Direct Upload: If S3 is configured, upload inline attachment data directly to S3
+    if s3.is_s3_configured() and conv.files:
+        for f in conv.files:
+            if f.get("is_attachment") or (isinstance(f.get("content"), str) and f.get("content", "").startswith("data:")):
+                if f.get("url") and str(f.get("url")).startswith("http"):
+                    continue
+                fname = f.get("name") or f.get("path") or "attachment"
+                fcontent = f.get("content") or f.get("body") or ""
+                if fcontent:
+                    try:
+                        s3_url = s3.upload_attachment_data(
+                            filename=fname,
+                            content_data=fcontent,
+                            content_type=f.get("type"),
+                            conversation_id=conv.id,
+                            user_id=uname,
+                        )
+                        if s3_url:
+                            f["url"] = s3_url
+                            f["uploaded_to_s3"] = True
+                    except Exception:
+                        pass
+
     rendered_text = render(conv, created_at=created_at, updated_at=updated_at)
     path.write_text(rendered_text, encoding="utf-8", newline="\n")
 
-    # Save structured standalone files (README.md, scripts, images, attachments) into companion folder
+    # Save structured standalone files (README.md, scripts, diagrams, etc.) into companion folder
     files_dir = path.parent / f"{path.stem}_files"
     if conv.files:
         files_dir.mkdir(parents=True, exist_ok=True)
         for f in conv.files:
+            # If successfully uploaded to S3, skip storing heavy binary file in git repo
+            if f.get("uploaded_to_s3") or (f.get("is_attachment") and f.get("url") and str(f.get("url")).startswith("http")):
+                continue
             rel_f = f.get("path") or f.get("name") or "document.md"
             target_f = files_dir / rel_f
             target_f.parent.mkdir(parents=True, exist_ok=True)
             fcontent = f.get("content") or f.get("body") or ""
-            # Handle base64 data URLs for binary image/attachment files
+            # Handle base64 data URLs for binary image/attachment files (fallback when S3 disabled)
             if isinstance(fcontent, str) and fcontent.startswith("data:") and ";base64," in fcontent:
                 try:
                     _, b64 = fcontent.split(";base64,", 1)

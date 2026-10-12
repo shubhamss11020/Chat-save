@@ -33,3 +33,13 @@ MCP_URL = "".join(os.getenv("CHATSAVE_MCP_URL", "").split()).rstrip("/")
 # sends the same value. Empty = no auth.
 AUTH_TOKEN = "".join(os.getenv("MCP_AUTH_TOKEN", "").split())
 
+# --- S3 / Object Storage for attachments (images, PDFs, media) ---
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", os.getenv("AWS_S3_BUCKET", "")).strip()
+S3_REGION = os.getenv("S3_REGION", os.getenv("AWS_REGION", os.getenv("AWS_DEFAULT_REGION", "us-east-1"))).strip()
+S3_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY_ID", os.getenv("AWS_ACCESS_KEY_ID", "")).strip()
+S3_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_ACCESS_KEY", os.getenv("AWS_SECRET_ACCESS_KEY", "")).strip()
+S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL", "").strip() or None  # Set for R2 or custom endpoint
+S3_PUBLIC_URL_PREFIX = os.getenv("S3_PUBLIC_URL_PREFIX", "").strip().rstrip("/")
+S3_PRESIGN_EXPIRATION_SECONDS = int(os.getenv("S3_PRESIGN_EXPIRATION_SECONDS", "3600"))
+S3_ENABLED = bool(S3_BUCKET_NAME)
+

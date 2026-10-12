@@ -71,3 +71,18 @@ class ExtensionIngestResponse(BaseModel):
     status: str
     timestamp: str
     deduplicated: bool = False
+
+
+class PresignUploadRequest(BaseModel):
+    filename: str
+    content_type: Optional[str] = "application/octet-stream"
+    conversation_id: Optional[str] = "default"
+    size_bytes: Optional[int] = None
+
+
+class PresignUploadResponse(BaseModel):
+    upload_url: str
+    file_url: str
+    s3_key: str
+    method: str = "PUT"
+    headers: dict[str, str] = Field(default_factory=dict)

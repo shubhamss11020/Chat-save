@@ -246,5 +246,88 @@ def test_extension_flow():
 
     print("ALL EXTENSION & RETRY/DLQ & MULTI-TURN & ATTACHMENT/README TESTS PASSED SUCCESSFULLY!")
 
+
+def test_s3_flow():
+    import time
+    from unittest.mock import MagicMock, patch
+    from app import s3
+    from app.config import AUTH_TOKEN, GIT_DIR
+
+    headers = {"Authorization": f"Bearer {AUTH_TOKEN}"} if AUTH_TOKEN else {}
+
+    # 1. Test /api/attachments/status
+    r_status = client.get("/api/attachments/status", headers=headers)
+    assert r_status.status_code == 200
+    status_data = r_status.json()
+    assert "s3_configured" in status_data
+    assert "bucket" in status_data
+
+    # 2. Test S3 Presign generation
+    with patch("app.s3.S3_BUCKET_NAME", "my-test-bucket"), \
+         patch("app.s3.S3_ACCESS_KEY_ID", "test-key"), \
+         patch("app.s3.S3_SECRET_ACCESS_KEY", "test-secret"), \
+         patch("app.s3.S3_REGION", "us-east-1"):
+        
+        mock_client = MagicMock()
+        mock_client.generate_presigned_url.return_value = "https://my-test-bucket.s3.amazonaws.com/attachments/test/presigned-put-url"
+        
+        with patch("app.s3.get_s3_client", return_value=mock_client):
+            presign_payload = {
+                "filename": "screenshot.png",
+                "content_type": "image/png",
+                "conversation_id": "test-conv-s3",
+                "size_bytes": 10240
+            }
+            r_presign = client.post("/api/attachments/presign", json=presign_payload, headers=headers)
+            assert r_presign.status_code == 200
+            data = r_presign.json()
+            assert data["upload_url"].startswith("https://")
+            assert "screenshot" in data["file_url"]
+            assert data["method"] == "PUT"
+            assert data["headers"]["Content-Type"] == "image/png"
+
+    # 3. Test Ingestion with S3 upload integration
+    with patch("app.s3.is_s3_configured", return_value=True), \
+         patch("app.s3.upload_attachment_data", return_value="https://my-test-bucket.s3.amazonaws.com/attachments/user/cloud_diagram.png"):
+        
+        s3_conv_id = f"test-conv-s3-ingest-{int(time.time())}"
+        s3_payload = {
+            "client_id": "test-ext-001",
+            "user_id": "shubham",
+            "conversation_id": s3_conv_id,
+            "title": "S3 Attachment Test",
+            "platform": "claude",
+            "messages": [
+                {
+                    "id": "s3-msg-1",
+                    "role": "user",
+                    "content": "Check this cloud architecture diagram",
+                    "sequence": 1
+                }
+            ],
+            "files": [
+                {
+                    "name": "cloud_diagram.png",
+                    "type": "image",
+                    "content": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+                    "role": "user",
+                    "turn_sequence": 1,
+                    "is_attachment": True
+                }
+            ]
+        }
+        r_ingest = client.post("/api/extension/ingest", json=s3_payload, headers=headers)
+        assert r_ingest.status_code == 200
+
+        # Verify markdown transcript has S3 link directly
+        t_path = GIT_DIR / "shubham" / "claude" / "s3-attachment-test.md"
+        assert t_path.exists()
+        t_text = t_path.read_text(encoding="utf-8")
+        assert "https://my-test-bucket.s3.amazonaws.com/attachments/user/cloud_diagram.png" in t_text
+        print("ALL S3 & PRESIGNED URL TESTS PASSED SUCCESSFULLY!")
+
+
 if __name__ == "__main__":
     test_extension_flow()
+    test_s3_flow()
+

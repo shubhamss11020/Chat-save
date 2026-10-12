@@ -1,19 +1,19 @@
 ---
-conversation_id: conv-agentic-vs-ml-ai-comparison
+conversation_id: 2c1d2eba-88be-4be7-a338-e979f85c9179
 platform: claude
 username: "shubham"
-title: "Agentic AI vs ML-Based AI Comparison"
+title: "Agentic AI vs machine learning approaches"
 created_at: "2026-10-07 09:22:46 EDT"
-updated_at: "2026-10-07 09:34:10 EDT"
+updated_at: "2026-10-12 11:00:19 EDT"
 ---
 
-# Agentic AI vs ML-Based AI Comparison
+# Agentic AI vs machine learning approaches
 
-## User (2026-10-07 09:22:46 EDT)
+## User (2026-10-12 11:00:19 EDT)
 
 comparison between agentic ai and ml based ai approach what the difference between them typically
 
-## Claude (2026-10-07T00:00:01Z)
+## Claude (2026-10-12 11:00:19 EDT)
 
 I'll break down the key differences between agentic AI and traditional ML-based approaches:
 
@@ -54,7 +54,7 @@ I'll break down the key differences between agentic AI and traditional ML-based 
 ## **Quick Comparison Table**
 
 | Aspect | ML-Based | Agentic |
-|--------|----------|----------|
+|--------|----------|---------|
 | **Decision-making** | One-shot | Multi-step with reasoning |
 | **Adaptability** | Fixed after training | Real-time adjustment |
 | **Explainability** | Often opaque | Process-transparent |
@@ -74,11 +74,21 @@ Many modern systems (like Claude with tools) blend both: deep learning for under
 
 Would you like me to dive deeper into any specific aspect?
 
-## User (2026-10-07T00:00:02Z)
+---
+```
+This block is not supported on your current device yet.
+```
+
+
+```
+This block is not supported on your current device yet.
+```
+
+## User (2026-10-12 11:00:19 EDT)
 
 fine tunning an model and all things are come under which cateogry
 
-## Claude (2026-10-07T00:00:03Z)
+## Claude (2026-10-12 11:00:19 EDT)
 
 **Fine-tuning falls under the ML-Based AI category.**
 
@@ -131,12 +141,15 @@ ML-Based ←—————————————————→ Agentic
 ---
 
 Does this clarify where fine-tuning sits in the spectrum?
+```
+This block is not supported on your current device yet.
+```
 
-## User (2026-10-07T00:00:04Z)
+## User (2026-10-12 11:00:19 EDT)
 
 why machine learning requires to have idea of calculus how it  basically plays an important role in ml reasoning
 
-## Claude (2026-10-07T00:00:05Z)
+## Claude (2026-10-12 11:00:19 EDT)
 
 **Calculus is foundational to ML because all machine learning is fundamentally about optimization—and optimization requires calculus.**
 
@@ -219,7 +232,7 @@ This chains derivatives together to find how each weight affected the final erro
 ## **Specific Calculus Concepts Used**
 
 | Calculus Concept | ML Application |
-|-----------------|----------------|
+|-----------------|-----------------|
 | **Derivatives** | Measuring rate of change in loss |
 | **Partial Derivatives** | How each weight affects loss independently |
 | **Gradients** | Direction of steepest descent |
@@ -271,12 +284,15 @@ Most practitioners use frameworks like PyTorch that handle the calculus automati
 ---
 
 Does this clarify why calculus is so central to ML?
+```
+This block is not supported on your current device yet.
+```
 
-## User (2026-10-07T00:00:06Z)
+## User (2026-10-12 11:00:19 EDT)
 
 yaa
 
-## Claude (2026-10-07T00:00:07Z)
+## Claude (2026-10-12 11:00:19 EDT)
 
 Great! Glad that made sense. 
 
@@ -295,12 +311,15 @@ Or if you want to shift gears entirely, I can help with:
 - Anything else on your mind
 
 What sounds interesting?
+```
+This block is not supported on your current device yet.
+```
 
-## User (2026-10-07T00:00:08Z)
+## User (2026-10-12 11:00:19 EDT)
 
 I also hear about forward deployed engineers right now the trend is heavy and every one is focused towards fde why there is current change in the industry about fde
 
-## Claude (2026-10-07T00:00:09Z)
+## Claude (2026-10-12 11:00:19 EDT)
 
 **Forward Deployed Engineers (FDE) are becoming a trend because AI/software is fundamentally changing how companies operate—and the old model isn't scaling fast enough.**
 
@@ -391,7 +410,7 @@ An FDE is:
 ## **Why This is Better Than Traditional Support**
 
 | Aspect | Traditional Support | FDE Model |
-|--------|-------------------|----------|
+|--------|-------------------|-----------|
 | **Time to resolution** | Days/weeks | Hours (they're there) |
 | **Problem understanding** | From ticket descriptions | Direct observation |
 | **Solution ownership** | "We'll look into it" | "I'll implement this" |
@@ -464,12 +483,15 @@ If you're building AI products or services:
 - **Business model shift** → Service + Software hybrid = better margins + stickier customers
 
 Does this clarify the FDE trend and why it's exploding right now?
+```
+This block is not supported on your current device yet.
+```
 
-## User (2026-10-07T00:00:10Z)
+## User (2026-10-12 11:00:19 EDT)
 
 I have heard about the gtm engineer what they are doing how the use case of this role
 
-## Claude (2026-10-07T00:00:11Z)
+## Claude (2026-10-12 11:00:19 EDT)
 
 **GTM (Go-To-Market) Engineers are engineers specifically focused on helping products succeed in the market—they solve the "build it perfectly, but customers can't use it" problem.**
 
@@ -689,7 +711,7 @@ Sales Demo → Click "Deploy" button → Customer sees value in 1 hour → Negot
 ## **How GTM Engineer Differs from FDE**
 
 | Aspect | FDE | GTM Engineer |
-|--------|-----|-------------|
+|--------|-----|--------------|
 | **Scope** | One customer | All customers / market |
 | **Time** | Long-term (stays with customer) | Project-based (builds once, scales) |
 | **Output** | Custom integration for customer | Reusable tools for entire org |
@@ -741,3 +763,6 @@ Agentic AI: "I'm an agent that helps multiple FDEs/GTM Engineers"
 ```
 
 Does this clarify what GTM Engineers do and why they're crucial?
+```
+This block is not supported on your current device yet.
+```

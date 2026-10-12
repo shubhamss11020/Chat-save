@@ -1,19 +1,19 @@
 ---
-conversation_id: 0506a4f8-9548-4277-b479-079071411ba2
+conversation_id: 52f7179c-9fa1-4903-b43e-99b2cd91202b
 platform: claude
 username: "shubham"
-title: "3GM Vault MCP QA investigation"
+title: "3GM Vault MCP audit"
 created_at: "2026-10-09T19:53:00.743164Z"
-updated_at: "2026-10-12 12:13:05 EDT"
+updated_at: "2026-10-12 12:31:20 EDT"
 ---
 
-# 3GM Vault MCP QA investigation
+# 3GM Vault MCP audit
 
-## User (2026-10-12 12:13:05 EDT)
+## User (2026-10-12 12:31:20 EDT)
 
 Act as an independent QA engineer investigating the 3GM Vault MCP. Explore its available capabilities and identify subtle or unexpected failure modes that ordinary testing might miss. Investigate boundary conditions, inconsistent search behavior, incorrect record associations, missing results, malformed outputs, unexpected defaults, and inconsistencies between documented and observed behavior. For every potential bug, provide a reproducible test case, actual result, expected result when verifiable, severity, and recommended next step. Do not invent bugs or claim to have tested functionality that you cannot access.
 
-## Claude (2026-10-12 12:13:05 EDT)
+## Claude (2026-10-12 12:31:20 EDT)
 
 I'll start by reading the 3GM navigator skill, as your preferences require for anything touching the 3GM connectors, then load the Vault tool schemas.
 ```

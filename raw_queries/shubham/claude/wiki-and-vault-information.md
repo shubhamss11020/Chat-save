@@ -1,19 +1,19 @@
 ---
-conversation_id: 81b496b0-30aa-44a9-a47e-578743d8d1a3
+conversation_id: 19f622a6-346f-49a3-bce5-359bf4f2cccc
 platform: claude
 username: "shubham"
-title: "Supplier pricing discussion"
+title: "Pending sales invoices emails"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 10:32:49 EDT"
+updated_at: "2026-10-12 10:32:52 EDT"
 ---
 
-# Supplier pricing discussion
+# Pending sales invoices emails
 
-## User (2026-10-12 10:32:49 EDT)
+## User (2026-10-12 10:32:52 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 10:32:49 EDT)
+## Claude (2026-10-12 10:32:52 EDT)
 
 ```
 This block is not supported on your current device yet.

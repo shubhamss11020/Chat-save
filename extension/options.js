@@ -53,6 +53,54 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // 2b. Auto-detect user identity from active Claude session
+  const btnAutoDetect = document.getElementById("btnAutoDetect");
+  if (btnAutoDetect) {
+    btnAutoDetect.addEventListener("click", async () => {
+      btnAutoDetect.textContent = "Detecting...";
+      try {
+        const res = await fetch("https://claude.ai/api/auth/current_user", { credentials: "include" });
+        if (res.ok) {
+          const u = await res.json();
+          const email = u.email_address || u.email || "";
+          let detected = "";
+          if (email && email.includes("@")) {
+            detected = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+          } else if (u.full_name || u.name) {
+            detected = (u.full_name || u.name).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
+          }
+          if (detected) {
+            userIdInput.value = detected;
+            showAlert(`✓ Detected Claude session user: ${detected}`, "success");
+            btnAutoDetect.textContent = "Auto-Detect";
+            return;
+          }
+        }
+      } catch (e) {}
+
+      try {
+        const orgsRes = await fetch("https://claude.ai/api/organizations", { credentials: "include" });
+        if (orgsRes.ok) {
+          const orgs = await orgsRes.json();
+          if (Array.isArray(orgs) && orgs.length > 0 && orgs[0].members) {
+            const self = orgs[0].members.find(m => m.is_current_user || m.self);
+            if (self && (self.email || self.email_address)) {
+              const email = self.email || self.email_address;
+              const detected = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+              userIdInput.value = detected;
+              showAlert(`✓ Detected Claude session user: ${detected}`, "success");
+              btnAutoDetect.textContent = "Auto-Detect";
+              return;
+            }
+          }
+        }
+      } catch (e) {}
+
+      showAlert("Could not auto-detect Claude user. Make sure you are logged in to claude.ai in Chrome.", "error");
+      btnAutoDetect.textContent = "Auto-Detect";
+    });
+  }
+
   // 3. Save Settings
   btnSave.addEventListener("click", async () => {
     const sUrl = serverUrlInput.value.trim().replace(/\/+$/, "");

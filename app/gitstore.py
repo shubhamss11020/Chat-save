@@ -4,9 +4,10 @@ import re
 import shutil
 import subprocess
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from typing import Optional
 
 from . import s3
 from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, USERNAME
@@ -24,15 +25,37 @@ def _slug(s: str) -> str:
     return re.sub(r"[^a-z0-9._-]+", "-", s.lower()).strip("-")[:80] or "unknown"
 
 
-def _normalize_username(uname: str) -> str:
-    """Normalize username into canonical lowercase folder name. Defaults to 'shubham'."""
+def _format_to_edt(val: Optional[str]) -> str:
+    """Convert any UTC/ISO timestamp or datetime string into clean Eastern Time (EDT/EST)."""
+    if not val:
+        return ""
+    val_clean = str(val).strip().strip('"\'')
+    if "EDT" in val_clean or "EST" in val_clean:
+        return val_clean
+    try:
+        iso_str = val_clean.replace("Z", "+00:00")
+        dt = datetime.fromisoformat(iso_str)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        dt_edt = dt.astimezone(EASTERN)
+        return dt_edt.strftime("%Y-%m-%d %H:%M:%S %Z")
+    except Exception:
+        return val_clean
+
+
+def _normalize_username(uname: Optional[str]) -> str:
+    """Normalize username into canonical lowercase folder name.
+    Strips email domains (e.g. shubham@company.com -> shubham) and cleans special characters.
+    """
     if not uname:
-        return "shubham"
+        return USERNAME or "shubham"
     u = uname.strip().lower()
-    u = re.sub(r"[^a-z0-9]+", "-", u).strip("-")
-    if u in ("user", "unknown", "rajat", "rajat-jain") or u.startswith("shubham"):
-        return "shubham"
-    return u or "shubham"
+    if "@" in u:
+        u = u.split("@")[0]
+    u = re.sub(r"[^a-z0-9_-]+", "-", u).strip("-")
+    if u in ("user", "unknown", "none", "null", ""):
+        return USERNAME or "shubham"
+    return u
 
 
 def _git(*args: str, timeout: int = 15) -> subprocess.CompletedProcess:
@@ -59,9 +82,11 @@ def _q(v: str) -> str:
 
 
 def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> str:
-    uname = _normalize_username(conv.username or USERNAME)
-    c_at = created_at or conv.created_at or ""
-    u_at = updated_at or conv.updated_at or ""
+    uname = _normalize_username(conv.username or conv.user_id or USERNAME)
+    raw_c_at = created_at or conv.created_at or ""
+    raw_u_at = updated_at or conv.updated_at or ""
+    c_at = _format_to_edt(raw_c_at) or raw_c_at
+    u_at = _format_to_edt(raw_u_at) or raw_u_at
     out = ["---",
            f"conversation_id: {conv.id}",
            f"platform: {conv.platform}",
@@ -89,7 +114,7 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
         # Deduplicate consecutive identical messages
         if out and len(out) >= 4 and out[-2] == content and out[-4].startswith(f"## {who}"):
             continue
-        t = m.timestamp
+        t = _format_to_edt(m.timestamp) if m.timestamp else u_at
         if not t or "00:00:00" in t:
             t = u_at
         out += [f"## {who}" + (f" ({t})" if t else ""), "", content, ""]
@@ -287,10 +312,10 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
         if f.stem == _slug(conv.id):
             return f
 
-    # 3. Direct slug / filename match (ONLY if no conflicting conversation_id from another thread)
+    # 3. Direct slug / filename match (with or without date prefix)
     target_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
     for f in all_files:
-        if f.stem == target_slug:
+        if f.stem == target_slug or f.stem.endswith(f"_{target_slug}"):
             try:
                 txt = f.read_text(encoding="utf-8")
                 m = re.search(r'^conversation_id:\s*["\']?([^"\'\s]+)', txt, re.MULTILINE)
@@ -305,7 +330,7 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
 
 def commit_snapshot(conv: Conversation) -> None:
     """Write + commit one transcript. Merges new turns into existing file if present."""
-    uname = _normalize_username(conv.username or USERNAME)
+    uname = _normalize_username(conv.username or conv.user_id or USERNAME)
     existing_file = _find_existing_thread_file(conv)
 
     if existing_file:
@@ -313,7 +338,21 @@ def commit_snapshot(conv: Conversation) -> None:
         path = GIT_DIR / rel
         path.parent.mkdir(parents=True, exist_ok=True)
     else:
-        name_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+        # Determine query date prefix (YYYY-MM-DD) in EDT for chronological + alphabetical sorting
+        raw_query_time = conv.created_at or conv.updated_at or ""
+        edt_ts = _format_to_edt(raw_query_time)
+        date_prefix = ""
+        if edt_ts and len(edt_ts) >= 10:
+            date_prefix = edt_ts[:10]  # "YYYY-MM-DD"
+        elif raw_query_time and len(raw_query_time) >= 10:
+            date_prefix = raw_query_time[:10]
+
+        base_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+        if date_prefix and not base_slug.startswith(date_prefix):
+            name_slug = f"{date_prefix}_{base_slug}"
+        else:
+            name_slug = base_slug
+
         candidate = GIT_DIR / uname / conv.platform / f"{name_slug}.md"
         # If candidate file exists and belongs to a different conversation_id, disambiguate with short id
         if candidate.exists():
@@ -446,7 +485,9 @@ def commit_snapshot(conv: Conversation) -> None:
     if _git("diff", "--cached", "--quiet").returncode == 0:
         return  # identical to what is already committed
 
-    commit_args = ["commit", "-m", f"{conv.platform}: {conv.title} ({conv.id[:8]})", "--", full]
+    edt_commit_time = _format_to_edt(updated_at or created_at or now_est)
+    commit_msg = f"{conv.platform}: [{edt_commit_time}] {conv.title} ({conv.id[:8]})"
+    commit_args = ["commit", "-m", commit_msg, "--", full]
     if files_dir.exists():
         commit_args.append(full_files)
     _check(_git(*commit_args), "git commit")

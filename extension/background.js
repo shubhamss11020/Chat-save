@@ -224,7 +224,8 @@ async function processQueue() {
           throw new Error(`Invalid Server URL: "${config.serverUrl || ""}". Server URL must be your Chat-Save backend service (e.g. http://localhost:8000 or your Render URL), NOT claude.ai.`);
         }
 
-        const url = `${config.serverUrl}/api/extension/ingest?user=${encodeURIComponent(config.userId)}`;
+        const effectiveUser = item.payload?.user_id || config.userId || "shubham";
+        const url = `${config.serverUrl}/api/extension/ingest?user=${encodeURIComponent(effectiveUser)}`;
         const headers = {
           "Content-Type": "application/json"
         };

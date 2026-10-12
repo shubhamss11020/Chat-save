@@ -15,6 +15,60 @@
   let pendingCount = 0;
   let currentQueuedIds = new Set();
   let currentDlqIds = new Set();
+  let detectedUser = null;
+
+  // Auto-detect authenticated Claude user (email handle / name) from session
+  async function resolveClaudeUser() {
+    if (detectedUser) return detectedUser;
+    try {
+      const res = await fetch("/api/auth/current_user", { credentials: "include" });
+      if (res.ok) {
+        const u = await res.json();
+        const email = u.email_address || u.email || "";
+        if (email && email.includes("@")) {
+          detectedUser = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+          return detectedUser;
+        }
+        const name = u.full_name || u.name || "";
+        if (name) {
+          detectedUser = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
+          return detectedUser;
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const orgsRes = await fetch("/api/organizations", { credentials: "include" });
+      if (orgsRes.ok) {
+        const orgs = await orgsRes.json();
+        if (Array.isArray(orgs) && orgs.length > 0) {
+          const org = orgs[0];
+          if (org.members && Array.isArray(org.members)) {
+            const self = org.members.find(m => m.is_current_user || m.self);
+            if (self && (self.email || self.email_address)) {
+              const email = self.email || self.email_address;
+              detectedUser = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+              return detectedUser;
+            }
+          }
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const userBtn = document.querySelector('[data-testid="user-menu-button"], [aria-label*="account"], [aria-label*="profile"]');
+      if (userBtn) {
+        const txt = userBtn.textContent || userBtn.getAttribute("aria-label") || "";
+        const m = txt.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        if (m) {
+          detectedUser = m[1].split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+          return detectedUser;
+        }
+      }
+    } catch (e) {}
+
+    return null;
+  }
 
   // 1. Extract Conversation ID from URL
   function getConversationId() {
@@ -549,6 +603,7 @@
       title: getConversationTitle(),
       platform: "claude",
       url: window.location.href,
+      user_id: detectedUser || undefined,
       messages: messages,
       files: files,
       is_final: !checkIsStreaming(),
@@ -1215,6 +1270,7 @@
               title: convMeta.name || "Untitled conversation",
               platform: "claude",
               url: `https://claude.ai/chat/${convMeta.uuid}`,
+              user_id: detectedUser || undefined,
               messages: messages,
               files: files,
               is_final: true,
@@ -1265,6 +1321,20 @@
     // Fetch initial queue state and draw sidebar dots
     fetchQueueStateAndUpdateSidebar();
     setInterval(updateSidebarDots, 2500);
+
+    // Auto-detect Claude user from active session
+    resolveClaudeUser().then(user => {
+      if (user) {
+        console.log("[Chat-Save] Auto-detected Claude session user:", user);
+        chrome.storage.local.get("chatsave_config", d => {
+          const cfg = d.chatsave_config || {};
+          if (!cfg.userId || cfg.userId === "user" || cfg.userId === "unknown" || cfg.userId === "shubham") {
+            cfg.userId = user;
+            chrome.storage.local.set({ chatsave_config: cfg });
+          }
+        });
+      }
+    });
 
     // Start MutationObserver on chat body
     const observer = new MutationObserver(onDomMutated);

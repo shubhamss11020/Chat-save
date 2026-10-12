@@ -3,45 +3,17 @@ conversation_id: fdb508b8-ee9e-4bcb-8125-1dac4f1d8a41
 platform: claude
 username: "shubham"
 title: "Vault customer and overview pages"
-created_at: "2026-10-12T12:57:42.814936Z"
-updated_at: "2026-10-12 13:30:19 EDT"
+created_at: "2026-10-12 08:57:42 EDT"
+updated_at: "2026-10-12 16:19:57 EDT"
 ---
 
 # Vault customer and overview pages
 
-## User (2026-10-12 13:30:19 EDT)
+## User (2026-10-12 16:19:57 EDT)
 
 What does the vault say about our biggest customer by volume?
 
-## Claude (2026-10-12 13:30:19 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:57 EDT)
 
 **The vault doesn't say who our biggest customer is by volume.** No page or fact ranks customers by tonnage, and the search for "biggest customer" only returns newsletters plus a February 2026 cash-flow thread that mentions "our biggest customers" without naming any.
 
@@ -51,35 +23,11 @@ For actual tonnage by customer, the ERP is the authoritative source. I can run t
 
 Sources: page 339 fact account_volume_raw · msg 69640; page 450 fact account_volume_raw · msg 69640; page 37 fact expected_order_volume_raw · msg 68428; search_raw "biggest customer" · msg 70991
 
-## User (2026-10-12 13:30:19 EDT)
+## User (2026-10-12 16:19:57 EDT)
 
 What’s in the overview pages, and how do they differ from the entity pages?
 
-## Claude (2026-10-12 13:30:19 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:19:57 EDT)
 
 Overview pages are derived summaries that sit on top of the entity and analysis pages. They introduce no new facts: each one links to the page that holds the citation. Entity pages are the source layer, with facts that each carry their own citation. The vault has three overview pages:
 

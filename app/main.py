@@ -2,7 +2,8 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi.responses import RedirectResponse
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -143,6 +144,14 @@ def list_extension_clients():
     return {"clients": state.get_heartbeats()}
 
 
+@app.get("/api/extension/synced-state")
+def get_extension_synced_state():
+    """Return map of {conversation_id: updated_at} of all conversations already saved in SQLite or Git."""
+    effective_user = current_user.get() or "shubham"
+    return state.get_committed_conversations(effective_user)
+
+
+
 @app.post("/api/outbox/retry-dlq")
 def retry_dead_letter_queue(bg: BackgroundTasks):
     """Re-queue all dead_letter outbox items back to pending and drain."""
@@ -189,6 +198,27 @@ def presign_attachment_upload(req: PresignUploadRequest):
     except Exception as e:
         log.exception("Failed to generate presigned upload URL")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/attachments/view")
+def view_attachment(key: str = Query(..., description="S3 object key or URL to view")):
+    """View an S3 attachment inline.
+    Resolves private bucket access by issuing a 307 redirect to a presigned GET URL
+    with Content-Disposition: inline and canonical Content-Type.
+    """
+    if not s3.is_s3_configured():
+        raise HTTPException(status_code=503, detail="S3 storage is not configured")
+
+    # If full URL was provided, strip to S3 key
+    s3_key = key
+    if "attachments/" in s3_key:
+        s3_key = "attachments/" + s3_key.split("attachments/", 1)[1]
+
+    view_url = s3.generate_presigned_download_url(s3_key)
+    if not view_url:
+        raise HTTPException(status_code=404, detail="Attachment not found or presign failed")
+
+    return RedirectResponse(url=view_url, status_code=307)
 
 
 app.mount("/", mcp_app)  # serves /mcp; keep last so API routes win

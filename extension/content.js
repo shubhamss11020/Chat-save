@@ -140,6 +140,35 @@
     return img.src || "";
   }
 
+  // Helper to determine canonical MIME type (never generic 'image', 'svg', or extension-less)
+  function getCanonicalMimeType(name, dataUrl, fallback = "application/octet-stream") {
+    if (dataUrl && typeof dataUrl === "string" && dataUrl.startsWith("data:")) {
+      const match = dataUrl.match(/^data:([^;,]+)/);
+      if (match && match[1] && match[1].includes("/")) {
+        return match[1].toLowerCase();
+      }
+    }
+    const ext = (name || "").split(".").pop().toLowerCase();
+    const mimeMap = {
+      png: "image/png",
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      gif: "image/gif",
+      webp: "image/webp",
+      svg: "image/svg+xml",
+      pdf: "application/pdf",
+      txt: "text/plain",
+      md: "text/markdown",
+      markdown: "text/markdown",
+      json: "application/json",
+      csv: "text/csv",
+      html: "text/html",
+      mp4: "video/mp4",
+      mp3: "audio/mpeg"
+    };
+    return mimeMap[ext] || fallback;
+  }
+
   // 5. Extract files, artifacts, and attachments from turns and artifact panels
   function extractFilesAndAttachments(items, convId) {
     const files = [];
@@ -170,10 +199,12 @@
 
           if (!seenFiles.has(name)) {
             seenFiles.add(name);
+            const mime = getCanonicalMimeType(name, dataUrl, "image/png");
             files.push({
               name: name,
               path: `attachments/${name}`,
-              type: "image",
+              type: mime,
+              url: (img.src && img.src.startsWith("http")) ? img.src : undefined,
               content: dataUrl,
               role: "user",
               turn_sequence: turnSeq,
@@ -201,11 +232,12 @@
                 fileUrl = anchor.href;
               }
 
+              const mime = getCanonicalMimeType(safeName, "", "application/octet-stream");
               files.push({
                 name: safeName,
                 path: `attachments/${safeName}`,
                 url: fileUrl || undefined,
-                type: ext,
+                type: mime,
                 content: chipText,
                 role: "user",
                 turn_sequence: turnSeq,
@@ -230,7 +262,7 @@
                 files.push({
                   name: name,
                   path: `attachments/${name}`,
-                  type: "svg",
+                  type: "image/svg+xml",
                   content: svgXml,
                   role: "assistant",
                   turn_sequence: turnSeq,
@@ -252,10 +284,12 @@
           assistantMediaIdx++;
           if (!seenFiles.has(name)) {
             seenFiles.add(name);
+            const mime = getCanonicalMimeType(name, dataUrl, "image/png");
             files.push({
               name: name,
               path: `attachments/${name}`,
-              type: "image",
+              type: mime,
+              url: (img.src && img.src.startsWith("http")) ? img.src : undefined,
               content: dataUrl,
               role: "assistant",
               turn_sequence: turnSeq,
@@ -822,25 +856,100 @@
     await new Promise(r => chrome.storage.local.set({ chatsave_synced_threads: syncedMap }, r));
   }
 
-  async function reconcileStaleConversations(maxDays = 7, force = false) {
-    if (isReconciling) {
-      return { success: false, reason: "Reconciliation already in progress" };
+  // Extract complete, untruncated message text from Claude API message object
+  function extractApiMessageText(m) {
+    if (!m) return "";
+    const parts = [];
+
+    // 1. Direct text field
+    if (typeof m.text === "string" && m.text.trim()) {
+      parts.push(m.text.trim());
     }
+
+    // 2. Content field: can be string or array of blocks
+    if (typeof m.content === "string" && m.content.trim()) {
+      if (!parts.includes(m.content.trim())) {
+        parts.push(m.content.trim());
+      }
+    } else if (Array.isArray(m.content)) {
+      m.content.forEach(b => {
+        if (!b) return;
+        if (typeof b === "string" && b.trim()) {
+          if (!parts.includes(b.trim())) parts.push(b.trim());
+        } else if (typeof b === "object") {
+          if (b.text && typeof b.text === "string" && b.text.trim()) {
+            if (!parts.includes(b.text.trim())) parts.push(b.text.trim());
+          } else if (b.content && typeof b.content === "string" && b.content.trim()) {
+            if (!parts.includes(b.content.trim())) parts.push(b.content.trim());
+          } else if (b.type === "thinking" && b.thinking && typeof b.thinking === "string") {
+            parts.push(`> *Thinking:*\n> ${b.thinking.trim().replace(/\n/g, "\n> ")}`);
+          } else if (b.type === "tool_use" && b.name) {
+            const inStr = typeof b.input === "object" ? JSON.stringify(b.input, null, 2) : (b.input || "");
+            parts.push(`*Tool Call: ${b.name}*` + (inStr ? `\n\`\`\`json\n${inStr}\n\`\`\`` : ""));
+          } else if (b.type === "tool_result") {
+            const resStr = typeof b.content === "string" ? b.content : JSON.stringify(b.content || b.output || "");
+            if (resStr && resStr.trim()) {
+              parts.push(`*Tool Result:*\n\`\`\`\n${resStr.slice(0, 500)}\n\`\`\``);
+            }
+          }
+        }
+      });
+    }
+
+    let full = parts.join("\n\n");
+    full = sanitizeText(full);
+    return full;
+  }
+
+  async function reconcileStaleConversations(maxDays = 2, force = false) {
+    // 1. In-memory check and cross-tab lock to prevent running twice
+    if (isReconciling) {
+      return { success: false, reason: "Reconciliation already in progress in this tab" };
+    }
+
+    const lockData = await new Promise(r => chrome.storage.local.get("chatsave_reconcile_lock", r));
+    const lockTime = lockData.chatsave_reconcile_lock || 0;
+    if (!force && Date.now() - lockTime < 45000) {
+      return { success: true, enqueued: 0, reason: "Sync already in progress in another tab" };
+    }
+
+    // Set lock
+    await new Promise(r => chrome.storage.local.set({ chatsave_reconcile_lock: Date.now() }, r));
     isReconciling = true;
 
     try {
-      // 1. Throttle check (at most once every 15 minutes unless forced)
+      // 2. Throttle check (at most once every 10 minutes unless forced)
       const lastCheckData = await new Promise(r => chrome.storage.local.get("chatsave_last_reconcile_time", r));
       const lastCheckTime = lastCheckData.chatsave_last_reconcile_time || 0;
-      const fifteenMinutes = 15 * 60 * 1000;
-      if (!force && Date.now() - lastCheckTime < fifteenMinutes) {
+      const tenMinutes = 10 * 60 * 1000;
+      if (!force && Date.now() - lastCheckTime < tenMinutes) {
         isReconciling = false;
+        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
         return { success: true, enqueued: 0, skipped: true, reason: "Recently reconciled" };
       }
 
       updateHud("syncing");
 
-      // 2. Discover active organization ID
+      // 3. Query server for already committed conversations for true idempotency
+      let serverCommitted = {};
+      try {
+        const config = await new Promise(resolve => {
+          chrome.storage.local.get("chatsave_config", d => resolve(d.chatsave_config || {}));
+        });
+        const sUrl = (config.serverUrl || "http://localhost:8000").replace(/\/+$/, "");
+        if (sUrl && !sUrl.includes("claude.ai")) {
+          const headers = {};
+          if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
+          const resState = await fetch(`${sUrl}/api/extension/synced-state`, { headers });
+          if (resState.ok) {
+            serverCommitted = await resState.json();
+          }
+        }
+      } catch (e) {
+        // Fall back to local synced threads cache
+      }
+
+      // 4. Discover active organization ID
       let orgId = "";
       try {
         const orgsRes = await fetch("/api/organizations", { credentials: "include" });
@@ -854,25 +963,28 @@
 
       if (!orgId) {
         isReconciling = false;
+        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
         updateHud("synced");
         return { success: false, error: "Could not resolve Claude organization" };
       }
 
-      // 3. Fetch list of conversations
+      // 5. Fetch list of conversations
       const convListRes = await fetch(`/api/organizations/${orgId}/chat_conversations`, { credentials: "include" });
       if (!convListRes.ok) {
         isReconciling = false;
+        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
         updateHud("synced");
         return { success: false, error: `HTTP ${convListRes.status} from chat_conversations` };
       }
       const allConvs = await convListRes.json();
       if (!Array.isArray(allConvs) || allConvs.length === 0) {
         isReconciling = false;
+        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
         updateHud("synced");
         return { success: true, enqueued: 0 };
       }
 
-      // 4. Filter conversations updated in the last N days
+      // 6. Strictly filter conversations updated in the last 48 hours (maxDays)
       const cutoffTime = Date.now() - (maxDays * 24 * 60 * 60 * 1000);
       const recentConvs = allConvs.filter(c => {
         const upTime = c.updated_at ? new Date(c.updated_at).getTime() : (c.created_at ? new Date(c.created_at).getTime() : 0);
@@ -882,23 +994,43 @@
       const syncedThreads = await getStoredSyncedThreads();
       const currentActiveId = getConversationId();
 
+      // Filter only those NOT already committed to Git or synced
       const staleToSync = recentConvs.filter(c => {
-        if (c.uuid === currentActiveId) return false;
-        return syncedThreads[c.uuid] !== c.updated_at;
+        // If already committed to Git on server, skip!
+        if (serverCommitted[c.uuid]) {
+          syncedThreads[c.uuid] = c.updated_at;
+          return false;
+        }
+        // If locally marked as synced with identical updated_at, skip!
+        if (syncedThreads[c.uuid] === c.updated_at) {
+          return false;
+        }
+        return true;
       });
 
       if (staleToSync.length === 0) {
+        await saveStoredSyncedThreads(syncedThreads);
         await new Promise(r => chrome.storage.local.set({ chatsave_last_reconcile_time: Date.now() }, r));
         isReconciling = false;
+        await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
         updateHud("synced");
-        return { success: true, enqueued: 0, message: "All recent conversations up to date" };
+        return { success: true, enqueued: 0, message: "All conversations from the past 48h are already committed" };
       }
 
-      // 5. Fetch details and enqueue each stale conversation one by one with a polite delay
+      // 7. Fetch details and enqueue stale conversations with exact, complete responses
       let enqueuedCount = 0;
       for (const convMeta of staleToSync) {
         try {
-          await new Promise(r => setTimeout(r, 1500));
+          // If this is the active conversation currently open, capture DOM directly for freshest state
+          if (convMeta.uuid === currentActiveId) {
+            triggerCapture(true);
+            syncedThreads[convMeta.uuid] = convMeta.updated_at;
+            await saveStoredSyncedThreads(syncedThreads);
+            enqueuedCount++;
+            continue;
+          }
+
+          await new Promise(r => setTimeout(r, 1200));
 
           const detailRes = await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}`, { credentials: "include" });
           if (!detailRes.ok) continue;
@@ -912,17 +1044,10 @@
           let seq = 1;
 
           chatMsgs.forEach(m => {
-            let bodyText = m.text || "";
-            if (!bodyText && Array.isArray(m.content)) {
-              bodyText = m.content
-                .filter(b => b && b.type === "text" && b.text)
-                .map(b => b.text)
-                .join("\n\n");
-            }
-            bodyText = sanitizeText(bodyText);
+            const bodyText = extractApiMessageText(m);
             if (!bodyText) return;
 
-            const role = m.sender === "human" ? "user" : "assistant";
+            const role = (m.sender === "human" || m.sender === "user") ? "user" : "assistant";
             messages.push({
               id: m.uuid || `${convMeta.uuid}_msg_${seq}_${role}`,
               sequence: seq,
@@ -933,12 +1058,12 @@
             const atts = [...(m.attachments || []), ...(m.files || [])];
             atts.forEach(att => {
               const fname = att.file_name || att.name || "attachment";
-              const ext = fname.split(".").pop().toLowerCase();
+              const mime = getCanonicalMimeType(fname, "", "application/octet-stream");
               files.push({
                 name: fname,
                 path: `attachments/${fname}`,
                 url: att.url || att.download_url || undefined,
-                type: ext,
+                type: mime,
                 content: att.extracted_content || fname,
                 role: role,
                 turn_sequence: seq,
@@ -968,20 +1093,26 @@
               });
             });
 
+            // Immediately mark as synced in persistent storage so no other process retries it
             syncedThreads[convMeta.uuid] = convMeta.updated_at;
+            await saveStoredSyncedThreads(syncedThreads);
             enqueuedCount++;
           }
-        } catch (itemErr) {}
+        } catch (itemErr) {
+          console.warn("[Chat-Save] Failed to fetch thread details for", convMeta.uuid, itemErr);
+        }
       }
 
       await saveStoredSyncedThreads(syncedThreads);
       await new Promise(r => chrome.storage.local.set({ chatsave_last_reconcile_time: Date.now() }, r));
 
       isReconciling = false;
+      await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
       updateHud("synced");
       return { success: true, enqueued: enqueuedCount };
     } catch (err) {
       isReconciling = false;
+      await new Promise(r => chrome.storage.local.remove("chatsave_reconcile_lock", r));
       updateHud("synced");
       return { success: false, error: err.message };
     }
@@ -1007,9 +1138,9 @@
       triggerCapture(false);
     }, 2000);
 
-    // Initial cloud/mobile stale conversation reconciliation (runs 6s after load)
+    // Initial cloud/mobile stale conversation reconciliation for past 48h (runs 6s after load)
     setTimeout(() => {
-      reconcileStaleConversations(7, false);
+      reconcileStaleConversations(2, false);
     }, 6000);
   }
 

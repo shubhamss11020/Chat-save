@@ -8,13 +8,14 @@ Tables:
 """
 import hashlib
 import json
+import re
 import sqlite3
 import time
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Optional
 
-from .config import STATE_DB, STORAGE, USERNAME
+from .config import GIT_DIR, STATE_DB, STORAGE, USERNAME
 from .models import Conversation, ExtensionIngestPayload, Message
 
 SCHEMA = """
@@ -526,3 +527,30 @@ def get_sig(source: str, key: str) -> str | None:
 def set_sig(source: str, key: str, sig: str) -> None:
     with conn() as c:
         c.execute("INSERT OR REPLACE INTO source_state VALUES (?,?,?)", (source, key, sig))
+
+
+def get_committed_conversations(user_id: str = "") -> dict[str, str]:
+    """Return map of {conversation_id: updated_at} of all conversations already saved in SQLite or Git."""
+    result = {}
+    with conn() as c:
+        rows = c.execute("SELECT id, updated_at FROM conversations").fetchall()
+        for r in rows:
+            result[r["id"]] = r["updated_at"] or "committed"
+
+    # Also scan Git markdown files
+    uname = (user_id or USERNAME or "shubham").strip().lower()
+    conv_dir = GIT_DIR / uname / "claude"
+    if conv_dir.exists():
+        for f in conv_dir.glob("*.md"):
+            try:
+                txt = f.read_text(encoding="utf-8")
+                m = re.search(r'^conversation_id:\s*["\']?([^"\'\s]+)', txt, re.MULTILINE)
+                if m and m.group(1):
+                    cid = m.group(1).strip()
+                    if cid not in result:
+                        m_up = re.search(r'^updated_at:\s*["\']?([^"\'\n]+)', txt, re.MULTILINE)
+                        result[cid] = m_up.group(1).strip() if m_up else "committed"
+            except Exception:
+                pass
+    return result
+

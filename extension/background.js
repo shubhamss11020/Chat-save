@@ -586,7 +586,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   if (req.type === "TRIGGER_RECONCILE") {
     chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
       if (tabs && tabs.length > 0) {
-        chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays: req.maxDays || 7 }, (res) => {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays: req.maxDays || 2 }, (res) => {
           if (chrome.runtime.lastError) {
             sendResponse({
               success: false,
@@ -605,9 +605,9 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 });
 
 /**
- * Sends a message to the active claude.ai tab to reconcile recent conversations from the past N days.
+ * Sends a message to the active claude.ai tab to reconcile recent conversations from the past 48 hours.
  */
-function triggerReconcileInTabs(maxDays = 7) {
+function triggerReconcileInTabs(maxDays = 2) {
   chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
     if (tabs && tabs.length > 0) {
       chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays }, () => {

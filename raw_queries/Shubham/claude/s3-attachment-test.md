@@ -4,12 +4,12 @@ platform: claude
 username: "shubham"
 title: "S3 Attachment Test"
 created_at: "2026-10-12T18:37:03.628324"
-updated_at: "2026-10-12 11:57:53 EDT"
+updated_at: "2026-10-12 12:54:05 EDT"
 ---
 
 # S3 Attachment Test
 
-## User (2026-10-12 11:57:53 EDT)
+## User (2026-10-12 12:54:05 EDT)
 
 Check this cloud architecture diagram
 
@@ -54,3 +54,6 @@ Check this cloud architecture diagram
 
 **Attachments:**
 - ![cloud_diagram.png](https://my-test-bucket.s3.amazonaws.com/attachments/user/cloud_diagram.png)
+
+**Attachments:**
+- ![cloud_diagram.png](https://chat-save.s3.us-east-1.amazonaws.com/attachments/shubham/test-conv-s3-ingest-1791820672/1791824045_cloud_diagram.png)

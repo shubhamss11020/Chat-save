@@ -57,6 +57,87 @@ def get_s3_client():
         return None
 
 
+def resolve_mime_type(
+    filename: str = "",
+    content_type: Optional[str] = None,
+    raw_bytes: bytes = b"",
+) -> str:
+    """Resolve a valid, canonical MIME type (never generic 'image', 'file', or extension-less).
+    Ensures browsers can render images/documents directly instead of displaying a black screen.
+    """
+    # 1. Binary magic byte inspection is highest fidelity (immune to bad extension / headers)
+    if raw_bytes:
+        if raw_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+            return "image/png"
+        if raw_bytes.startswith(b"\xff\xd8\xff"):
+            return "image/jpeg"
+        if raw_bytes.startswith(b"GIF87a") or raw_bytes.startswith(b"GIF89a"):
+            return "image/gif"
+        if raw_bytes.startswith(b"RIFF") and len(raw_bytes) >= 12 and raw_bytes[8:12] == b"WEBP":
+            return "image/webp"
+        if raw_bytes.startswith(b"%PDF-"):
+            return "application/pdf"
+        if raw_bytes.startswith(b"PK\x03\x04"):
+            if filename.lower().endswith(".docx"):
+                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if filename.lower().endswith(".xlsx"):
+                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            return "application/zip"
+        # SVG detection
+        sample = raw_bytes[:1024].lower()
+        if b"<svg" in sample or (b"<?xml" in sample and b"<svg" in raw_bytes[:2048].lower()):
+            return "image/svg+xml"
+
+    # 2. Check provided content_type
+    if content_type:
+        ct = content_type.strip().lower()
+        if ct == "svg":
+            return "image/svg+xml"
+        elif ct in ("jpg", "jpeg"):
+            return "image/jpeg"
+        elif ct == "png":
+            return "image/png"
+        elif ct == "gif":
+            return "image/gif"
+        elif ct == "webp":
+            return "image/webp"
+        elif ct == "pdf":
+            return "application/pdf"
+        elif "/" in ct and ct not in ("application/octet-stream", "binary/octet-stream", "image/*"):
+            return ct
+
+    # 3. Guess from filename
+    if filename:
+        ext_clean = filename.lower().strip()
+        guessed, _ = mimetypes.guess_type(ext_clean)
+        if guessed:
+            return guessed
+        ext = ext_clean.split(".")[-1] if "." in ext_clean else ""
+        ext_map = {
+            "png": "image/png",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "gif": "image/gif",
+            "webp": "image/webp",
+            "svg": "image/svg+xml",
+            "pdf": "application/pdf",
+            "txt": "text/plain",
+            "md": "text/markdown",
+            "markdown": "text/markdown",
+            "json": "application/json",
+            "csv": "text/csv",
+            "html": "text/html",
+        }
+        if ext in ext_map:
+            return ext_map[ext]
+
+    # 4. Fallback if content_type was generic 'image' or 'img'
+    if content_type and content_type.strip().lower() in ("image", "img"):
+        return "image/png"
+
+    return "application/octet-stream"
+
+
 def _clean_filename(filename: str) -> str:
     """Sanitize filename to prevent directory traversal and bad S3 key characters."""
     clean = re.sub(r"[^a-zA-Z0-9._-]+", "_", filename).strip("_")
@@ -84,6 +165,36 @@ def build_public_file_url(s3_key: str) -> str:
     return f"https://{S3_BUCKET_NAME}.s3.{S3_REGION}.amazonaws.com/{s3_key}"
 
 
+def generate_presigned_download_url(
+    s3_key: str,
+    expiration: int = 86400,
+) -> Optional[str]:
+    """Generate a presigned GET URL for viewing an S3 object inline (valid for 24h).
+    Enables viewing attachments even if the S3 bucket has Block Public Access enabled.
+    """
+    client = get_s3_client()
+    if not client or not S3_BUCKET_NAME:
+        return None
+    try:
+        guessed_type = resolve_mime_type(filename=s3_key)
+        params = {
+            "Bucket": S3_BUCKET_NAME,
+            "Key": s3_key,
+            "ResponseContentDisposition": "inline",
+        }
+        if guessed_type and guessed_type != "application/octet-stream":
+            params["ResponseContentType"] = guessed_type
+
+        return client.generate_presigned_url(
+            "get_object",
+            Params=params,
+            ExpiresIn=expiration,
+        )
+    except Exception as e:
+        logger.error("Failed to generate presigned download URL for %s: %s", s3_key, e)
+        return None
+
+
 def generate_presigned_upload_url(
     filename: str,
     content_type: Optional[str] = None,
@@ -96,18 +207,30 @@ def generate_presigned_upload_url(
     if not client or not S3_BUCKET_NAME:
         raise RuntimeError("S3 is not configured. Set S3_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY.")
 
-    if not content_type:
-        guessed, _ = mimetypes.guess_type(filename)
-        content_type = guessed or "application/octet-stream"
+    canonical_mime = resolve_mime_type(filename=filename, content_type=content_type)
 
-    s3_key = build_s3_key(filename, conversation_id, user_id)
+    clean_fname = filename
+    if "." not in clean_fname:
+        ext_map = {
+            "image/png": ".png",
+            "image/jpeg": ".jpg",
+            "image/gif": ".gif",
+            "image/webp": ".webp",
+            "image/svg+xml": ".svg",
+            "application/pdf": ".pdf",
+        }
+        if canonical_mime in ext_map:
+            clean_fname += ext_map[canonical_mime]
+
+    s3_key = build_s3_key(clean_fname, conversation_id, user_id)
 
     upload_url = client.generate_presigned_url(
         "put_object",
         Params={
             "Bucket": S3_BUCKET_NAME,
             "Key": s3_key,
-            "ContentType": content_type,
+            "ContentType": canonical_mime,
+            "ContentDisposition": "inline",
         },
         ExpiresIn=expiration,
     )
@@ -120,7 +243,8 @@ def generate_presigned_upload_url(
         "s3_key": s3_key,
         "method": "PUT",
         "headers": {
-            "Content-Type": content_type,
+            "Content-Type": canonical_mime,
+            "Content-Disposition": "inline",
         },
     }
 
@@ -133,41 +257,107 @@ def upload_attachment_data(
     user_id: str = "user",
 ) -> Optional[str]:
     """Upload binary or base64 attachment directly to S3 from server.
+    Ensures canonical MIME types and Content-Disposition: inline are applied
+    so browsers render the file directly when clicked instead of a black screen.
     Returns the permanent public URL on success, or None on failure.
     """
     client = get_s3_client()
     if not client or not S3_BUCKET_NAME:
         return None
 
-    s3_key = build_s3_key(filename, conversation_id, user_id)
-    raw_bytes: bytes
+    raw_bytes: bytes = b""
+    detected_mime: Optional[str] = None
 
     if isinstance(content_data, bytes):
         raw_bytes = content_data
-    elif isinstance(content_data, str) and content_data.startswith("data:") and ";base64," in content_data:
-        try:
-            header, b64_str = content_data.split(";base64,", 1)
-            if not content_type:
-                content_type = header.replace("data:", "").strip()
-            raw_bytes = base64.b64decode(b64_str)
-        except Exception as e:
-            logger.error("Failed to decode base64 for %s: %s", filename, e)
+    elif isinstance(content_data, str):
+        content_str = content_data.strip()
+
+        # Case A: Data URI e.g. "data:image/png;base64,iVBORw0KGgo..."
+        if content_str.startswith("data:") and ";base64," in content_str:
+            try:
+                header, b64_str = content_str.split(";base64,", 1)
+                mime_part = header.replace("data:", "").strip()
+                if mime_part and "/" in mime_part:
+                    detected_mime = mime_part
+                raw_bytes = base64.b64decode(b64_str)
+            except Exception as e:
+                logger.error("Failed to decode data URI base64 for %s: %s", filename, e)
+                return None
+
+        # Case B: SVG XML text
+        elif "<svg" in content_str.lower():
+            raw_bytes = content_str.encode("utf-8")
+            detected_mime = "image/svg+xml"
+
+        # Case C: Remote HTTP URL - fetch actual bytes instead of saving URL string
+        elif content_str.startswith("http://") or content_str.startswith("https://"):
+            try:
+                import urllib.request
+                req = urllib.request.Request(content_str, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    raw_bytes = resp.read()
+                    remote_ct = resp.headers.get_content_type()
+                    if remote_ct and "/" in remote_ct:
+                        detected_mime = remote_ct
+            except Exception as e:
+                logger.warning("Could not fetch remote attachment URL %s: %s", content_str, e)
+                return None
+
+        # Case D: Browser blob URL cannot be fetched by server - avoid saving corrupt text
+        elif content_str.startswith("blob:"):
+            logger.warning("Cannot upload browser blob URL from server: %s", content_str)
             return None
+
+        # Case E: Pure base64 string without data: prefix
+        elif any(filename.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf")):
+            try:
+                clean_b64 = re.sub(r"\s+", "", content_str)
+                raw_bytes = base64.b64decode(clean_b64, validate=True)
+            except Exception:
+                raw_bytes = content_str.encode("utf-8")
+        else:
+            raw_bytes = content_str.encode("utf-8")
     else:
         raw_bytes = str(content_data).encode("utf-8")
 
-    if not content_type:
-        guessed, _ = mimetypes.guess_type(filename)
-        content_type = guessed or "application/octet-stream"
+    if not raw_bytes:
+        logger.warning("Empty attachment data for %s, skipping S3 upload", filename)
+        return None
+
+    # Resolve canonical MIME type (e.g. image/png, image/jpeg, image/svg+xml)
+    canonical_mime = resolve_mime_type(
+        filename=filename,
+        content_type=detected_mime or content_type,
+        raw_bytes=raw_bytes,
+    )
+
+    # Ensure filename has extension matching MIME if missing
+    clean_fname = filename
+    if "." not in clean_fname:
+        ext_map = {
+            "image/png": ".png",
+            "image/jpeg": ".jpg",
+            "image/gif": ".gif",
+            "image/webp": ".webp",
+            "image/svg+xml": ".svg",
+            "application/pdf": ".pdf",
+        }
+        if canonical_mime in ext_map:
+            clean_fname += ext_map[canonical_mime]
+
+    s3_key = build_s3_key(clean_fname, conversation_id, user_id)
 
     try:
         client.put_object(
             Bucket=S3_BUCKET_NAME,
             Key=s3_key,
             Body=raw_bytes,
-            ContentType=content_type,
+            ContentType=canonical_mime,
+            ContentDisposition="inline",
         )
         return build_public_file_url(s3_key)
     except Exception as e:
         logger.error("S3 put_object failed for key %s: %s", s3_key, e)
         return None
+

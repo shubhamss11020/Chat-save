@@ -104,7 +104,11 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
                 # Prefer permanent S3/public URL if available, else relative local file path
                 rel_link = att.get("url") or f"{files_folder}/{(att.get('path') or f'attachments/{att_name}')}"
                 att_type = (att.get("type") or "").lower()
-                if att_type in ("image", "png", "jpg", "jpeg", "gif", "webp", "svg") or any(att_name.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg")):
+                if (
+                    att_type in ("image", "png", "jpg", "jpeg", "gif", "webp", "svg")
+                    or att_type.startswith("image/")
+                    or any(att_name.lower().endswith(ext) for ext in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"))
+                ):
                     out += [f"- ![{att_name}]({rel_link})"]
                 else:
                     out += [f"- 📎 [{att_name}]({rel_link})"]
@@ -193,9 +197,7 @@ def _extract_keywords(text: str) -> set[str]:
 
 
 def _find_existing_thread_file(conv: Conversation) -> Path | None:
-    """Find if a file already exists for this thread by matching id, title, message content,
-    keyword similarity, or continuation context.
-    """
+    """Find if a file already exists for this thread deterministically by conversation_id or exact slug."""
     uname = _normalize_username(conv.username or USERNAME)
     search_dirs = [GIT_DIR / uname / conv.platform]
     legacy_user_dir = GIT_DIR / "user" / conv.platform
@@ -210,7 +212,7 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
     if not all_files:
         return None
 
-    # 1. Match conversation_id in YAML frontmatter (highest precision)
+    # 1. Match conversation_id in YAML frontmatter (highest precision, 100% deterministic)
     if conv.id:
         for f in all_files:
             try:
@@ -225,7 +227,7 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
         if f.stem == _slug(conv.id):
             return f
 
-    # 3. Direct slug / filename match (only if no conflicting conversation_id)
+    # 3. Direct slug / filename match (ONLY if no conflicting conversation_id from another thread)
     target_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
     for f in all_files:
         if f.stem == target_slug:
@@ -237,34 +239,7 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
             except Exception:
                 continue
 
-    # 3. Match message content: check if ANY incoming message snippet is already in the existing file
-    snippets: list[str] = []
-    for m in conv.messages:
-        content_clean = m.content.strip()
-        if len(content_clean) >= 20:
-            snippets.append(content_clean[:80])
-
-    if snippets:
-        for f in all_files:
-            try:
-                txt = f.read_text(encoding="utf-8")
-                for snip in snippets:
-                    if snip in txt:
-                        return f
-            except Exception:
-                continue
-
-    # 4. Match by Title Keyword Overlap (e.g. "models", "token", "comparison")
-    incoming_keywords = _extract_keywords(f"{conv.title} {conv.id}")
-    if len(incoming_keywords) >= 2:
-        for f in all_files[:10]:  # check top 10 most recent files
-            file_keywords = _extract_keywords(f.stem)
-            overlap = incoming_keywords & file_keywords
-            if len(overlap) >= 2 and len(overlap) / len(incoming_keywords) >= 0.4:
-                return f
-
-    # 5. Do not guess or hijack the most recent file if this conversation has its own distinct title
-    # or if the prompt does not explicitly continue the previous discussion.
+    # Never match or hijack an unrelated conversation file!
     return None
 
 
@@ -277,16 +252,20 @@ def commit_snapshot(conv: Conversation) -> None:
         rel = f"{uname}/{conv.platform}/{existing_file.name}"
         path = GIT_DIR / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        if existing_file.resolve() != path.resolve() and existing_file.exists():
-            try:
-                old_rel = existing_file.relative_to(GIT_DIR)
-                existing_file.unlink()
-                _git("rm", "-f", "--", f"raw_queries/{old_rel}")
-            except Exception:
-                pass
     else:
-        rel = rel_path(conv)
-        path = GIT_DIR / rel
+        name_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
+        candidate = GIT_DIR / uname / conv.platform / f"{name_slug}.md"
+        # If candidate file exists and belongs to a different conversation_id, disambiguate with short id
+        if candidate.exists():
+            try:
+                txt = candidate.read_text(encoding="utf-8")
+                m = re.search(r'^conversation_id:\s*["\']?([^"\'\s]+)', txt, re.MULTILINE)
+                if m and m.group(1) and m.group(1) != conv.id:
+                    candidate = GIT_DIR / uname / conv.platform / f"{name_slug}-{conv.id[:8]}.md"
+            except Exception:
+                candidate = GIT_DIR / uname / conv.platform / f"{name_slug}-{conv.id[:8]}.md"
+        path = candidate
+        rel = f"{uname}/{conv.platform}/{path.name}"
         path.parent.mkdir(parents=True, exist_ok=True)
 
     now_est = datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -354,6 +333,15 @@ def commit_snapshot(conv: Conversation) -> None:
                         pass
 
     rendered_text = render(conv, created_at=created_at, updated_at=updated_at)
+    if path.exists():
+        try:
+            old_full = path.read_text(encoding="utf-8")
+            old_body = re.sub(r'(?m)^updated_at:.*$', '', old_full).strip()
+            new_body = re.sub(r'(?m)^updated_at:.*$', '', rendered_text).strip()
+            if old_body == new_body and not conv.files:
+                return  # Identical snapshot already committed on disk, skip redundant write & git op
+        except Exception:
+            pass
     path.write_text(rendered_text, encoding="utf-8", newline="\n")
 
     # Save structured standalone files (README.md, scripts, diagrams, etc.) into companion folder

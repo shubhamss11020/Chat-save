@@ -1,19 +1,19 @@
 ---
-conversation_id: e6a1d844-1061-480e-a9a0-d261d6b61792
+conversation_id: ca7fe9fa-7447-46ca-bc89-95371c661db2
 platform: claude
 username: "shubham"
 title: "Heat number August 2026"
 created_at: "2026-10-12T11:02:18.137950Z"
-updated_at: "2026-10-12 12:15:12 EDT"
+updated_at: "2026-10-12 12:31:39 EDT"
 ---
 
 # Heat number August 2026
 
-## User (2026-10-12 12:15:12 EDT)
+## User (2026-10-12 12:31:39 EDT)
 
 what came up about heat number in August 2026?
 
-## Claude (2026-10-12 12:15:12 EDT)
+## Claude (2026-10-12 12:31:39 EDT)
 
 ```
 
@@ -39,12 +39,15 @@ what came up about heat number in August 2026?
 
 ```
 
-Two August items mention heat numbers, both in the vault's mail. Neither shows a reply, so I can't yet confirm whether the heat numbers were ever sent.
+```
 
-1. **Alliance Metal Products asked for heat numbers on an invoiced load (10 Aug).** Alliance's supply team wrote in the "10yr polys" thread that they had received the invoice for the load and asked for coil weights, heat numbers and mill certs. The same request appears in three copies, all sent to Travis Lane, Jessica Worley and McKenzie Vaught. The load is 10-year poly coil on PO 36316 / release REL17912, staged for pickup at Superior River Terminal in Jeffersonville, IN. The thread has 42 messages and I haven't read past this request, so a reply may exist. I'd need to expand the thread to check.
+```
 
-2. **PO-0014727 requires heat numbers on every tag (31 Aug).** The PO PDF, attached to a message from adam@3gmsteel.com titled "Premier Metals PO", totals $3,262,020.00 for 2,000 CWT (500 tons) of 40.875" AZ35 painted coil delivered to Sugarcreek, Ohio. Its terms say each coil must be tagged with order number, weight, size, heat number, coil number and grade. The line items sum to the stated total.
+In August 2026, heat numbers came up in two threads: a request from Alliance Metal Products for heat numbers on a load, and a purchase order that requires heat numbers to be marked on each coil.
 
-I haven't checked the ERP for these heat numbers yet. I can check the lots on the Alliance order or expand the thread for a reply.
+- **Alliance Metal Products (Aug 10):** After receiving the invoice for a load, Alliance's supply team asked for coil weights, heat numbers and mill certs. McKenzie Vaught replied that she had attached the requested coil details and mill certs for S12151. The thread is "10yr polys" (42 messages total; the heat-number request is in the Aug 10 replies). McKenzie's reply (msg 48427) asked the same question from the 3GM side, and the final message (msg 48424) acknowledged receipt. The heat-number details themselves were attachments on McKenzie's message, which I did not find in the vault, so I can't confirm the specific heat numbers from here.
+- **Premier Metals PO-0014727 (Aug 31):** Adam Buck forwarded the PO to Matt Inman, copying you and Stefan. The PO's marking instructions say each coil must be tagged with order number, weight, size, heat number, coil number, grade and specs. The PO total is $3,262,020.00. Adam's email also notes that the charcoal paint code isn't yet in the ERP and was typed in manually.
 
-Sources: msg 48430 · msg 48427 · msg 48424 · att 9237 (msg 46600)
+If you meant a different heat-number thread or a specific heat number, tell me and I'll search for that. I can also check the ERP for heat numbers on the S12151 coils.
+
+Sources: msg 48424 · msg 48427 · msg 48430 · msg 46600 · att 9237 (msg 46600)

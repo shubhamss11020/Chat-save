@@ -2,18 +2,18 @@
 conversation_id: 69fd346f-5fb2-40b9-9bff-b42bbfe77c82
 platform: claude
 username: "shubham"
-title: "Weekly employee report in Askcruz - Claude"
+title: "Weekly employee report in Askcruz"
 created_at: "2026-10-12T12:39:18.768Z"
-updated_at: "2026-10-12 08:48:44 EDT"
+updated_at: "2026-10-12 10:32:16 EDT"
 ---
 
-# Weekly employee report in Askcruz - Claude
+# Weekly employee report in Askcruz
 
-## User (2026-10-12 08:48:44 EDT)
+## User (2026-10-12 10:32:16 EDT)
 
 can u give me the details about how the weekly report of employeee  generated in askcruz
 
-## Claude (2026-10-12 08:48:44 EDT)
+## Claude (2026-10-12 10:32:16 EDT)
 
 Claude responded: The weekly report is a self-addressed scrum report that Rajat's automation generates from the AskCruz project board in the teams-askcruz Odoo instance.
 Using Askcruz: Search emails

@@ -1,19 +1,19 @@
 ---
-conversation_id: c56ea77f-c4b8-415d-b4bc-6105099a6402
+conversation_id: a0d01e8a-7b52-4638-acca-372dadb731a1
 platform: claude
 username: "shubham"
-title: "Email search queries"
+title: "Email analysis questions"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:13:13 EDT"
+updated_at: "2026-10-12 12:13:16 EDT"
 ---
 
-# Email search queries
+# Email analysis questions
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 ```
 
@@ -81,11 +81,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 ```
 
@@ -147,11 +147,11 @@ I can check the ERP for the current Texas Star balance, the Englert credit memo,
 
 Sources: wiki pages 535, 8, 101, 520; outlook messages 277095, 280528, 282385, 46484, 46696, 46700, 48173, 49073; outlook attachments 11298, 46130
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
 What’s the difference between an analysis page and an entity page, per the vault’s own structure?
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 
@@ -222,11 +222,11 @@ Here are 50 more questions. The vault connection is offline right now, so I can'
 54. What's the forecast for next week?
 55. Which of our customers has the biggest birthday party coming up?
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
 How many messages were sent on weekends in the past quarter?
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 ```
 
@@ -279,11 +279,11 @@ Current balances, aging and release status for all three accounts are ERP-owned,
 
 Sources: wiki page 516 (Red Dot Products, facts 0–60 of 380) · wiki page 180 (EMB Metal Buildings, facts 0–60 of 371) · wiki page 328 (Steel Buildings and Structures, facts 0–60 of 260) · msgs 46440, 60925, 60923, 50431, 61675, 62392, 67680, 61390, 61332, 62493, 63286, 67507, 292289 (cited on those pages)
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
-Which pages list an “as of” date older than 90 days?
+Which source pages are used as templates for recurring reports?
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 ```
 
@@ -322,11 +322,11 @@ Many pages carry several "as of" dates, so a page can appear here even when its 
 
 Sources: find_facts fact_key "as_of", value_contains "2025-" (200 of many), "2026-01" (200), "2026-02" (149), "2026-03" (200); page 485 fact as_of · page 284 fact as_of · page 439 fact as_of · page 338 fact as_of · page 386 fact as_of · page 197 fact as_of · page 164 fact as_of · page 205 fact as_of · page 180 fact as_of · page 260 fact as_of · page 516 fact as_of · page 328 (as_of) · page 161 fact as_of
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
 Which pages were created from a single source message?
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 **Within the first 100 entity pages (A through E), 19 pages cite only one source message.** That's a partial answer. The wiki has 675 pages in total, and the list tool can't filter by citation count, so I'd have to scan the rest to finish.
 
@@ -339,29 +339,66 @@ Two caveats. A citation count of 1 means one citation, not necessarily one messa
 
 Sources: list_wiki_pages (page_type entity, first 100 of 410, citation_count field)
 
-## User (2026-10-12 12:13:13 EDT)
+## User (2026-10-12 12:13:16 EDT)
 
-What are the most common fact keys across the wiki?
+What open issues appear on analysis pages about freight?
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
+
+```
 
 ```
 
 ```
 
-I can't answer this reliably with the tools I have. `find_facts` looks up facts by key or page, but it doesn't count or group them, so I can't tally key frequency across the roughly 32,600 facts in the wiki.
+```
 
-To get a real answer, I'd have to read facts page by page and tally the keys myself. Some pages are very large (Dongkuk alone has 558 facts), so that's a lot of output. A narrower question would be much cheaper. For example:
-- The most common keys on one page or one entity class (such as the customer pages).
-- Whether a specific key, like a credit limit or price, appears across many pages. `find_facts` can check that with an exact key.
+```
 
-Tell me which you'd like, and I'll run it.
+```
 
-## User (2026-10-12 12:13:13 EDT)
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+Six freight analysis pages show open items. All of them trace back to unpaid carriers after the freight broker GT Worldwide Logistics failed to pay them. The status on each is only as current as the newest source the page cites, and none of the pages records a settlement or a filed suit.
+
+- **Baxter Bailey Freight Charges Claim (page 490):** Open as of March 25, 2026. The demand rose from $10,500 to $13,200 across five carriers, and counsel said they had asked for a suit to be prepared. An April 15 letter exists but I didn't read it. The page is flagged as a possible duplicate of three other staging pages.
+- **Freight Broker Double-Payment Liability Claims (page 591) and AWA Case 2026-1276 (page 593):** A $2,500 claim by a collections firm for carrier Beta Freight, opened February 15, 2026, with a follow-up on March 4. No resolution is recorded. The page doesn't establish whether 3GM is the shipper the firm is pursuing.
+- **OTR Solutions Unpaid Freight Invoices Claim (page 251):** Open as of February 4, 2026. The claim is $4,650, and OTR says it is open to negotiating but wants the carrier paid. The page flags a conflict with the Baxter Bailey claim.
+- **GT Worldwide Freight Claims (page 474):** A potential exposure from unjust-enrichment claims, recorded as of March 2, 2026. No carrier has been named and no suit is recorded.
+- **SVB Express Unpaid Freight Invoice (page 271):** A $1,700 claim, open with no 3GM response recorded. The response deadline was February 27, 2026.
+- **R & R Express Collections Claim (page 124):** The most recent open item, disputed as of June 2, 2026. Allianz Trade is pursuing $23,955 for R & R Express. Stefan Brown's position is that the amounts were already paid to GT Worldwide, and the page doesn't reconcile the claim against the invoices.
+
+I didn't read four other freight-related analysis pages: Carolina Carports' trucking-accident coil claim, the two GT Worldwide bankruptcy claims pages, and the bill of lading carrier disclaimer.
+
+Sources: wiki pages 490, 251, 474, 124, 593, 591, 271 (get_wiki_page; cited messages 68357, 71748, 70305, 63079, 63074, 71244, 70056, 70740, 71645, and attachments 17846, 19040, 19041, 18850)
+
+## User (2026-10-12 12:13:16 EDT)
 
 How many open quotes are in the vault, and how many of those are in the ERP?
 
-## Claude (2026-10-12 12:13:13 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 ```
 
@@ -371,17 +408,13 @@ How many open quotes are in the vault, and how many of those are in the ERP?
 
 ```
 
-The most recent freight invoice I can find in the mail is 3GM invoice INV/2026/1646 for $29,292.90, dated 2026-06-29. I could not check whether it is in the ERP, because the ERP tools aren't available in this session.
+```
 
-- **Invoice:** the attached invoice (att 13250, on msg 60923) is for the additional freight on the Red Dot Products Denver and Newville deliveries. The invoice itself shows no customer PO, release number or sales order, and its line-item grid is empty apart from a zero freight row.
-- **Status in mail:** the thread shows it circulated internally for sign-off on 2026-06-29. The latest message that mentions it is msg 60902, sent 2026-06-30 08:23 ET, which attaches the Red Dot account statement with the open freight invoice. Nothing I read confirms the invoice was sent to the customer or paid.
-- **Newer hit, not an invoice:** the GoDaddy quarantine notice from 2026-10-10 (msg 301418) lists "freight invoices" in a message from Ryan Hollis. That is a held message, not a 3GM invoice, and I did not open it.
+```
 
-The newest "freight" mail is from July 2026, but those are discussions about pass-through freight costs, not invoices.
+```
 
-Sources: search_raw "freight invoice" (2026-01-01 to 2026-10-12, both mailboxes); msg 60923 and att 13250 (INV/2026/1646); msg 60902 (2026-06-30); msg 301418 (quarantine notice, not opened); wiki page 516 (Red Dot Products, flags on invoice status). ERP: not checked, tools unavailable in this session.
-
-## Claude (2026-10-12 12:13:08 EDT)
+```
 
 ```
 
@@ -391,48 +424,69 @@ Sources: search_raw "freight invoice" (2026-01-01 to 2026-10-12, both mailboxes)
 
 ```
 
-The 3GM ERP isn't connected in this session, so I can't get live balances from it. I'll check what the wiki holds instead.
 ```
 
 ```
 
-I can't say which customer has the highest outstanding balance. Balances are live ERP figures, and the 3GM ERP isn't connected in this session.
+Yes, but only a few, and none of them is a clear-cut price contradiction between two live pages. I checked the flags on the six pricing-related pages that came up in the search, not every page in the vault, so there may be others.
 
-The wiki does hold dated past-due history for several customers, but none of it is a current balance or a ranking. The most relevant pages are:
+- **Gingco Supply (page 218), a flagged contradiction:** Adam Buck's August 4 message says PRM 29 was "approved per Travis @ $2.25." The executed August tracker shows PRM 29 painted coil at $2.24/ft on five sales orders and $2.26/ft on the sixth. The page doesn't pick one figure.
+- **On Time Metal / Prestige Steel import quote (page 101), unreconciled figures:** The sell-side price is recorded as $95.15/ft in one message, which the sender disclaims, and as $97.64/cwt in another. The Charleston port adder has three different figures on the same day, $75, $40 and $60 per ton, and the page says it can't determine which one went into the offer.
+- **Dongkuk Q1 2027 Consignment Order (page 54), a count mismatch:** The quotation table in one attachment has twelve items, while the page's comparison says eleven matched specs. The page says the difference is unresolved. The two items that do appear match at $117.16.
+- **Monthly Pricing Guideline (page 2), a flagged contradiction, but not about price:** Maggie Moore and Travis Lane describe the status of the Carport Central account differently, so it's about account standing rather than prices.
 
-- **Steel Buildings and Structures** (page 328)
-- **Red Dot Products** (page 516)
-- **American Steel Carports Inc** (page 386)
-- **Mission Metals Manufacturing, LLC** (page 243)
-- **Texas Star Steel Carports** (page 331), which the wiki says has the oldest item in the receivables ageing
-- **TOL Buildings, Inc** (page 526), which was put under tighter credit control on 2026-08-18
-- **Tennessee Metal Products** (page 273)
+Sources: wiki pages 218, 101, 54, 2 (get_wiki_page flags); messages 48027, 48173, 48239, 48840, 48827, 48838; attachments 8766, 9126, 8819; messages 63669, 63674.
 
-The Accounts Receivable Collections process page (13) explains how the ageing report is produced. If you reconnect the ERP, I can pull each customer's open receivables and rank them, then check the wiki history for the top few.
+## User (2026-10-12 12:13:16 EDT)
 
-Sources: vault search_wiki "outstanding balance past due receivable"; pages 328, 516, 386, 243, 331, 526, 273, 13.
+Which customer pages say the account is on hold?
 
-## User (2026-10-12 12:13:08 EDT)
-
-Which deals in the vault are marked closed but have no matching sale order?
-
-## Claude (2026-10-12 12:13:08 EDT)
+## Claude (2026-10-12 12:13:16 EDT)
 
 ```
 
 ```
 
-I can't answer this. Matching deals to sale orders needs the 3GM ERP, which isn't connected in this session. The ERP holds the sale orders and the CRM stage that shows a deal as closed or won.
+```
 
-The vault doesn't give me a reliable list of deals marked closed either. My search for analysis pages on closed deals returned matters such as the CMT Components acquisition, the BlueScope 2026 Contract Proposal, the Longhorn Steel Tonnage Order S11895 (cancelled 2026-06-19), the Carolina Carports CCJUL26 Order and the ASTA October 2026 PT Mill Order. These are mostly live or cancelled matters, not a set of deals marked closed, so I'd need to read each page before saying which are closed.
+```
 
-If you reconnect the ERP, I can list the closed-won CRM deals, match each one to a sale order by name, and then check the vault pages for the ones that don't match.
+```
 
-Sources: vault search_wiki (analysis, "deal closed"), pages 41, 419, 564, 32, 19, 223 and others in the result.
+```
 
-## User (2026-10-12 12:13:08 EDT)
+I can't confirm which accounts are on hold right now. Credit holds are live values that sit in the ERP, and no ERP tool is available in this session, so I can only report what the wiki recorded and when.
 
-Which product specs are quoted differently across two or more emails?
+From the wiki excerpts, these customer pages mention a hold:
+
+- **Engineered Building Solutions LLC (page 348):** A credit hold was placed on July 30, 2026, after a new truckload order arrived while the account was past due and over its limit. The excerpt doesn't say whether the hold is still in place.
+- **Gingco Supply (page 218):** A credit hold is recorded for October 17, 2025. The page's later entries I read don't say whether it was lifted.
+- **WV Metal Wholesalers Inc. (page 432):** The page records a credit-hold release on September 16–17, 2026, so that hold appears to be lifted.
+
+Other customer pages mention past-due balances or credit-control tightening, such as TOL Buildings (page 526) and Midwest Steel Carports (page 563), but the excerpts don't say they're on hold.
+
+To confirm current holds, the ERP's credit and hold fields (res_partner credit limit and hold settings) would need to be checked directly.
+
+Sources: wiki pages 348, 218, 432 (search_wiki excerpts; the ERP was not queried because no ERP tool is connected in this session).
+
+## User (2026-10-12 12:13:16 EDT)
+
+Did the price quoted to a customer in the vault match what was invoiced?
+
+## Claude (2026-10-12 12:13:16 EDT)
+
+```
+
+```
+
+I found one customer where the vault shows a quoted price and an invoiced amount that don't agree, and it's Gingco Supply (Ging Co Supply, LLC). I didn't check other customers, so this isn't a full audit.
+
+- **PRM 29 price:** Adam Buck's August 4, 2026 message says the special price was "approved per Travis @ $2.25" per foot. The executed August tracker shows $2.24 on five sales orders and $2.26 on the sixth. The vault doesn't show which price was invoiced on each order.
+- **Pricing basis on sales order S10982 (April 2026):** The order was entered in linear-foot pricing when it should have been billed by hundredweight. The coil-level export totals $209,148.17 on the footage basis and $217,091.62 on the hundredweight basis, a $7,943.45 gap. Adam Buck confirmed the order needed fixing to hundredweight. The vault doesn't say whether the customer was invoiced the higher amount or whether the gap was collected.
+
+I couldn't check the invoices in the ERP, because no ERP tool is connected in this session. So I can't confirm what was actually billed on any order.
+
+Sources: wiki page 218 (Gingco Supply); messages 48027, 66009, 66020, 66027; attachments 8766, 10492, 16972.
 
 ## Claude (2026-10-12 12:13:08 EDT)
 

@@ -1,189 +1,161 @@
 ---
-conversation_id: 739c8b5d-2ec2-4646-be19-457c0b965c4d
+conversation_id: 86ef6ced-aaaa-4542-831a-93037223fe65
 platform: claude
 username: "shubham"
-title: "3GM Vault MCP testing"
+title: "3GM Vault MCP search testing"
 created_at: "2026-10-09T21:14:35.054198Z"
-updated_at: "2026-10-12 10:34:32 EDT"
+updated_at: "2026-10-12 12:31:23 EDT"
 ---
 
-# 3GM Vault MCP testing
+# 3GM Vault MCP search testing
 
-## User (2026-10-12 10:34:32 EDT)
+## User (2026-10-12 12:31:23 EDT)
 
 Test the search and retrieval capabilities of the 3GM Vault MCP using different search terms, partial names, exact matches, similar terms, and available filters. Check for relevant records that are missed, irrelevant records that are returned, inconsistent results for equivalent queries, and failures to retrieve information that is demonstrably available. Document reproducible examples and explain the likely cause of each issue.
 
-## Claude (2026-10-12 10:34:32 EDT)
+## Claude (2026-10-12 12:31:23 EDT)
 
 I'll start by loading the navigator skill and the vault tool schemas.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
+```
 
 The skill is loaded and the tools are available. I'll start with baseline checks: identity, corpus size, and a known counterparty searched several ways.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
 
 The first batch shows a few things worth checking further: the connection isn't signed in, the stats differ from the skill's snapshot, and "Dongkuk Steel" pulls in unrelated "Steel" pages. The raw-mail counts also differ between spellings ("Dongkuk" 879–951 vs "Dong Kuk" and "Dongkok" 0). Next I'll test the raw mail search directly.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
 
 The raw search does spelling correction ("Dongkok" → "Dongkuk", 951 hits), but "Dong Kuk" matches nothing, and the wiki's raw-count disagrees with the raw search. Next I'll test people resolution and sender filters, where the skill makes specific claims.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
 
 Sender-name resolution works for the exact name, and a misspelling still resolves. Two things to probe further: surname-only "Worley" also pulls in a different person (madyson.worley@kloeckner.com), and the Jessie Choi display name carries literal quote marks. Next I'll run the same sender query with and without a date window, plus the duplicate-page and fact checks.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
 ```
-This block is not supported on your current device yet.
-```
-
-```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-
 
 Both wiki page reads returned far more than the requested limits, which I'll note. The "Dongkuk Intl" lookup also resolved to the "Dongkuk" page rather than "Dongkuk International Inc.", so I'll check how facts split across the two duplicate pages and whether a cited source resolves cleanly.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
-
-
 
 The vault's search is strong on misspellings, exact phrases, sender resolution, and date windows. It is weak on company-name variants, on duplicate entity pages, and on payload control. Every finding below comes from the calls I ran in this session. The causes are inferred from the outputs, not confirmed against the code.
 

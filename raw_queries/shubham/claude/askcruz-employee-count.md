@@ -4,7 +4,7 @@ platform: claude
 username: "shubham"
 title: "Askcruz employee count and functionality - Claude"
 created_at: "2026-10-12T18:07:08.567362Z"
-updated_at: "2026-10-12 14:14:24 EDT"
+updated_at: "2026-10-12 15:26:20 EDT"
 ---
 
 # Askcruz employee count and functionality - Claude
@@ -13,67 +13,7 @@ updated_at: "2026-10-12 14:14:24 EDT"
 
 How many employees work in askcruz?
 
-## User (2026-10-12 14:14:24 EDT)
-
-How many employees work in askcruz?
-
 ## Claude (2026-10-12 14:14:24 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-The wiki doesn't give a total headcount for AskCruz. The closest figure is **45 people**, the number scored in the weekly report for the 2026-08-31 to 2026-09-06 week, across five departments: HR, Support and Functional & Implementation, AI & Innovation, AI & Innovation (Intern Cohort), and PR & Branding. That count leaves out 8 people with no Cattr data and three standing exclusions, so the true headcount is probably higher.
-
-I also searched the client registry, and AskCruz isn't listed as a client, so this appears to be an EOXS-side internal tool rather than a company. If you meant a different count, such as total EOXS staff or people on a specific team, tell me which and I'll check.
-
-Sources: email threads 68439, 68440, 68441 and 68455 (EOXS Weekly Scored Report and Weekly Scores DATA, 2026-08-31 to 2026-09-06). Wiki page 2090, "EOXS Weekly Scored Report — Aug 31–Sep 6, 2026: DATA Correction and Three Resends." That page is marked tier2 confidential HR.
-
-## Claude (2026-10-12 14:14:24 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 The wiki doesn't give a total headcount for AskCruz. The closest figure is **45 people**, the number scored in the weekly report for the 2026-08-31 to 2026-09-06 week, across five departments: HR, Support and Functional & Implementation, AI & Innovation, AI & Innovation (Intern Cohort), and PR & Branding. That count leaves out 8 people with no Cattr data and three standing exclusions, so the true headcount is probably higher.
 
@@ -191,3 +131,98 @@ Sources: msg 262337 (FW: Mac Metal Sales -Invoice # 62279773, 2026-09-24 14:56 E
 ## User (2026-10-12 14:14:24 EDT)
 
 What did we agree to with our top supplier and has it been followed through?
+
+## Claude (2026-10-12 15:26:20 EDT)
+
+Short answer: The main obligation, the tariff reimbursement from Prosperity Tieh (PT), has been largely followed through. PT has remitted $750,000 in cash and applied about $1.37M in PO deductions. But the remaining balance doesn’t reconcile, the July cash wire isn’t evidenced, and I couldn’t check the ERP.
+
+Which supplier: The wiki doesn’t rank suppliers by spend, and the ERP tools weren’t available to me. I took “top supplier” to mean PT, the supplier with the deepest record in the vault. If you meant another supplier, tell me and I’ll check it.
+
+What was agreed
+
+The vault’s record of the January 6, 2026 proposal from PT’s Daniel Lin, which ran the reimbursement of about $2.25M in tariffs 3GM and Mac Metal Sales had absorbed:
+
+A cash wire of $750,000 before January 16, 2026. The vault records this as the agreed initial wire. PT had first proposed $600,000.
+Per-ton deductions on open POs: $40/MT on GL orders, $50/MT on PE painted, $60/MT on SMP, roughly $810,000 in total against about 16,000 MT of open POs.
+Another $500,000 cash wire in July 2026, after PT’s antidumping review ended in late June.
+The remaining balance settled by year-end 2026, by cash or further deductions.
+Payment terms of 10% down and 90% at 45 days after vessel departure from Kaohsiung. PT described this as an exception made only for 3GM.
+
+The wiki page’s status still reads “negotiating” as of January 7, and I found no signed agreement in the vault.
+
+Follow-through
+
+Followed through: PT’s September 11, 2026 statement shows $750,000 remitted by wire and $1,374,275.35 deducted, against an agreed total of $2,250,597.19. The agreed total matches the original $2.25M tariff figure.
+Partly evidenced: An August 3 message from PT shows a $150,000 tariff remittance, paired with a $72,095.55 acrylic-claim credit, for $222,095.55 in total. That was paid in July. It is not the $500,000 July wire.
+Not evidenced: The July $500,000 wire from point 3. I found no PT or 3GM message confirming it.
+Balance doesn’t reconcile: The wiki flags a stated balance of $28,671.84. But the figures in the same PT statement imply $126,321.84 ($2,250,597.19 minus $750,000 minus $1,374,275.35). The wiki didn’t catch this. The difference needs resolving with PT before anyone relies on either figure.
+Open thread: PT’s Ian Guo sent a “Future Discount” sheet on October 2, 2026. I found the message but haven’t read its contents.
+
+Not checked: The ERP. Current balances and receivables are ERP-owned, so the live position should be pulled from there before anyone acts on this.
+
+Sources: outlook_message 203363 (Jan 6 proposal) · outlook_message 203329 (agreed initial wire) · outlook_message 203360 · outlook_message 203675 · outlook_message 224569 (Sep 14 forward of PT’s Sep 11 statement) · outlook_message 291074 and 290277 (Oct 2 “Future Discount” thread) · outlook_message 48921 (Aug 3 remittance) · outlook_attachment 46218 (balance) · wiki pages 320 (Prosperity Tieh Tariff Reimbursement) and 260 (Prosperity Tieh Enterprise).
+
+## User (2026-10-12 15:26:20 EDT)
+
+What did Stefan send Travis yesterday?
+
+## Claude (2026-10-12 15:26:20 EDT)
+
+Stefan sent Travis nothing yesterday (October 11). The only message Stefan sent that day was “Fwd: 2B Holdings” to Jameson Brown at Tann Electric. Travis isn’t on it.
+
+If you meant today (October 12, Eastern), Travis was copied on three of Stefan’s messages to Adam Buck about “Steel City,” a new credit applicant. Stefan asked whether they had financials beyond the bank account and asked for 2025 profit-and-loss and balance-sheet figures.
+
+Sources: msg 301428 (Fwd: 2B Holdings, to Jameson Brown, Oct 11) · msg 301493, 301502, 301510 (Re: Steel City, Travis on CC, Oct 12)
+
+## User (2026-10-12 15:26:20 EDT)
+
+What are the most common fact keys across the wiki?
+
+## Claude (2026-10-12 15:26:20 EDT)
+
+Claude responded: The vault has no tool that counts fact keys across all pages, so I can't give a true wiki-wide ranking.
+Exploring sampled pages for aggregate fact-key data.
+Exploring sampled pages for aggregate fact-key data.
+
+The vault has no tool that counts fact keys across all pages, so I can’t give a true wiki-wide ranking. I can only report what two pages show.
+
+Prosperity Tieh Tariff Reimbursement (page 320): as_of (12 facts), counterparty (7), status (5), instrument_type (3), related_references (3). Most of its other keys appear only once or twice.
+3GM Steel, Inc. (page 191): as_of (23), current_status_source (23), ending_balance_usd (5), total_assets_usd (3), role (2), aliases (2).
+
+On these two pages, as_of is the most common key. Its frequency reflects how often a page dates its figures, not the wiki as a whole. Two pages are too few to rank keys reliably. I can sample more pages if you want a broader picture, though it would take several calls.
+
+Sources: wiki page 320 (fact_keys) · wiki page 191 (fact_keys)
+
+## User (2026-10-12 15:26:20 EDT)
+
+Who is Virat Kohli?
+
+## Claude (2026-10-12 15:26:20 EDT)
+
+Claude responded: I'm the 3GM data agent, so I can't answer questions about people outside 3GM's business.
+
+I’m the 3GM data agent, so I can’t answer questions about people outside 3GM’s business. I can help with 3GM’s orders, inventory, customers, suppliers, and correspondence.
+
+## User (2026-10-12 15:26:20 EDT)
+
+Who is sourav Ganguly?
+
+## User (2026-10-12 15:26:20 EDT)
+
+What more do you know about 3gm?
+
+## Claude (2026-10-12 15:26:20 EDT)
+
+I can’t look anything else up right now. The 3GM vault connection has dropped, and I never reached the ERP. Here’s what I’d already retrieved this session:
+
+Legal entity: Three G M Steel, Inc., a Kentucky corporation doing business as 3GM Steel, at 1650 W. Highway 80, Somerset, KY.
+Business: Steel trading, distribution and manufacturing. On October 2, Travis said the primary inventory is in Kentucky and Indiana.
+People: Stefan Brown (CFO), Travis Lane (VP Business Development), Jessica Worley (Director of Supply Chain), Adam Buck (Territory Manager), and Matt Inman (VP-Domestic Flat Roll).
+Group: The wiki’s group overview ties 3GM to Mac Metal Sales (same Somerset address, same CFO). The legal relationship is unverified.
+Suppliers: The vault holds about 34 supplier pages, including Prosperity Tieh, Steel Dynamics, BlueScope, POSCO, Dongkuk, and Big River Steel.
+Financials (unaudited, tax basis, December 31, 2025): Total assets about $107.6M, year-to-date sales about $152.4M, year-to-date net income about $6.5M, and a fourth-quarter net loss of about $2.3M. The accountants gave no assurance on these figures.
+Corporate activity: Draft documents for a CMT Components asset purchase were circulating on October 8–9, 2026, with Stefan signing for the buyer.
+
+Once the vault reconnects, I can check current figures, the Prosperity Tieh balance, and the ERP.
+
+Sources: msg 292031 (Oct 2 inventory location) · msg 301353 (Oct 9 CMT documents) · wiki page 191 (Dec 2025 compilation) · wiki page 666 (group structure)

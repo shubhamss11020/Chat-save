@@ -4,131 +4,109 @@ platform: claude
 username: "shubham"
 title: "Askcruz clients and payroll"
 created_at: "2026-10-08T13:24:01.251200Z"
-updated_at: "2026-10-12 10:58:46 EDT"
+updated_at: "2026-10-12 12:34:45 EDT"
 ---
 
 # Askcruz clients and payroll
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 can u give me detailed description about the askcruz clients
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 I'll pull the client registry from the Askcruz connector and check it against what's already on file.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
-
 
 All 8 Askcruz clients are steel/metals companies, and 6 of them run on their own EOXS Odoo instance. Brannon Steel (MTR AI only) and RW Conklin Steel have no instance on record. Contact counts below include relay inboxes.
 
@@ -209,14 +187,14 @@ I can go deeper on any one client, such as the Sabre escalation timeline, the 3G
 
 Sources: Askcruz connector (`list_clients`, `list_contacts`, `get_client_profile` for all 8 clients, plus `get_wiki_page` and `search_wiki` for client background and recent items).
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 can i check the payroll details  of the clients or not
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 Not in any meaningful way. I searched Askcruz for "payroll", and it holds no client payroll records such as employee pay, payroll runs or payroll ledgers.
@@ -233,11 +211,11 @@ If you need something specific, I can look into it. For example, I can pull the 
 
 Sources: Askcruz `search_wiki("payroll")` (pages: Eastern States Steel — Post-Launch Operations, Precise Payroll, Fathom Eastern States Steel Soft Launch, Sabre Alloys — Accounting & Module Buildout).
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 i want to ask specifically about brannon steel
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 Go ahead. Here is what I already have on Brannon Steel, so you can tell me what to dig into.
 
@@ -250,46 +228,40 @@ Go ahead. Here is what I already have on Brannon Steel, so you can tell me what 
 
 I can pull call transcripts, email threads, the open escalation, the scope and pricing emails (amounts will be redacted), or the huddle history. What do you want to know?
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 yeah please try to do
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 I'll take that as "dig into all of it." I'm pulling the open escalation, the MTR AI scope and recent huddles, and the latest calls and emails for Brannon.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
-
-
 
 Brannon is a live MTR AI client with real UAT history, but the record has gaps, and one thing I told you earlier needs correcting.
 
@@ -321,36 +293,32 @@ I can next read the full June huddle page, which was truncated at the cross-spec
 
 Sources: Askcruz wiki pages (Brannon Steel CRM Record; MTR AI Implementation Huddles Jun 2026 and Mar–Jun 2026 Call Log; MTR AI Algoma Join Report and Pre-Purchase Verification; MTR Inventory Module escalation conflict; Ohio Strip Steel Oct 1–7 page) and Fireflies calls 2411 and 2395.
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 No i am asking about the payment details basically
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 You mean what Brannon pays and its billing status, so I'm checking Askcruz for invoice and payment correspondence and looking for the eoxs-teams invoice records.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
 
 Billing structure and invoice timeline are on record, but the amounts are redacted on this connection and I found no record of any payment actually being received. The eoxs-teams SQL console, where invoice and payment records live, isn't available in this session, so I couldn't check payment status.
 
@@ -373,44 +341,40 @@ I can read the extracted text of the two invoice PDFs and the signed agreement. 
 
 Sources: Askcruz emails 6734 (MTR AI Scope and Pricing Summary) and 14906 (Implementation Invoice), plus the Brannon wiki pages on the MTR AI huddles and the Aug–Sep developments.
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 i don't have access to the exact payment figures yes or no?
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 Yes, you don't have access to the exact figures. This connection redacts every monetary amount, so the pricing, installments and monthly licence all show as restricted. For the exact numbers, you would need someone with the right access, or the invoices themselves (INV/2026/0043 and INV/2026/0133).
 
-## User (2026-10-12 10:58:46 EDT)
+## User (2026-10-12 12:34:45 EDT)
 
 more
 
-## Claude (2026-10-12 10:58:46 EDT)
+## Claude (2026-10-12 12:34:45 EDT)
 
 I'll read the invoice PDFs, the signed agreement and the SOW for payment terms and due dates. Amounts will still be redacted.
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
-
-
+```
 
 The invoices and SOW give payment terms but no amounts. Every figure is still redacted, so the answer to your earlier question hasn't changed.
 

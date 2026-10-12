@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Askcruz leave policy"
 created_at: "2026-10-08T18:42:31.162404Z"
-updated_at: "2026-10-12 10:40:57 EDT"
+updated_at: "2026-10-12 12:33:34 EDT"
 ---
 
 # Askcruz leave policy
 
-## User (2026-10-12 10:40:57 EDT)
+## User (2026-10-12 12:33:34 EDT)
 
 what is the leave policy of askcruz
 
-## Claude (2026-10-12 10:40:57 EDT)
+## Claude (2026-10-12 12:33:34 EDT)
 
 **Routing Decision:**
 This is a reference/policy question about AskCruz → system of record is the wiki (SOPs/reference docs).
@@ -21,23 +21,20 @@ I'll search the AskCruz wiki for leave policy documentation.
 
 Querying now...
 ```
-This block is not supported on your current device yet.
-```
 
-
-```
-This block is not supported on your current device yet.
-```
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
+
+```
+
+```
+
+```
 
 ## EOXS Leave Policy
 

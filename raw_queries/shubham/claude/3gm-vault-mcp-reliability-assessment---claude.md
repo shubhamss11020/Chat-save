@@ -4,20 +4,20 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP reliability assessment"
 created_at: "2026-10-12T14:59:34.316Z"
-updated_at: "2026-10-12 11:23:54 EDT"
+updated_at: "2026-10-12 11:31:04 EDT"
 ---
 
 # 3GM Vault MCP reliability assessment
 
-## User (2026-10-12 11:23:54 EDT)
+## User (2026-10-12 11:31:04 EDT)
 
 Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## User (2026-10-12 11:23:54 EDT)
+## User (2026-10-12 11:31:04 EDT)
 
 Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## Claude (2026-10-12 11:23:54 EDT)
+## Claude (2026-10-12 11:31:04 EDT)
 
 ```
 
@@ -67,7 +67,7 @@ Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeou
 
 Sources: `get_vault_stats`; `search_wiki` "credit limit" (limit 3); `list_emails` mailbox travis (limit 25); `search_raw` "invoice" (limit 100, human_only); `find_facts` value_contains "USD" (limit 500); skill snapshot dated 2026-09-30.
 
-## Claude (2026-10-12 11:23:54 EDT)
+## Claude (2026-10-12 11:31:04 EDT)
 
 Conclusion: This sample shows no timeouts, failed requests, or incomplete retrievals from the Vault MCP. The one reliability issue I observed is oversized responses. I can’t assess latency or error rates, because I have no access to server logs or timing metrics.
 

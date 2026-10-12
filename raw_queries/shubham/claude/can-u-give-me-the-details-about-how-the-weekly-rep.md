@@ -3,17 +3,17 @@ conversation_id: 69fd346f-5fb2-40b9-9bff-b42bbfe77c82
 platform: claude
 username: "shubham"
 title: "Weekly employee report in Askcruz"
-created_at: "2026-10-12T12:39:18.768Z"
-updated_at: "2026-10-12 13:30:29 EDT"
+created_at: "2026-10-12 08:39:18 EDT"
+updated_at: "2026-10-12 16:20:12 EDT"
 ---
 
 # Weekly employee report in Askcruz
 
-## User (2026-10-12 13:30:29 EDT)
+## User (2026-10-12 16:20:12 EDT)
 
 can u give me the details about how the weekly report of employeee  generated in askcruz
 
-## Claude (2026-10-12 13:30:29 EDT)
+## Claude (2026-10-12 16:20:12 EDT)
 
 Claude responded: The weekly report is a self-addressed scrum report that Rajat's automation generates from the AskCruz project board in the teams-askcruz Odoo instance.
 Using Askcruz: Search emails
@@ -64,46 +64,3 @@ Scores mostly track chasing. Most of the logged activity is Rajat chasing assign
 What I couldn’t confirm: the vault has no weekly report after August 18. If it still runs, the September and October reports aren’t in this record. Whether the shutdown order was ever applied is also unresolved.
 
 Sources: wiki page “AskCruz Board Scrum Reporting (Daily/Weekly Team Engagement Reports)” (id 1779). Underlying emails: 66381 (Aug 17 report), 66431 (Aug 17 second report), 66615 (Aug 18 report).
-
-## User (2026-10-12 08:44:34 EDT)
-
-No i am asking on what criteria it is generating the weekly report of each employee
-
-## Claude (2026-10-12 08:44:34 EDT)
-
-The vault doesn’t say what criteria AskCruz uses to generate a weekly report for each employee. I found no mail, wiki page or fact that mentions per-employee weekly reports, and the only report-automation claim I found is about company functions, not individuals.
-
-The closest material is the 2026-08-14 pitch, which said the platform would automate the recurring reports Kendra and Jessica build by hand each month: receivables, inventory aging, supply chain, sales and financials (msg 48006). Nothing in it covers employee-level reports, and it is a sales claim, not documentation.
-
-The person to ask is Ron J (ronn@eoxs.com), the EOXS implementation lead. He has offered weekly check-ins to review how you’re using the Company Brain (msg 294088), so you could raise it there. If you have a sample of one of these employee reports, sending it over would also let me look for matching configuration in the mail.
-
-Sources: msg 48006 · msg 294088 · msg 301340
-
-## User (2026-10-12 08:44:34 EDT)
-
-try again
-
-## Claude (2026-10-12 08:44:34 EDT)
-
-Claude responded: The 3GM Vault connector has disconnected, so I can't search your mail or the wiki right now.
-Checking which connector tools are available for the request.
-Checking which connector tools are available for the request.
-
-The 3GM Vault connector has disconnected, so I can’t search your mail or the wiki right now. I also won’t answer from the AskCruz connector that just appeared. Your instructions limit 3GM questions to the Vault and ERP connectors, and I haven’t verified that the AskCruz connector is an approved source.
-
-Two options:
-
-Retry the Vault. Reconnect it, or tell me to try again, and I’ll rerun the search for the employee weekly report criteria.
-Allow AskCruz for this question. Tell me explicitly that you want me to use the AskCruz connector for this one question. Its search tools could cover the product’s own documentation, which is more likely to describe how the per-employee report is built.
-
-## User (2026-10-12 08:44:34 EDT)
-
-i have update the connectors\
-
-## Claude (2026-10-12 08:44:34 EDT)
-
-The connectors are updated, but the 3GM Vault still isn’t available in this chat. I searched for its tools and got no matches, so I can’t run the employee-report search yet.
-
-Please check that the 3GM Vault connector is turned on for this conversation (in the connector settings for this chat), then ask again. If it’s on and still missing, the connection may need to be re-authorized.
-
-I won’t use the AskCruz connector for this unless you explicitly tell me to. Your instructions limit 3GM questions to the Vault and ERP.

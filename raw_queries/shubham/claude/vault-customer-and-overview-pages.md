@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Vault customer and overview pages"
 created_at: "2026-10-12T12:57:42.814936Z"
-updated_at: "2026-10-12 12:14:06 EDT"
+updated_at: "2026-10-12 13:30:19 EDT"
 ---
 
 # Vault customer and overview pages
 
-## User (2026-10-12 12:14:06 EDT)
+## User (2026-10-12 13:30:19 EDT)
 
 What does the vault say about our biggest customer by volume?
 
-## Claude (2026-10-12 12:14:06 EDT)
+## Claude (2026-10-12 13:30:19 EDT)
 
 ```
 
@@ -51,11 +51,11 @@ For actual tonnage by customer, the ERP is the authoritative source. I can run t
 
 Sources: page 339 fact account_volume_raw · msg 69640; page 450 fact account_volume_raw · msg 69640; page 37 fact expected_order_volume_raw · msg 68428; search_raw "biggest customer" · msg 70991
 
-## User (2026-10-12 12:14:06 EDT)
+## User (2026-10-12 13:30:19 EDT)
 
 What’s in the overview pages, and how do they differ from the entity pages?
 
-## Claude (2026-10-12 12:14:06 EDT)
+## Claude (2026-10-12 13:30:19 EDT)
 
 ```
 

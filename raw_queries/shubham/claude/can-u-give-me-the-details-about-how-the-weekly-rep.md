@@ -1,19 +1,19 @@
 ---
-conversation_id: b830c595-cfd8-45e4-844f-2518fec38eaf
+conversation_id: a5c3730b-eb08-4aa6-b91d-f53e37177d79
 platform: claude
 username: "shubham"
-title: "Weekly report generation criteria - Claude"
+title: "Weekly report generation in askcruz - Claude"
 created_at: "2026-10-12T12:39:18.768Z"
-updated_at: "2026-10-12 08:44:34 EDT"
+updated_at: "2026-10-12 08:44:56 EDT"
 ---
 
-# Weekly report generation criteria - Claude
+# Weekly report generation in askcruz - Claude
 
-## User (2026-10-12 08:44:34 EDT)
+## User (2026-10-12 08:44:56 EDT)
 
 can u give me the details about how the weekly report is generated in askcruz
 
-## Claude (2026-10-12 08:44:34 EDT)
+## Claude (2026-10-12 08:44:56 EDT)
 
 The vault has no record of how AskCruz generates a weekly report, and no wiki page documents one. I found no mail describing a weekly report produced by AskCruz.
 

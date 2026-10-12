@@ -1,19 +1,19 @@
 ---
-conversation_id: a8a89b59-4623-4303-a3ce-4d7e09b1e337
+conversation_id: 7e64ca64-2c83-49d3-8821-62700a76e66c
 platform: claude
 username: "shubham"
-title: "Travis message statistics"
+title: "Wiki pages analysis"
 created_at: "2026-10-12T14:59:16.302308Z"
-updated_at: "2026-10-12 12:13:32 EDT"
+updated_at: "2026-10-12 12:13:35 EDT"
 ---
 
-# Travis message statistics
+# Wiki pages analysis
 
-## User (2026-10-12 12:13:32 EDT)
+## User (2026-10-12 12:13:35 EDT)
 
 Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeouts, failed requests, inconsistent response times, intermittent retrieval failures, incomplete responses, and errors that occur when querying larger result sets. Use available logs and existing performance metrics where accessible. Do not claim a performance problem without measurements or supporting evidence, and do not run load tests against production without authorization.
 
-## Claude (2026-10-12 12:13:32 EDT)
+## Claude (2026-10-12 12:13:35 EDT)
 
 I'll start by loading the 3gm-navigator skill, as your preferences require for any 3GM question.
 ```
@@ -191,29 +191,67 @@ I ran about 33 read-only calls across 16 vault tools. Nothing was written, sent,
 
 Sources: vault stats (get_vault_stats); msg 65122 (get_source); msg 301481 and att 49620 (search_raw); att 49620 text (get_attachment_text).
 
-## User (2026-10-12 12:13:32 EDT)
+## User (2026-10-12 12:13:35 EDT)
 
 What’s the average number of messages per thread this year?
 
-## Claude (2026-10-12 12:13:32 EDT)
+## Claude (2026-10-12 12:13:35 EDT)
 
 ```
 
 ```
 
-I can't calculate this from the vault. Its tools count messages, not threads, and none of them returns a yearly thread total. Dividing messages by threads would need a thread count for 2026, and I don't have one.
+```
 
-The vault holds 25,239 messages and 14,247 attachments across the Travis and Stefan mailboxes. That is the whole archive, not a 2026 figure.
+```
 
-If it helps, I can give you the 2026 message count for either mailbox, or the thread count for a specific subject or correspondent, which I can pair with the message count to get an average for that slice.
+```
 
-Sources: get_vault_stats (corpus totals, both mailboxes)
+```
 
-## User (2026-10-12 12:13:32 EDT)
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+I can't give exact wiki-page counts per person with these tools. Travis Lane and Stefan Brown are the most-mentioned people by a wide margin, and that holds in the wiki too: both hit the 50-page cap on every search.
+
+- **Wiki search cap:** `search_wiki` returns at most 50 pages per query, ranked by relevance, so any name with 50 hits is truncated. Travis Lane, Stefan Brown, Matt Inman, Corey McGlothlin and Leslie Countryman all reached the cap. No tool here counts pages directly.
+- **Proxy from raw mail:** The search results also report how many raw messages contain each name. Roughly in order:
+  - Travis Lane: 8,873 messages
+  - Stefan Brown: 8,802
+  - Matt Inman: 3,229
+  - Leslie Countryman: 1,400
+  - Corey McGlothlin: 1,103
+  - Matt Wilson: 10 (the name search also matched Matt Inman on "Matt", so the true count is lower)
+
+  These count messages, not wiki pages, so treat them as a proxy.
+- **Person pages:** Only 10 wiki pages are classed as people. Stefan Brown and Travis Lane each have their own page, and Corey McGlothlin, Matt Inman, Leslie Countryman and Matt Wilson also do. Most people appear only inside company and deal pages, which is why these ranks don't reflect page counts.
+
+If you need exact page counts, I can search each name in the wiki's fact index, which has a different limit. Tell me if you want that.
+
+Sources: wiki `list_wiki_pages` (entity_class=person, 10 pages: 47, 654, 398, 306, 629, 504, 92, 137, 138, 468); wiki `search_wiki` for "Corey McGlothlin", "Stefan Brown", "Travis Lane", "Matt Inman", "Leslie Countryman" and "Matt Wilson" (each capped at 50 hits; raw-message counts as reported in each result).
+
+## User (2026-10-12 12:13:35 EDT)
 
 Who has Travis emailed but never received a reply from?
 
-## Claude (2026-10-12 12:13:32 EDT)
+## Claude (2026-10-12 12:13:35 EDT)
 
 ```
 

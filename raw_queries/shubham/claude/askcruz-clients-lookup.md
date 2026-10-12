@@ -1,39 +1,45 @@
 ---
-conversation_id: askcruz-clients-lookup
+conversation_id: 026df984-6e04-4d76-b808-d77dca065bb1
 platform: claude
 username: "shubham"
-title: "AskCruz Clients Lookup"
-created_at: 2026-10-06T00:00:00Z
-updated_at: 2026-10-06T00:00:00Z
+title: "AskCruz client details"
+created_at: "2026-10-06T16:41:25.032502Z"
+updated_at: "2026-10-12 11:01:22 EDT"
 ---
 
-# AskCruz Clients Lookup
+# AskCruz client details
 
-## User (2026-10-06T00:00:00Z)
+## User (2026-10-12 11:01:22 EDT)
 
 can u give me the details about the clients of askcruz
 
-## Claude (2026-10-06T00:00:00Z)
+## Claude (2026-10-12 11:01:22 EDT)
 
-I can pull AskCruz client data from the Askcruz team connector. Before I dig in, here are the angles I can surface:
+I need to clarify what you're looking for before I pull the details.
 
-**Quick lookup** — list of all current AskCruz clients (names, engagement status, basic pipeline state)
+A few questions:
 
-**Client profiles** — deeper view on 1+ specific clients: revenue/ARR, deal stage, implementation status, recent activity
+1. Are you asking about AskCruz's current customer base (who are paying customers right now), or potential targets/prospects?
 
-**Deal/pipeline view** — where each client sits in the sales cycle, ARR contribution, renewal dates, churn risk
+2. What level of detail do you need? For example:
+   - Basic roster (names, contact info, ARR/MRR)?
+   - Full customer profiles (use case, implementation stage, health, expansion opportunities)?
+   - Something else specific (churn risk, NPS, feature usage)?
 
-**Contact inventory** — key stakeholders per client, decision makers, recent interactions
+3. Is this for a strategic/sales decision, or operational/support work?
 
-**Implementation tasks** — what's in flight at each account, blockers, timelines
+I have EOXS client info in my memory, but I don't have AskCruz-specific client data readily available. Once I understand what you need, I can either:
+- Pull it from the available data connectors if it exists there
+- Help you analyze it if you have it
+- Flag what's missing
 
-Which of these matters for what you're working on right now? Or do you want me to surface all clients first, then you point me to the deep dives?
+What's the priority here?
 
-## User (2026-10-06T00:00:00Z)
+## User (2026-10-12 11:01:22 EDT)
 
 Quick lookup
 
-## Claude (2026-10-06T00:00:00Z)
+## Claude (2026-10-12 11:01:22 EDT)
 
 **AskCruz Clients (8 total)**
 
@@ -49,3 +55,64 @@ Quick lookup
 Five are live on Odoo instances. Two (Brannon, RW Conklin) don't have Odoo bases set up yet.
 
 Need details on any specific client, or want to see implementation status, revenue, or recent activity?
+
+## User (2026-10-12 11:01:22 EDT)
+
+try to fetch from read only
+
+## Claude (2026-10-12 11:01:22 EDT)
+
+I'll start by reading the necessary skill files, then query the read-only database for AskCruz customer data.
+```
+This block is not supported on your current device yet.
+```
+
+
+```
+This block is not supported on your current device yet.
+```
+
+Let me read the available data access skill:
+```
+This block is not supported on your current device yet.
+```
+
+Now I'll search for the read-only and Interns-mcp tools to query AskCruz customer data:
+```
+This block is not supported on your current device yet.
+```
+
+Let me load the right tool to list clients:
+```
+This block is not supported on your current device yet.
+```
+
+Now I'll fetch the AskCruz clients:
+```
+This block is not supported on your current device yet.
+```
+
+AskCruz currently has 8 customers:
+
+| Customer | Domain | Odoo Instance |
+|---|---|---|
+| 3GM Steel | 3gmsteel.com | ✅ Active |
+| Brannon Steel | brannonsteel.com | — |
+| Discount Pipe & Steel | discountpipesteel.com | ✅ Active |
+| Eastern States Steel | easternstatessteel.com | ✅ Active |
+| Ohio Strip Steel (formerly Greer Steel) | ohiostripsteel.com, greersteel.com | ✅ Active |
+| PPC Metals | ppcmetals.com | ✅ Active |
+| RW Conklin Steel | conklinsteel.com | — |
+| Sabre Alloys | sabrealloys.com | ✅ Active |
+
+6 out of 8 have active Odoo instances. Need more details on any of these — specific contacts, current implementation stage, or detailed profiles?
+
+Now saving this conversation:
+```
+This block is not supported on your current device yet.
+```
+
+
+```
+This block is not supported on your current device yet.
+```

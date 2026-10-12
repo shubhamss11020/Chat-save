@@ -3,8 +3,8 @@ conversation_id: 1e7c88e7-ab73-478d-8cc9-567fc7b21513
 platform: claude
 username: "shubham"
 title: "Wiki and vault information"
-created_at: "2026-10-12T14:59:16.302308Z"
-updated_at: "2026-10-12 13:29:59 EDT"
+created_at: "2026-10-12 10:59:16 EDT"
+updated_at: "2026-10-12 16:19:39 EDT"
 ---
 
 # Wiki and vault information
@@ -16,141 +16,14 @@ Assess the observable reliability of the 3GM Vault MCP. Look for repeated timeou
 ## Claude (2026-10-12 13:29:59 EDT)
 
 I'll start by loading the 3gm-navigator skill, as your preferences require for any 3GM question.
-```
-
-```
-
-```
-
-```
 
 The tools are loaded. I'll start with a baseline call and then run a batch of read-only edge cases.
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 Baseline results: the admin token is not signed in, and empty `search_wiki` returned 10 hits without an error. Next I'll test missing identifiers, bogus IDs, unknown parameters, and special characters.
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 Several results are useful so far. `find_facts` with no filters returned an arbitrary 3-row sample without complaining, and an unknown mailbox returned a clear error. Next I'll test inverted date ranges, the no-identity `mine` mailbox, empty and oversized inputs, and a real citation round-trip.
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 Most of the edge cases behave cleanly. The notable ones so far are an inverted date range that returns an empty "complete" result without an error, and an enormous query that is accepted without any length limit. I'll run one more batch on the remaining tools.
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 ## 3GM Vault MCP edge-case evaluation
 
@@ -197,38 +70,6 @@ What’s the average number of messages per thread this year?
 
 ## Claude (2026-10-12 13:29:59 EDT)
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
 I can't give exact wiki-page counts per person with these tools. Travis Lane and Stefan Brown are the most-mentioned people by a wide margin, and that holds in the wiki too: both hit the 50-page cap on every search.
 
 - **Wiki search cap:** `search_wiki` returns at most 50 pages per query, ranked by relevance, so any name with 50 hits is truncated. Travis Lane, Stefan Brown, Matt Inman, Corey McGlothlin and Leslie Countryman all reached the cap. No tool here counts pages directly.
@@ -253,14 +94,6 @@ What’s the difference between an analysis page and an entity page, per the vau
 
 ## Claude (2026-10-12 13:29:59 EDT)
 
-```
-
-```
-
-```
-
-```
-
 In the vault, an **entity page** describes a standing thing: a company, person or place. An **analysis page** describes a bounded deal or matter, such as a single order, claim, negotiation or acquisition.
 
 Examples from the wiki:
@@ -278,50 +111,6 @@ Sources: wiki pages 191, 256 (search_wiki "page types entity analysis…"), 20, 
 Which PDFs attached to emails were sent by a single sender more than five times?
 
 ## Claude (2026-10-12 13:29:59 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 The clear case is **"Tarter Tube Coil Specs.pdf"**, sent by **Latisha Bailey** (tarterusa.com). It is attached to 837 emails in the archive, all the same file at 223,637 bytes, and it is attached to a new "Tarter RFQ" message almost every time.
 
@@ -342,22 +131,6 @@ Which entity pages have no facts at all?
 
 ## Claude (2026-10-12 12:13:32 EDT)
 
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
 Two entity pages have no facts at all, out of 410 entity pages in the wiki:
 
 - **AkzoNobel** (page 622, supplier, sensitive): 0 facts, but 3 citations and a 2,777-character body. The body has sourced text that the fact index never picked up.
@@ -372,18 +145,6 @@ Sources: list_wiki_pages (page_type=entity, 410 pages), pages 622 and 250
 Which analysis pages were updated most recently?
 
 ## Claude (2026-10-12 12:13:32 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
 
 I can't rank analysis pages by when they were last updated. The vault doesn't expose that field: the page record shows `created_date` and `updated_date` as null for page 536, and the list tool returns no dates either.
 
@@ -402,10 +163,6 @@ Are there any pages tagged for review?
 
 ## Claude (2026-10-12 12:13:32 EDT)
 
-```
-
-```
-
 No pages carry a "review" tag. The tag filter returned zero matches across all page types.
 
 The tags actually in use are `sensitive`, `personal-data`, `related-party-financial`, `active-ma`, `active-litigation`, `historical-litigation`, `privileged-source`, `security-incident`, and `unverified`. If you meant one of those, I can list the matching pages. The `unverified` tag is the closest to "needs checking," and I've seen it on many pages.
@@ -418,10 +175,6 @@ How many pages have a “possible duplicate” flag?
 
 ## Claude (2026-10-12 12:13:32 EDT)
 
-```
-
-```
-
 I can't give a count. The vault doesn't index "possible duplicate" flags in a way I can total. Flags sit inside each page's body and only show up when that page is opened. The list tool doesn't report them, and the search tool returned 10 pages that mention the phrase in their text, not 10 flagged pages.
 
 The only way to get a real number would be to open all 675 wiki pages and count their flags, which isn't practical here.
@@ -429,3 +182,61 @@ The only way to get a real number would be to open all 675 wiki pages and count 
 For an example of what the flags look like, page 536 (the "unnamed manufacturing acquisition") has around twenty "possible duplicate" flags on its own, most of them comparing it to unrelated pages with similar names.
 
 Sources: search_wiki ("possible duplicate", 10 hits shown); get_wiki_page page 536 (flags)
+
+## User (2026-10-12 16:19:39 EDT)
+
+What are the three most recent analysis pages in the wiki?
+
+## Claude (2026-10-12 16:19:39 EDT)
+
+The three most recent analysis pages, by the dates their content records, are:
+
+1. **Seametal 400MT Acrylic-Coated Offer (October 2026)**: Travis Lane, Stefan Brown, Tadd Sapone and Matt Inman worked a 400 MT offer from Seametal on 2026-10-06. The deal was still under negotiation, and the offer price was valid through 2026-10-07.
+2. **Fraudulent "Blanchard" Consulting Invoice (BEC Attempt, October 2026)**: a business-email-compromise attempt impersonating Corey McGlothlin was received by Stefan Brown on 2026-10-05. The page flags that the archive doesn't show whether any payment was made.
+3. **Mac Metal Sales — unnamed manufacturing acquisition, first seen 2026-09-28**: an asset purchase of a roughly 70-employee manufacturer, expected to close in 2–4 weeks. The target is never named.
+
+The wiki's list view doesn't expose creation or update timestamps, so I ranked these by the event dates in each page's content. If you want ranking by when a page was added or last edited, that metadata isn't available through these tools. Also, the "October 2026" in some titles, such as ASTA October 2026 PT Order, refers to the order's delivery timing; the activity itself happened in July.
+
+Sources: wiki pages 558 (outlook_message 301133, 301144), 546 (outlook_message 301027, outlook_attachment 49411), 536 (outlook_message 277303, 277332); list_wiki_pages(page_type=analysis), 163 pages total.
+
+## User (2026-10-12 16:19:39 EDT)
+
+What’s the newest email in the vault, and who sent it?
+
+## Claude (2026-10-12 16:19:39 EDT)
+
+The newest email in the vault is "CMT Insurance," sent by Stefan Brown (stefan@3gmsteel.com) to Calvin Nissley (calvin@cmtcomponents.com) on 2026-10-12 at 08:53 ET. It has no attachments. In the excerpt, Stefan asks Calvin for his latest insurance policy on the real estate, and says the attorneys are still working through the redline reply on the PA and the noncompetes.
+
+It appears only in Stefan's Sent Items, so it's an outgoing message from his mailbox.
+
+Sources: msg 301455 (list_emails, newest first)
+
+## Claude (2026-10-12 16:19:39 EDT)
+
+In the vault, an **entity page** describes a standing thing: a company, person or place. An **analysis page** describes a bounded deal or matter, such as a single order, claim, negotiation or acquisition.
+
+Examples from the wiki:
+- **Entity:** "POSCO International America" (page 256) and "3GM Steel, Inc." (page 191, classed as a group-entity). Each records a counterparty or company across all its dealings.
+- **Analysis:** "ASTA October 2026 PT Order" (page 20), which covers one mill order, and "Mac Metal Sales — unnamed manufacturing acquisition" (page 536), which covers one acquisition.
+
+Entity pages carry an `entity_class` such as customer, supplier, prospect, or group-entity. Analysis pages almost always have none, which is consistent with their being about a matter rather than a party. Both page types hold cited facts.
+
+The vault doesn't have a page that defines the types. The overview pages I checked (3GM Group Structure, Active Matters, Obligations Register) don't cover this, and the only definition I found is in the 3gm-navigator skill: entity (company/person/place), analysis (a bounded deal or matter), source (a recurring report template, one page per template), and concept (a process or standing arrangement). The examples above come from the page listings, not from a rulebook. If you want the full rules, that would be the taxonomy document, which I couldn't locate in the vault.
+
+Sources: wiki pages 191, 256 (search_wiki "page types entity analysis…"), 20, 536 (list_wiki_pages); overview pages 666, 667, 670 (list_wiki_pages page_type=overview); 3gm-navigator skill, "Page anatomy" section.
+
+## User (2026-10-12 16:19:39 EDT)
+
+Which emails from the last week have “urgent” in the subject?
+
+## Claude (2026-10-12 16:19:39 EDT)
+
+I can't answer this right now. The 3GM Vault connector is disconnected, so I can't search email subjects, and I'm not going to guess at results.
+
+Once the connector is back, I'll search for "urgent" in subject lines from 2026-10-05 through today, 2026-10-12, both mailboxes unless you want one. I'll list each match with sender, recipients, time in ET, and message IDs.
+
+## Claude (2026-10-12 16:19:39 EDT)
+
+I can't answer this right now. The 3GM Vault connector has disconnected, and its email search is unavailable, so I can't check the last week's subjects for "urgent."
+
+Once the connector is back, I'll search emails from 2026-10-05 onward for "urgent" in the subject and list each match with sender, date and time (Eastern), and source ID. If you'd rather not wait, reconnecting the 3GM Vault in your connector settings should restore it.

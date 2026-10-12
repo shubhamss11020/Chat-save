@@ -3,61 +3,17 @@ conversation_id: b830c595-cfd8-45e4-844f-2518fec38eaf
 platform: claude
 username: "shubham"
 title: "Weekly report generation criteria"
-created_at: "2026-10-12T12:44:32.342673Z"
-updated_at: "2026-10-12 13:30:40 EDT"
+created_at: "2026-10-12 08:44:32 EDT"
+updated_at: "2026-10-12 16:20:21 EDT"
 ---
 
 # Weekly report generation criteria
 
-## User (2026-10-12 13:30:40 EDT)
+## User (2026-10-12 16:20:21 EDT)
 
 can u give me the details about how the weekly report is generated in askcruz
 
-## Claude (2026-10-12 13:30:40 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:21 EDT)
 
 The vault has no record of how AskCruz generates a weekly report, and no wiki page documents one. I found no mail describing a weekly report produced by AskCruz.
 
@@ -74,31 +30,11 @@ If you meant a weekly report 3GM already produces, the closest match is the Deta
 
 Sources: msg 294088 · msg 301340 · msg 286810 · msg 47412 · msg 47406 · msg 46486 · att 8962 · msg 48006 · wiki page 60 (EOXS AI Operating System Engagement)
 
-## User (2026-10-12 13:30:40 EDT)
+## User (2026-10-12 16:20:21 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 13:30:40 EDT)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:21 EDT)
 
 The vault doesn't say what criteria AskCruz uses to generate a weekly report for each employee. I found no mail, wiki page or fact that mentions per-employee weekly reports, and the only report-automation claim I found is about company functions, not individuals.
 
@@ -108,11 +44,11 @@ The person to ask is Ron J (ronn@eoxs.com), the EOXS implementation lead. He has
 
 Sources: msg 48006 · msg 294088 · msg 301340
 
-## User (2026-10-12 13:30:40 EDT)
+## User (2026-10-12 16:20:21 EDT)
 
 try again
 
-## Claude (2026-10-12 13:30:40 EDT)
+## Claude (2026-10-12 16:20:21 EDT)
 
 The 3GM Vault connector has disconnected, so I can't search your mail or the wiki right now. I also won't answer from the AskCruz connector that just appeared. Your instructions limit 3GM questions to the Vault and ERP connectors, and I haven't verified that the AskCruz connector is an approved source.
 
@@ -121,19 +57,11 @@ Two options:
 1. **Retry the Vault.** Reconnect it, or tell me to try again, and I'll rerun the search for the employee weekly report criteria.
 2. **Allow AskCruz for this question.** Tell me explicitly that you want me to use the AskCruz connector for this one question. Its search tools could cover the product's own documentation, which is more likely to describe how the per-employee report is built.
 
-## User (2026-10-12 13:30:40 EDT)
+## User (2026-10-12 16:20:21 EDT)
 
 i have update the connectors\
 
-## Claude (2026-10-12 13:30:40 EDT)
-
-```
-
-```
-
-```
-
-```
+## Claude (2026-10-12 16:20:21 EDT)
 
 The connectors are updated, but the 3GM Vault still isn't available in this chat. I searched for its tools and got no matches, so I can't run the employee-report search yet.
 

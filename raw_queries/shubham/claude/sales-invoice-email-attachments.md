@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Sales invoice email attachments"
 created_at: "2026-10-12T15:34:59.694107Z"
-updated_at: "2026-10-12 11:42:35 EDT"
+updated_at: "2026-10-12 12:12:57 EDT"
 ---
 
 # Sales invoice email attachments
 
-## User (2026-10-12 11:42:35 EDT)
+## User (2026-10-12 12:12:57 EDT)
 
 Find emails with attachments related to sales invoices, including emails where the attachment filename differs from the email subject
 
-## Claude (2026-10-12 11:42:35 EDT)
+## Claude (2026-10-12 12:12:57 EDT)
 
 ```
 

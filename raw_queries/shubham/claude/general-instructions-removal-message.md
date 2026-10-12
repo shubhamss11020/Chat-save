@@ -4,27 +4,26 @@ platform: claude
 username: "shubham"
 title: "General instructions removal message"
 created_at: "2026-10-09T14:18:43.453151Z"
-updated_at: "2026-10-12 10:35:40 EDT"
+updated_at: "2026-10-12 12:33:13 EDT"
 ---
 
 # General instructions removal message
 
-## User (2026-10-12 10:35:40 EDT)
+## User (2026-10-12 12:33:13 EDT)
 
 Everyone, please remove the general instructions from your Claude account. We have organisation instructions set up on Teams plans, which might conflict with your current personal instructions.
 To find this, go to Settings → Account → General Instructions and remove the current instructions you have.
 Rephrase this message for the team.
 
-## Claude (2026-10-12 10:35:40 EDT)
+## Claude (2026-10-12 12:33:13 EDT)
 
 Routing: this is a message rewrite and doesn't touch EOXS data, so no skill applies.
 ```
-This block is not supported on your current device yet.
-```
-
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 Hi team,
@@ -37,13 +36,13 @@ To do this:
 
 Thanks!
 
-## User (2026-10-12 10:35:40 EDT)
+## User (2026-10-12 12:33:13 EDT)
 
 Everyone, please remove the general instructions from your Claude account. We have organisation instructions set up on Teams plans, which might conflict with your current personal instructions.
 To find this, go to Settings → Account → General Instructions and remove the current instructions you have.
 Rephrase this message for the team.
 
-## Claude (2026-10-12 10:35:40 EDT)
+## Claude (2026-10-12 12:33:13 EDT)
 
 Here's another version:
 

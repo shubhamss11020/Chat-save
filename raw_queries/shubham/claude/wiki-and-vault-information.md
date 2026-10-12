@@ -1,19 +1,19 @@
 ---
-conversation_id: 9e029737-6568-4d0d-bb41-ef3996747712
+conversation_id: 8ac252a4-ddd2-4cbf-8efc-a301b0059ee7
 platform: claude
 username: "shubham"
-title: "Supplier and email data queries"
+title: "3GM vault QA questions"
 created_at: "2026-10-12T14:28:04.972164Z"
-updated_at: "2026-10-12 12:13:47 EDT"
+updated_at: "2026-10-12 12:13:50 EDT"
 ---
 
-# Supplier and email data queries
+# 3GM vault QA questions
 
-## User (2026-10-12 12:13:47 EDT)
+## User (2026-10-12 12:13:50 EDT)
 
 give me the details of every leave taken the interns of askcruz since the august with precise date and description with the citations
 
-## Claude (2026-10-12 12:13:47 EDT)
+## Claude (2026-10-12 12:13:50 EDT)
 
 ```
 
@@ -81,11 +81,11 @@ I couldn't load the 3GM Vault or ERP connectors in this session, so I couldn't c
 
 To run this against the live vault, start a session where the 3GM Vault and ERP connectors are attached. I can then check each answer against its expected behaviour and fill in the placeholders from real data.
 
-## User (2026-10-12 12:13:47 EDT)
+## User (2026-10-12 12:13:50 EDT)
 
 No i am asking on what criteria it is generating the weekly report of each employee
 
-## Claude (2026-10-12 12:13:47 EDT)
+## Claude (2026-10-12 12:13:50 EDT)
 
 ```
 
@@ -147,11 +147,11 @@ I can check the ERP for the current Texas Star balance, the Englert credit memo,
 
 Sources: wiki pages 535, 8, 101, 520; outlook messages 277095, 280528, 282385, 46484, 46696, 46700, 48173, 49073; outlook attachments 11298, 46130
 
-## User (2026-10-12 12:13:47 EDT)
+## User (2026-10-12 12:13:50 EDT)
 
 What’s the current status of the largest open purchase order, according to the vault and the ERP?
 
-## Claude (2026-10-12 12:13:47 EDT)
+## Claude (2026-10-12 12:13:50 EDT)
 
 Here are 50 more questions. The vault connection is offline right now, so I can't check them against live data yet.
 

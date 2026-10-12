@@ -4,91 +4,77 @@ platform: claude
 username: "shubham"
 title: "Urgent important tasks from Odoo"
 created_at: "2026-10-08T13:47:34.471089Z"
-updated_at: "2026-10-12 10:41:51 EDT"
+updated_at: "2026-10-12 12:34:32 EDT"
 ---
 
 # Urgent important tasks from Odoo
 
-## User (2026-10-12 10:41:51 EDT)
+## User (2026-10-12 12:34:32 EDT)
 
 give me pending task that are urgent and important also from odoo board and how did you concluded how improtant and urgent they are,
 
-## Claude (2026-10-12 10:41:51 EDT)
+## Claude (2026-10-12 12:34:32 EDT)
 
 I'll pull the pending tasks from the Odoo board, then rank them by urgency and importance.
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
+```
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
-
-
-
-
-
-
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
-```
 
-
-
-```
-This block is not supported on your current device yet.
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
 ```
-This block is not supported on your current device yet.
+
 ```
 
+```
 
+```
+
+```
+
+```
 
 Ten tasks are both urgent and important right now. Eight are on the teams-askcruz board and two are on eoxs-teams. This is a ranking across everything open on both boards, not filtered to one person, at "10ft" rigor: I checked the board fields but did not read task descriptions or comments.
 

@@ -4,20 +4,20 @@ platform: claude
 username: "shubham"
 title: "3GM Vault MCP security review"
 created_at: "2026-10-12T15:10:22.411Z"
-updated_at: "2026-10-12 11:23:57 EDT"
+updated_at: "2026-10-12 11:31:07 EDT"
 ---
 
 # 3GM Vault MCP security review
 
-## User (2026-10-12 11:23:57 EDT)
+## User (2026-10-12 11:31:07 EDT)
 
 Review the 3GM Vault MCP for potential security and access-control weaknesses using authorized, non-destructive checks. Examine whether exposed operations appear to enforce expected permissions, whether error messages reveal unnecessary internal details, and whether records could potentially be accessed outside their intended authorization boundaries. Do not retrieve or expose sensitive data, change permissions, or attempt destructive actions. Document potential issues and recommend safe verification steps.
 
-## User (2026-10-12 11:23:57 EDT)
+## User (2026-10-12 11:31:07 EDT)
 
 Review the 3GM Vault MCP for potential security and access-control weaknesses using authorized, non-destructive checks. Examine whether exposed operations appear to enforce expected permissions, whether error messages reveal unnecessary internal details, and whether records could potentially be accessed outside their intended authorization boundaries. Do not retrieve or expose sensitive data, change permissions, or attempt destructive actions. Document potential issues and recommend safe verification steps.
 
-## Claude (2026-10-12 11:23:57 EDT)
+## Claude (2026-10-12 11:31:07 EDT)
 
 I’ll start with the 3gm-navigator skill, as your preferences require for 3GM work, then load the Vault tool schemas.
 
@@ -54,7 +54,7 @@ I did not change any permissions, retrieve any messages or attachments, or run a
 
 Sources: whoami (admin/test token, signed_in false) · get_vault_stats (675 pages, 32,584 facts, 25,249 messages, 14,250 attachments) · get_source (error on unknown source_type) · get_email message_id 999999999 (no such message) · 3gm-navigator skill (stale snapshot figures)
 
-## Claude (2026-10-12 11:23:57 EDT)
+## Claude (2026-10-12 11:31:07 EDT)
 
 I'll start with the 3gm-navigator skill, as your preferences require for 3GM work, then load the Vault tool schemas.
 ```

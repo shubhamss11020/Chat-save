@@ -2,18 +2,18 @@
 conversation_id: 977842d3-e5d9-4b68-ad7a-6f8bc0fbd427
 platform: claude
 username: "unknown"
-title: "MCP testing and tier implementation - Claude"
+title: "3gm and client names - Claude"
 created_at: "2026-10-13 10:34:50 EDT"
-updated_at: "2026-10-13 10:35:15 EDT"
+updated_at: "2026-10-13 10:35:18 EDT"
 ---
 
-# MCP testing and tier implementation - Claude
+# 3gm and client names - Claude
 
-## User (2026-10-13 10:35:15 EDT)
+## User (2026-10-13 10:35:18 EDT)
 
 What is 3gm?
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 3GM Steel, Inc. (legal name on documents: “Three G M Steel, Inc.”) is a Somerset, Kentucky steel trading and distribution company. It buys coil from mills and importers, holds inventory at ports and warehouses, and sells to customers such as carport and metal-building makers. This comes from the vault wiki only; I didn’t check the ERP because the question doesn’t need a live figure.
 
@@ -28,11 +28,11 @@ The vault flags two of 3GM’s own documents as disagreeing on Jan–Aug 2026 gr
 
 Sources: page 191 “3GM Steel, Inc.” (facts sales_ytd_usd, total_assets_usd; flags on gross profit, CMT) · att 18170 · msg 46556 · msg 45746 · msg 66262 · msg 301180 · links: page 307 Mac Metal Sales, Inc., page 41 CMT Components acquisition, page 54 Dongkuk Q1 2027 Consignment Order
 
-## User (2026-10-13 10:35:15 EDT)
+## User (2026-10-13 10:35:18 EDT)
 
 What are the name of the clients
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 The vault wiki has 253 customer pages, listed below. Several companies appear more than once under name variants (for example Longhorn, Longhorn Steel Structures and Longhorn Steel Structures, Inc.), so the true count of distinct customers is lower. Customer status here is the wiki’s classification, not the ERP’s customer master, which I did not query. I couldn’t identify a 3GM ERP connection among my tools. Check the ERP for who is an active buyer.
 
@@ -42,11 +42,11 @@ The largest by wiki coverage are EMB Metal Buildings, Premier Metals, Red Dot Pr
 
 Sources: vault wiki entity list (entity_class = customer, 253 of 253 returned, not truncated); page ids as listed, e.g. 164 Carolina Carports Inc., 180 EMB Metal Buildings, 257 Premier Metals, 516 Red Dot Products
 
-## User (2026-10-13 10:35:15 EDT)
+## User (2026-10-13 10:35:18 EDT)
 
 Who is Travis?
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 Travis Lane is 3GM Steel’s Chief Commercial Officer. Corey McGlothlin, the CEO, announced his promotion on 2026-03-04, after Sales Manager Cole Wolford resigned to join Graber Post Frame.
 
@@ -59,11 +59,11 @@ The wiki page for him rests on one announcement message, and it doesn’t state 
 
 Sources: page 468 “Travis Lane” (facts title, employer, announced_by) · msg 70085 · msg 70057 · msg 70042 · att 10862 · page 409 Steel Tech Building Systems · find_people “Travis” (Travis Lane: 2,944 sent / 10,685 received)
 
-## User (2026-10-13 10:35:15 EDT)
+## User (2026-10-13 10:35:18 EDT)
 
 Who is Stefan?
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 Stefan Brown is 3GM Steel’s CFO. He signs as “CFO” of 3GM Steel, Inc., Somerset, KY.
 
@@ -76,7 +76,7 @@ The wiki page for him is tagged personal-data and related-party-financial.
 
 Sources: page 137 “Stefan Brown” (CFO signature, msg 48660) · find_people “Stefan” (2,963 sent / 9,429 received) · page 191 “3GM Steel, Inc.” (msg 46146, msg 66262, msg 69236, msg 46505) · page 41 CMT Components acquisition
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 I can’t confirm that tiers are implemented or working, because I don’t know what “tiers” refers to in your project. Nothing I can see defines it, and I haven’t tested anything beyond the ERP.
 
@@ -99,11 +99,11 @@ Access tiers or model tiers in your own code: point me to the repo or folder and
 
 Sources: ERP, EOXS Team Live — ir_model_fields and information_schema.columns searches for “tier” (0 rows each); 3gm-navigator guide for the layer design.
 
-## User (2026-10-13 10:35:15 EDT)
+## User (2026-10-13 10:35:18 EDT)
 
 its like accessing the data from three tier, means the public data can't access by the other tier, because total data is divided into three part
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 Partly. A tier mechanism exists in the thread-wiki database, but only one tier is really in use, and I couldn’t test whether access is enforced.
 
@@ -132,11 +132,11 @@ If your three parts are something specific, such as public, internal and restric
 
 Sources: Thread-wiki database — get_business_schema, threads, user_access_tiers, wiki.pages, wiki_staging.pages and wiki.page_threads count queries; Askcruz get_index and list_clients.
 
-## User (2026-10-13 10:35:15 EDT)
+## User (2026-10-13 10:35:18 EDT)
 
 does our architecture have three tier access, something like rbac for our database, checkout all the connectors and get me the information
 
-## Claude (2026-10-13 10:35:15 EDT)
+## Claude (2026-10-13 10:35:18 EDT)
 
 No. There is no single three-tier RBAC across your databases; there are separate access layers, and only some of them enforce anything. The one tier setting I found is a column the application is meant to check, not a database rule, and I couldn’t test that check.
 

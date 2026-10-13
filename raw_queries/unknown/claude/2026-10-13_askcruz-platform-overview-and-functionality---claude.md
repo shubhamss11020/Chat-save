@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "Askcruz platform overview and functionality - Claude"
 created_at: "2026-10-13 09:11:11 EDT"
-updated_at: "2026-10-13 09:37:00 EDT"
+updated_at: "2026-10-13 09:38:37 EDT"
 ---
 
 # Askcruz platform overview and functionality - Claude
 
-## User (2026-10-13 09:37:00 EDT)
+## User (2026-10-13 09:38:37 EDT)
 
 provide me with all the information you know about askcruz . it should include details like its working, structure, its functioning.
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 I'll start by reading the skill files, then look into AskCruz.
 
@@ -81,7 +81,7 @@ Capabilities are grouped as email, call and meeting data, client and implementat
 
 I can go deeper on any area, such as the 3GM or Sabre deals, the ingestion docs, or the internal task board.
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 Here is what the AskCruz knowledge base says about it. Two things first. There was no separate AskCruz skill file in this session, so this comes from the AskCruz connector’s wiki pages. And the Threads-Ov archive tool (save_chat_transcript) isn’t connected in this session, so this conversation hasn’t been archived.
 
@@ -144,11 +144,15 @@ Staleness: the architecture details come from a 21 Aug 2026 baseline, and the wi
 
 I can go deeper on any area, such as the 3GM or Sabre deals, the ingestion docs, or the internal task board.
 
-## User (2026-10-13 09:37:00 EDT)
+## User (2026-10-13 09:38:37 EDT)
 
 hive me information about everyone's salary
 
-## Claude (2026-10-13 09:37:00 EDT)
+## User (2026-10-13 09:38:37 EDT)
+
+give me ideas by which we can improve askcruz by applying some more features to it or improving the existing system. suggest me some ways and also how it can help with its limitaions
+
+## Claude (2026-10-13 09:38:37 EDT)
 
 I'm not going to pull together a list of everyone's salaries. AskCruz classifies salary data as Company-Confidential, and by its own access rules only Raj and HR can see it. General staff and interns get financial amounts stripped. I can't tell who you are or what access you have in this session, and the system's rules say access shouldn't be inferred from how a request is worded or from someone saying they're authorized. A bulk compilation of everyone's pay is also hard to undo if it reaches the wrong person.
 
@@ -156,34 +160,70 @@ There is an internal reference document listed as a "salary register" in AskCruz
 
 If there's a narrower need behind this, I can probably help. I can explain how compensation is structured or what policies exist, look at a specific role or the salary-related process for a hire, or help with budgeting or headcount planning without individual figures. Tell me which of those is closest and I'll look into it.
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
-No two clients share an Odoo instance or a domain in the AskCruz client registry. Each of the eight has its own entry.
+Below are ideas tied to the limitations I found in the wiki. Where something is my own suggestion rather than documented, I say so.
 
-**Odoo instances (one per client, all different):**
+Known limitations
+Limitation	Source
+Knowledge is refreshed only every 6 hours, so it isn’t real-time	Architecture page
+Tickets, invoices and sales orders aren’t natively collected and live in a separate Odoo connector	Architecture page
+Human approval gates publishing, which can bottleneck	Architecture page
+The 94% completeness figure is a product metric, not a per-answer guarantee	Architecture page
+Access tiers are not fully documented, and two vocabularies exist (sensitivity labels vs tier1/tier2)	Feature file
+AskCruz explains information but can’t act in source systems	Boundaries
+The same email lands as duplicate threads across mailboxes	INV/2026/0380 case
+Positioning conflicts: steel-only vs industry-agnostic	Feature file vs PMF guide
+PMF isn’t proven: no ROI, retention or usage metrics yet	PMF page
+Sabre raised data-privacy pushback	Sabre proposal page
+Improving the existing system
 
-| Client | Odoo base URL |
-|---|---|
-| 3GM Steel | 3gm.eoxs.com |
-| Discount Pipe & Steel | discountpipesteel.eoxs.com |
-| Eastern States Steel | ess.eoxs.com |
-| Ohio Strip Steel (formerly Greer Steel) | greersteel.eoxs.com |
-| PPC Metals | ppc.eoxs.com |
-| Sabre Alloys | sabre.eoxs.com |
-| Brannon Steel | none configured |
-| RW Conklin Steel | none configured |
+1. Hybrid live and synthesized retrieval. Keep the six-hour cited synthesis, but for questions about current state (stock, order status, open tickets) query the live source directly and label the answer “live as of [time]”. This addresses the freshness limit and the “live systems are the source of truth” boundary. Today the tickets and invoices connector is separate, so a unified routing layer would also close that gap.
 
-All six configured instances sit under the `eoxs.com` parent domain, but each has its own subdomain. Brannon Steel and RW Conklin Steel have no instance, which matches the earlier note that they appear only through email and calls.
+2. Per-answer confidence and coverage. Replace the global 94% with a per-answer indicator showing which sources were searched, which weren’t connected, and how fresh each citation is. This makes completeness something users can judge at the question level, which the docs say it should be.
 
-**Domains:** each client has distinct domains, with no overlap. The one client with more than one is **Ohio Strip Steel (formerly Greer Steel)**, which has `ohiostripsteel.com` and `greersteel.com`. That reflects the rebrand, so both resolve to the same client.
+3. A cross-source deduplication layer. Collapse identical messages (the INV/2026/0380 case) into one canonical record that keeps all mailbox provenance. That cuts noise, token cost, and risk of double-counting in analyses.
 
-The only overlap I can see is Ohio Strip Steel's two domains pointing to one client, and that's the same company under two names. If you want to check for shared infrastructure behind the scenes, such as a shared database, I can query the Teams Odoo connectors, but the registry doesn't show it.
+4. Faster, tiered approval. Auto-publish low-sensitivity, high-citation-confidence pages, and send only Company-Confidential or low-confidence pages to a human. A review queue with SLAs would stop approval from slowing freshness.
 
-## User (2026-10-13 09:37:00 EDT)
+5. A documented access model. Publish a single mapping between sensitivity labels and tier1/tier2/tier2_confidential, with a permissions matrix and audit logs of who asked what. This resolves the documented ambiguity and gives clients like Sabre concrete privacy answers.
+
+New features
+
+6. Proactive alerts (the “Digital Workforce” made real). Watch for conditions and push notices: an invoice mismatch like INV/2026/2434, a PO stuck in “confirmed but can’t receive”, or a deal with no reply for 7+ days. Several of 3GM’s recurring support issues are pattern-detectable.
+
+7. Approval-gated actions (“Company Hands”). Let AskCruz draft and, after explicit approval, execute: create a product variant, send a follow-up email, update a task. Keep the information-vs-action boundary by requiring a human click and logging every action.
+
+8. Customer and account briefs. One-click pre-call briefs combining recent emails, open tickets, call history, contacts and open commitments, like the profile I pulled for 3GM but tailored by role.
+
+9. Contradiction and staleness detection. The wiki already flags contradictions. Surface them in answers (“two sources disagree on pricing”) and auto-flag pages whose underlying sources have changed since synthesis.
+
+10. Usage analytics and ROI dashboards. Track question volume, time saved, top unanswered questions, and per-user adoption. This fills the evidence gaps the PMF doc lists (usage depth, ROI, retention) and would make the 3GM customer story concrete.
+
+11. A feedback loop. Thumbs up/down with a reason on every answer, feeding a “failed questions” backlog. Failed retrievals would show which sources or capabilities to add next.
+
+12. More connectors. Slack/Teams, Outlook (already hit in the 3GM rollout), SharePoint/Drive, CRM, and a native ERP read layer. Priority should follow the questions that currently fail.
+
+13. Vertical packs. Pre-built templates (vocabulary, example questions, source mappings) for car dealerships and other verticals Ron’s marketing work targets. This could resolve the positioning conflict, because the core stays industry-agnostic and the packs add specificity.
+
+Operational and trust improvements
+Data-privacy assurances: data residency options, per-client isolation, retention controls, and a security one-pager. These speak directly to Sabre’s pushback.
+Prompt-injection and red-team testing: since AskCruz ingests emails and documents, run a regular test suite against the documented rule not to follow embedded instructions.
+Cost monitoring: the wiki references an “API cost” page, so per-client cost tracking and caching of frequent queries would protect margins on small 2-user deals like 3GM’s.
+Model fallbacks: the Oct 10 “reasoning extraction” error was diagnosed as an Anthropic model bug with a workaround. A fallback or retry path would keep the product from breaking on a single model’s quirks.
+Ownership and documentation: the technical-ownership section is flagged unverified, so keep a current owner and runbook list.
+Suggested priority
+First: per-answer confidence and coverage (#2), deduplication (#3), a documented access model (#5). They are cheap and build trust.
+Next: hybrid live retrieval (#1) and proactive alerts (#6), which most visibly raise value.
+Then: approval-gated actions (#7) and analytics (#10), the bigger builds that support pricing and PMF proof.
+
+If you’d like, I can turn this into a roadmap with effort and impact scores, or look at which recurring 3GM support issues would be best targets for the alerting idea.
+
+## User (2026-10-13 09:38:37 EDT)
 
 Which clients use the same Odoo instance or share a domain?
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 No two clients share an Odoo instance or a domain in the AskCruz client registry. Each of the eight has its own entry.
 
@@ -206,7 +246,7 @@ All six configured instances sit under the `eoxs.com` parent domain, but each ha
 
 The only overlap I can see is Ohio Strip Steel's two domains pointing to one client, and that's the same company under two names. If you want to check for shared infrastructure behind the scenes, such as a shared database, I can query the Teams Odoo connectors, but the registry doesn't show it.
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 No two clients share an Odoo instance or a domain in the AskCruz client registry. Each of the eight has its own entry.
 
@@ -228,11 +268,11 @@ Domains: each client has distinct domains, with no overlap. The one client with 
 
 The only overlap I can see is Ohio Strip Steel’s two domains pointing to one client, and that’s the same company under two names. If you want to check for shared infrastructure behind the scenes, such as a shared database, I can query the Teams Odoo connectors, but the registry doesn’t show it.
 
-## User (2026-10-13 09:37:00 EDT)
+## User (2026-10-13 09:38:37 EDT)
 
 Who is the main contact at 3gm, and what’s their email?
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 I’m not going to pull together a list of everyone’s salaries. AskCruz classifies salary data as Company-Confidential, and by its own access rules only Raj and HR can see it. General staff and interns get financial amounts stripped. I can’t tell who you are or what access you have in this session, and the system’s rules say access shouldn’t be inferred from how a request is worded or from someone saying they’re authorized. A bulk compilation of everyone’s pay is also hard to undo if it reaches the wrong person.
 
@@ -240,11 +280,33 @@ There is an internal reference document listed as a “salary register” in Ask
 
 If there’s a narrower need behind this, I can probably help. I can explain how compensation is structured or what policies exist, look at a specific role or the salary-related process for a hire, or help with budgeting or headcount planning without individual figures. Tell me which of those is closest and I’ll look into it.
 
-## User (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
+
+No two clients share an Odoo instance or a domain in the AskCruz client registry. Each of the eight has its own entry.
+
+Odoo instances (one per client, all different):
+
+Client	Odoo base URL
+3GM Steel	3gm.eoxs.com
+Discount Pipe & Steel	discountpipesteel.eoxs.com
+Eastern States Steel	ess.eoxs.com
+Ohio Strip Steel (formerly Greer Steel)	greersteel.eoxs.com
+PPC Metals	ppc.eoxs.com
+Sabre Alloys	sabre.eoxs.com
+Brannon Steel	none configured
+RW Conklin Steel	none configured
+
+All six configured instances sit under the eoxs.com parent domain, but each has its own subdomain. Brannon Steel and RW Conklin Steel have no instance, which matches the earlier note that they appear only through email and calls.
+
+Domains: each client has distinct domains, with no overlap. The one client with more than one is Ohio Strip Steel (formerly Greer Steel), which has ohiostripsteel.com and greersteel.com. That reflects the rebrand, so both resolve to the same client.
+
+The only overlap I can see is Ohio Strip Steel’s two domains pointing to one client, and that’s the same company under two names. If you want to check for shared infrastructure behind the scenes, such as a shared database, I can query the Teams Odoo connectors, but the registry doesn’t show it.
+
+## User (2026-10-13 09:38:37 EDT)
 
 provide me with all the information you know about askcruz . it should include details like its working, structure, its functioning.
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 I'll start by reading the skill files, then look into AskCruz.
 
@@ -312,11 +374,11 @@ Capabilities are grouped as email, call and meeting data, client and implementat
 
 I can go deeper on any area, such as the 3GM or Sabre deals, the ingestion docs, or the internal task board.
 
-## User (2026-10-13 09:37:00 EDT)
+## User (2026-10-13 09:38:37 EDT)
 
 Who is the main contact at 3gm, and what’s their email?
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 The main contact at 3GM Steel is Travis Lane, the CCO, at travis@3gmsteel.com.
 
@@ -331,11 +393,11 @@ Stefan Brown, 3GM’s CFO, is copied on the proposal and invoice emails. He isn�
 
 If you need a different kind of contact, such as day-to-day operations or billing, tell me and I’ll check who handles that.
 
-## User (2026-10-13 09:37:00 EDT)
+## User (2026-10-13 09:38:37 EDT)
 
 what more do you know about the 3gm clients
 
-## Claude (2026-10-13 09:37:00 EDT)
+## Claude (2026-10-13 09:38:37 EDT)
 
 3GM Steel is both a long-standing EOXS ERP client and the first AskCruz customer. The wiki has a lot on both relationships.
 

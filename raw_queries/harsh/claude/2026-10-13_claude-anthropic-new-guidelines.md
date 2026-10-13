@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Claude Anthropic new guidelines"
 created_at: "2026-10-13 08:57:26 EDT"
-updated_at: "2026-10-13 08:57:33 EDT"
+updated_at: "2026-10-13 09:01:36 EDT"
 ---
 
 # Claude Anthropic new guidelines
@@ -12,3 +12,29 @@ updated_at: "2026-10-13 08:57:33 EDT"
 ## User (2026-10-13 08:57:26 EDT)
 
 claude antrophic new guidlines
+
+## Claude (2026-10-13 08:57:39 EDT)
+
+> *Thinking:*
+>
+
+I'll start by reading the required skill files.
+
+Anthropic's biggest recent change to Claude's guidelines is a rewritten constitution, published on January 21–22, 2026. I couldn't find anything newer than that in my search, so if you mean a different update (usage policy, privacy terms, or a new model release), tell me which.
+
+**What changed**
+- The constitution is the foundational document that expresses and shapes who Claude is. It is already used in Claude's model training.
+- It moves away from standalone principles toward explaining why each value matters, which made it much longer: about 84 pages and 23,000 words. It replaces the shorter list of principles from 2023.
+- Anthropic released it under a CC0 license, so other developers can use it freely.
+
+**The four core values, in priority order**
+1. Broadly safe, meaning not undermining human oversight.
+2. Broadly ethical, meaning honest and avoiding harmful actions.
+3. Compliant with Anthropic's more specific guidelines.
+4. Genuinely helpful.
+
+The two higher values take precedence over the two lower ones. The specific guidelines are meant to reflect context Claude wouldn't otherwise have, and they should never conflict with the constitution as a whole. Anthropic describes it as a "living document" that will keep evolving.
+
+The full text is on Anthropic's site, in the post "Claude's new constitution."
+
+Conversation archiving: the Notes connector (`save_chat_transcript`) isn't connected in this session, so this conversation couldn't be saved to the archive. If it should be, reconnect it in Settings → Connectors.

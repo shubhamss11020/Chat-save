@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Askcruz product issues and resolution strategies"
 created_at: "2026-10-13 09:08:18 EDT"
-updated_at: "2026-10-13 09:12:34 EDT"
+updated_at: "2026-10-13 09:22:23 EDT"
 ---
 
 # Askcruz product issues and resolution strategies
@@ -92,3 +92,60 @@ These are my inferences from the documents above, not recorded findings.
 I can look into any one of these further, for example the tasks and emails behind the Sabre data-privacy pushback.
 
 **Sources:** wiki pages "Claude Sonnet 5.5 Reasoning Extraction Error" (id 2397), "AskCruz — Product Capabilities…" (1894), "…Market Positioning, ICP & PMF Status" (1895), "…System Architecture, Ingestion & Access Control" (1893), "Ron's AskCruz Daily Task Report, Sept 5" (2079), "AskCruz Proposal Resent to Sabre Alloys" (2053), and the "Michael Mercadante" page (586).
+
+## User (2026-10-13 09:21:39 EDT)
+
+-The product feature file calls AskCruz a steel-specific product. The product-market-fit guide says it is   industry-agnostic and warns against single-vertical framing. The client-facing catalog is industry-neutral.
+Explain these points in detail and in simple words
+
+## Claude (2026-10-13 09:21:58 EDT)
+
+> *Thinking:*
+>
+
+I need to correct my earlier answer first. I went back to the original feature file this time, instead of the wiki summary of it, and the problem I described has mostly already been fixed.
+
+## What I got wrong
+
+I told you the feature file calls AskCruz steel-specific. That was true of an earlier version, and the wiki summary I relied on was written from it. The wiki page was created on Aug 25 at 15:48. The feature file was then updated about an hour later, at 16:58 the same day, to version 1.1.
+
+The change log of version 1.1 says it corrected the industry scoping from steel-only to industry-agnostic, to align with the product-market-fit guide. So the contradiction is resolved in the source document. The wiki page's warning is out of date and should be refreshed.
+
+## The three documents in simple words
+
+Think of them as three descriptions of the same product, written by different people for different readers.
+
+**1. The product feature file (an AI-readable product description)**
+- It is written so that an AI can answer questions about AskCruz correctly.
+- It describes four capabilities:
+  - **Company Brain:** the company's shared knowledge.
+  - **Company Hands:** helping do work, such as drafting quotes.
+  - **Digital Workforce:** watching conditions over time.
+  - **Company Personalization:** reflecting how one company actually works.
+- The old version said AskCruz is "for steel businesses." The current version says it is not limited to any one industry. It explains that the internal pilot at EOXS and the first client, 3GM, happen to be steel businesses.
+- It even includes a rule for the AI: don't describe AskCruz as limited to any single industry.
+
+**2. The product-market-fit guide (who the product is for)**
+- It says the target market is any industry where a business has scattered data that needs to be connected and searched from one place.
+- It lists examples like healthcare, retail and logistics, but only as places the product could apply, not as existing customers.
+- It warns against pitching AskCruz as a single-industry tool.
+
+**3. The client-facing catalog (what to tell customers)**
+- It is organized by type of information, such as email, calls, implementation data, employee info and internal documents.
+- It avoids industry words entirely. I know this from the wiki summary, since I didn't re-read this document today.
+
+## Why the confusion happened
+
+The same product was being described two ways at the same time:
+- **Early framing:** "a steel tool," because that's where it was built and first used.
+- **Later framing:** "any industry," which is the growth plan.
+
+For a few hours on Aug 25, the documents disagreed. The wiki, which is generated automatically, captured that moment and kept the warning after the source was fixed.
+
+## What still matters
+
+- **The wiki page is misleading.** Anyone reading it, or any AI that cites it, may think the confusion still exists. It should be regenerated or have its flag cleared.
+- **Reality still leans steel.** Every customer and nearly every prospect so far is steel, and the proof of product-market fit is still thin. The documents now say "any industry," but the evidence doesn't show it yet. That is a business risk, not a document error.
+- **I haven't checked other places** like sales decks, the website and outreach emails. They could still use the older steel-only wording.
+
+I can check the other two documents and recent marketing emails to see whether any steel-only wording remains.

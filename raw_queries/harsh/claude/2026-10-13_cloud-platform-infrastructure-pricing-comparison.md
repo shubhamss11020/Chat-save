@@ -2,12 +2,12 @@
 conversation_id: deefebac-7068-4d9d-a08b-9a29b62d2b9b
 platform: claude
 username: "harsh"
-title: "Cloud platform infrastructure pricing comparison"
+title: "Cloud platform infrastructure pricing comparison - Claude"
 created_at: "2026-10-13 09:23:56 EDT"
-updated_at: "2026-10-13 09:42:37 EDT"
+updated_at: "2026-10-13 09:42:55 EDT"
 ---
 
-# Cloud platform infrastructure pricing comparison
+# Cloud platform infrastructure pricing comparison - Claude
 
 ## User (2026-10-13 09:23:07 EDT)
 

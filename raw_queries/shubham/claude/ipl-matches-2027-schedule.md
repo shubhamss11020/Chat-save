@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "IPL matches 2027 schedule"
 created_at: "2026-10-12 15:15:01 EDT"
-updated_at: "2026-10-12 16:20:00 EDT"
+updated_at: "2026-10-13 05:59:59 EDT"
 ---
 
 # IPL matches 2027 schedule
 
-## User (2026-10-12 16:20:00 EDT)
+## User (2026-10-13 05:59:59 EDT)
 
 how to figure out ipl matches 2027
 
-## Claude (2026-10-12 16:20:00 EDT)
+## Claude (2026-10-13 05:59:59 EDT)
 
 I'll start by reading the two skill files.
 
@@ -34,11 +34,11 @@ If you tell me your team or city, I can check again closer to the season for the
 
 One note: the archive-saving tool for this conversation isn't connected in this session, so this chat wasn't saved to the team archive.
 
-## User (2026-10-12 16:20:00 EDT)
+## User (2026-10-13 05:59:59 EDT)
 
 diff between ipl and bbl
 
-## Claude (2026-10-12 16:20:00 EDT)
+## Claude (2026-10-13 05:59:59 EDT)
 
 The Indian Premier League (IPL) and the Big Bash League (BBL) are both franchise T20 leagues, but they differ in scale, money and format.
 

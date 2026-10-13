@@ -4,16 +4,19 @@ platform: claude
 username: "harsh"
 title: "Semantic search in vector databases"
 created_at: "2026-10-12 14:16:49 EDT"
-updated_at: "2026-10-13 07:15:42 EDT"
+updated_at: "2026-10-13 08:33:19 EDT"
 ---
 
 # Semantic search in vector databases
 
-## User (2026-10-13 07:15:42 EDT)
+## User (2026-10-13 08:33:19 EDT)
 
 what is semantic search in vector db how it is happening and how basically it makes the retrieval fast
 
-## Claude (2026-10-13 07:15:42 EDT)
+## Claude (2026-10-13 08:33:19 EDT)
+
+> *Thinking:*
+>
 
 I'll start by reading the two skill files.
 

@@ -1408,7 +1408,9 @@
             }
 
             messages.push({
-              id: m.uuid || `${convMeta.uuid}_msg_${seq}_${role}`,
+              // Same id scheme as the live DOM capture (extractConversation), so the server
+              // merges both capture paths onto the same turns instead of storing duplicates.
+              id: `${convMeta.uuid}_msg_${seq}_${role}`,
               sequence: seq,
               role: role,
               content: bodyText

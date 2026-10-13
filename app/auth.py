@@ -57,10 +57,14 @@ class TokenAuth:
         explicit_user = qs.get("user", [""])[0].strip()
         matched_user = ""
 
+        token_bound = False
         if got and got in USER_TOKENS_MAP:
+            # Per-user token: identity is fixed by the token; ?user= is ignored.
             matched_user = USER_TOKENS_MAP[got]
+            token_bound = True
         elif AUTH_TOKEN:
             if got and hmac.compare_digest(got.encode(), AUTH_TOKEN.encode()):
+                # Shared token: the client may name the user it is saving for.
                 matched_user = explicit_user or USERNAME or "user"
             else:
                 body = b'{"detail":"unauthorized"}'
@@ -74,7 +78,7 @@ class TokenAuth:
         else:
             matched_user = explicit_user or USERNAME or "user"
 
-        if explicit_user:
+        if explicit_user and not token_bound and AUTH_TOKEN:
             matched_user = explicit_user
 
         token = current_user.set(matched_user)

@@ -92,43 +92,58 @@ async function saveQueue(queue) {
   await chrome.storage.local.set({ chatsave_outbox: queue });
 }
 
+// Every read-modify-write of the outbox or dead-letter queue runs through this lock, so
+// concurrent enqueues, sends and retries can never overwrite each other's changes.
+// Network sends happen outside the lock; only storage updates are serialized.
+let queueLock = Promise.resolve();
+function withQueueLock(fn) {
+  const run = queueLock.then(fn, fn);
+  queueLock = run.catch(() => {});
+  return run;
+}
+
 /**
  * Enqueue a conversation snapshot into the persistent outbox.
  */
 async function enqueue(payload) {
-  const queue = await getQueue();
   const clientId = await getClientId();
   payload.client_id = clientId;
 
-  // Deduplicate in local queue if identical conversation snapshot is already waiting
-  const existingIdx = queue.findIndex(item => item.payload.conversation_id === payload.conversation_id);
-  const queueItem = {
-    id: "q_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
-    payload,
-    attempts: 0,
-    nextAttemptAt: Date.now(),
-    lastError: null,
-    addedAt: Date.now()
-  };
+  const queue = await withQueueLock(async () => {
+    const current = await getQueue();
 
-  if (existingIdx >= 0) {
-    const oldMessages = queue[existingIdx].payload.messages || [];
-    const newMessages = payload.messages || [];
-    // Protect earlier messages from being shortened if DOM temporarily trimmed them:
-    for (let i = 0; i < newMessages.length; i++) {
-      const prior = oldMessages.find(m => m.id === newMessages[i].id || m.sequence === newMessages[i].sequence);
-      if (prior && prior.role === newMessages[i].role && prior.content && newMessages[i].content) {
-        if (prior.content.trim().length > newMessages[i].content.trim().length) {
-          newMessages[i].content = prior.content;
+    // Deduplicate in local queue if identical conversation snapshot is already waiting
+    const existingIdx = current.findIndex(item => item.payload.conversation_id === payload.conversation_id);
+    const queueItem = {
+      id: "q_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
+      payload,
+      attempts: 0,
+      nextAttemptAt: Date.now(),
+      lastError: null,
+      addedAt: Date.now()
+    };
+
+    if (existingIdx >= 0) {
+      const oldMessages = current[existingIdx].payload.messages || [];
+      const newMessages = payload.messages || [];
+      // Protect earlier messages from being shortened if DOM temporarily trimmed them:
+      for (let i = 0; i < newMessages.length; i++) {
+        const prior = oldMessages.find(m => m.id === newMessages[i].id || m.sequence === newMessages[i].sequence);
+        if (prior && prior.role === newMessages[i].role && prior.content && newMessages[i].content) {
+          if (prior.content.trim().length > newMessages[i].content.trim().length) {
+            newMessages[i].content = prior.content;
+          }
         }
       }
+      current[existingIdx] = queueItem;
+    } else {
+      current.push(queueItem);
     }
-    queue[existingIdx] = queueItem;
-  } else {
-    queue.push(queueItem);
-  }
 
-  await saveQueue(queue);
+    await saveQueue(current);
+    return current;
+  });
+
   const currentDlq = await getDeadLetterQueue();
   broadcastToTabs({
     type: "QUEUE_UPDATED",
@@ -144,48 +159,50 @@ async function enqueue(payload) {
  * Automatically moves items that exceeded MAX_RETRIES to Dead Letter Queue
  */
 async function purgeExpiredToDLQ() {
-  const queue = await getQueue();
-  if (!queue.length) return false;
+  return withQueueLock(async () => {
+    const queue = await getQueue();
+    if (!queue.length) return false;
 
-  const dlq = await getDeadLetterQueue();
-  const surviving = [];
-  let movedCount = 0;
+    const dlq = await getDeadLetterQueue();
+    const surviving = [];
+    let movedCount = 0;
 
-  for (const item of queue) {
-    const isAuth = item.lastError && (item.lastError.includes("HTTP 401") || item.lastError.includes("Invalid Server URL"));
-    const maxAttempts = isAuth ? 4 : 10;
-    if (item.attempts >= maxAttempts) {
-      dlq.push({
-        ...item,
-        deadLetterAt: Date.now(),
-        failureReason: isAuth
-          ? `Delivery blocked (${item.lastError.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
-          : `Exceeded ${maxAttempts} attempts: ${item.lastError || "Unknown error"}`
-      });
-      movedCount++;
-      console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
-      broadcastToTabs({
-        type: "DEAD_LETTER_EVENT",
-        conversationId: item.payload?.conversation_id,
-        error: item.lastError
-      });
-    } else {
-      surviving.push(item);
+    for (const item of queue) {
+      const isAuth = item.lastError && (item.lastError.includes("HTTP 401") || item.lastError.includes("Invalid Server URL"));
+      const maxAttempts = isAuth ? 4 : 10;
+      if (item.attempts >= maxAttempts) {
+        dlq.push({
+          ...item,
+          deadLetterAt: Date.now(),
+          failureReason: isAuth
+            ? `Delivery blocked (${item.lastError.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
+            : `Exceeded ${maxAttempts} attempts: ${item.lastError || "Unknown error"}`
+        });
+        movedCount++;
+        console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
+        broadcastToTabs({
+          type: "DEAD_LETTER_EVENT",
+          conversationId: item.payload?.conversation_id,
+          error: item.lastError
+        });
+      } else {
+        surviving.push(item);
+      }
     }
-  }
 
-  if (movedCount > 0) {
-    await saveQueue(surviving);
-    await saveDeadLetterQueue(dlq);
-    broadcastToTabs({
-      type: "QUEUE_UPDATED",
-      pendingCount: surviving.length,
-      queuedIds: surviving.map(q => q.payload?.conversation_id).filter(Boolean),
-      dlqIds: dlq.map(d => d.payload?.conversation_id).filter(Boolean)
-    });
-    return true;
-  }
-  return false;
+    if (movedCount > 0) {
+      await saveQueue(surviving);
+      await saveDeadLetterQueue(dlq);
+      broadcastToTabs({
+        type: "QUEUE_UPDATED",
+        pendingCount: surviving.length,
+        queuedIds: surviving.map(q => q.payload?.conversation_id).filter(Boolean),
+        dlqIds: dlq.map(d => d.payload?.conversation_id).filter(Boolean)
+      });
+      return true;
+    }
+    return false;
+  });
 }
 
 /**
@@ -207,12 +224,14 @@ async function processQueue() {
     }
 
     const now = Date.now();
-    const remainingQueue = [];
+    // Results of this run, keyed by item id. Applied to the *fresh* queue at the end, so
+    // items enqueued while we were sending are never lost or overwritten.
+    const updates = new Map();   // id -> item with new attempts / nextAttemptAt / lastError
+    const finished = new Set();  // ids delivered or moved to the dead-letter queue
 
     for (let i = 0; i < queue.length; i++) {
       const item = queue[i];
       if (item.nextAttemptAt > now) {
-        remainingQueue.push(item);
         continue;
       }
 
@@ -254,6 +273,7 @@ async function processQueue() {
           chatsave_last_sync_time: new Date().toISOString()
         });
 
+        finished.add(item.id);
         broadcastToTabs({
           type: "SYNC_SUCCESS",
           conversationId: item.payload?.conversation_id,
@@ -271,15 +291,14 @@ async function processQueue() {
         const MAX_RETRIES = isAuthError ? 4 : 10;
 
         if (item.attempts >= MAX_RETRIES) {
-          const dlq = await getDeadLetterQueue();
-          dlq.push({
+          await moveToDeadLetter({
             ...item,
             deadLetterAt: Date.now(),
             failureReason: isAuthError
               ? `Delivery failed (${err.message.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
               : `Exceeded ${MAX_RETRIES} attempts: ${err.message}`
           });
-          await saveDeadLetterQueue(dlq);
+          finished.add(item.id);
           console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
           broadcastToTabs({
             type: "DEAD_LETTER_EVENT",
@@ -292,14 +311,14 @@ async function processQueue() {
             ? (10000 + Math.random() * 5000)
             : (Math.min(120000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000);
           item.nextAttemptAt = Date.now() + backoffMs;
-          remainingQueue.push(item);
+          updates.set(item.id, item);
         }
 
         broadcastToTabs({
           type: "SYNC_ERROR",
           conversationId: item.payload?.conversation_id,
           error: err.message,
-          pendingCount: remainingQueue.length
+          pendingCount: queue.length - finished.size
         });
 
         // If rate limited or Cloudflare blocked or server down, pause remaining items instead of failing all 50+ immediately
@@ -309,20 +328,29 @@ async function processQueue() {
             const nextItem = queue[j];
             if (nextItem.nextAttemptAt <= now) {
               nextItem.nextAttemptAt = Date.now() + 8000 + Math.random() * 4000;
+              updates.set(nextItem.id, nextItem);
             }
-            remainingQueue.push(nextItem);
           }
           break;
         }
       }
     }
 
-    await saveQueue(remainingQueue);
+    // Apply this run's results to the current queue (not the snapshot taken at the start).
+    const merged = await withQueueLock(async () => {
+      const fresh = await getQueue();
+      const next = fresh
+        .filter(i => !finished.has(i.id))
+        .map(i => updates.get(i.id) || i);
+      await saveQueue(next);
+      return next;
+    });
+
     const currentDlq = await getDeadLetterQueue();
     broadcastToTabs({
       type: "QUEUE_UPDATED",
-      pendingCount: remainingQueue.length,
-      queuedIds: remainingQueue.map(q => q.payload?.conversation_id).filter(Boolean),
+      pendingCount: merged.length,
+      queuedIds: merged.map(q => q.payload?.conversation_id).filter(Boolean),
       dlqIds: currentDlq.map(d => d.payload?.conversation_id).filter(Boolean)
     });
 
@@ -346,6 +374,17 @@ async function getDeadLetterQueue() {
  */
 async function saveDeadLetterQueue(dlq) {
   await chrome.storage.local.set({ chatsave_dead_letter: dlq });
+}
+
+/**
+ * Append one permanently failed item to the dead-letter queue (serialized).
+ */
+async function moveToDeadLetter(entry) {
+  await withQueueLock(async () => {
+    const dlq = await getDeadLetterQueue();
+    dlq.push(entry);
+    await saveDeadLetterQueue(dlq);
+  });
 }
 
 /**
@@ -442,9 +481,12 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
   if (req.type === "SYNC_NOW") {
     (async () => {
-      const queue = await getQueue();
-      queue.forEach(item => { item.nextAttemptAt = Date.now(); });
-      await saveQueue(queue);
+      const queue = await withQueueLock(async () => {
+        const current = await getQueue();
+        current.forEach(item => { item.nextAttemptAt = Date.now(); });
+        await saveQueue(current);
+        return current;
+      });
       processQueue();
       sendResponse({ success: true, pendingCount: queue.length });
     })();
@@ -453,7 +495,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
   if (req.type === "CLEAR_QUEUE") {
     (async () => {
-      await saveQueue([]);
+      await withQueueLock(() => saveQueue([]));
       const currentDlq = await getDeadLetterQueue();
       broadcastToTabs({
         type: "QUEUE_UPDATED",
@@ -468,20 +510,24 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
 
   if (req.type === "RETRY_DEAD_LETTER") {
     (async () => {
-      const dlq = await getDeadLetterQueue();
-      if (!dlq.length) {
+      const { reQueued, queue } = await withQueueLock(async () => {
+        const dlq = await getDeadLetterQueue();
+        if (!dlq.length) return { reQueued: 0, queue: await getQueue() };
+        const current = await getQueue();
+        dlq.forEach(item => {
+          item.attempts = 0;
+          item.nextAttemptAt = Date.now();
+          item.lastError = null;
+          current.push(item);
+        });
+        await saveQueue(current);
+        await saveDeadLetterQueue([]);
+        return { reQueued: dlq.length, queue: current };
+      });
+      if (!reQueued) {
         sendResponse({ success: true, reQueued: 0 });
         return;
       }
-      const queue = await getQueue();
-      dlq.forEach(item => {
-        item.attempts = 0;
-        item.nextAttemptAt = Date.now();
-        item.lastError = null;
-        queue.push(item);
-      });
-      await saveQueue(queue);
-      await saveDeadLetterQueue([]);
       broadcastToTabs({
         type: "QUEUE_UPDATED",
         pendingCount: queue.length,
@@ -489,15 +535,17 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
         dlqIds: []
       });
       processQueue();
-      sendResponse({ success: true, reQueued: dlq.length, pendingCount: queue.length });
+      sendResponse({ success: true, reQueued, pendingCount: queue.length });
     })();
     return true;
   }
 
   if (req.type === "CLEAR_DEAD_LETTER") {
     (async () => {
-      await saveDeadLetterQueue([]);
-      const queue = await getQueue();
+      const queue = await withQueueLock(async () => {
+        await saveDeadLetterQueue([]);
+        return getQueue();
+      });
       broadcastToTabs({
         type: "QUEUE_UPDATED",
         pendingCount: queue.length,

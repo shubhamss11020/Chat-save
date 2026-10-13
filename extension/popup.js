@@ -2,6 +2,16 @@
  * Popup Script for Chat-Save Extension
  */
 
+/** Set a button's icon + label without parsing HTML from server-supplied text. */
+function setButtonLabel(btn, icon, label) {
+  btn.replaceChildren();
+  const iconEl = document.createElement("span");
+  iconEl.textContent = icon;
+  const labelEl = document.createElement("span");
+  labelEl.textContent = label;
+  btn.append(iconEl, labelEl);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const statusPill = document.getElementById("statusPill");
   const statusText = document.getElementById("statusText");
@@ -130,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (res && res.enqueued > 0) {
             btnReconcile.innerHTML = `<span>✓</span><span>Queued ${res.enqueued} Chats</span>`;
           } else if (res && res.error) {
-            btnReconcile.innerHTML = `<span>⚠</span><span>${res.error.slice(0, 20)}</span>`;
+            setButtonLabel(btnReconcile, "⚠", String(res.error).slice(0, 20));
           } else {
             btnReconcile.innerHTML = `<span>✓</span><span>All Chats Up to Date</span>`;
           }

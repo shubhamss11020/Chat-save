@@ -2,6 +2,7 @@
 Supports AWS S3, Cloudflare R2, MinIO, and S3-compatible object storage.
 """
 import base64
+import hashlib
 import ipaddress
 import logging
 import mimetypes
@@ -15,7 +16,6 @@ from urllib.parse import urlsplit
 from .config import (
     S3_ACCESS_KEY_ID,
     S3_BUCKET_NAME,
-    S3_ENABLED,
     S3_ENDPOINT_URL,
     S3_PRESIGN_EXPIRATION_SECONDS,
     S3_PUBLIC_URL_PREFIX,
@@ -182,13 +182,14 @@ def _clean_filename(filename: str) -> str:
     return clean or f"attachment_{int(time.time())}"
 
 
-def build_s3_key(filename: str, conversation_id: str, user_id: str = "user") -> str:
-    """Construct deterministic yet unique S3 object key."""
+def build_s3_key(filename: str, conversation_id: str, user_id: str = "user", digest: str = "") -> str:
+    """Construct an S3 object key. With a content digest the key is the same every time the same
+    bytes are uploaded, so retries overwrite one object instead of creating copies."""
     clean_name = _clean_filename(filename)
     clean_user = re.sub(r"[^a-zA-Z0-9_-]+", "-", user_id).strip("-") or "user"
     clean_conv = re.sub(r"[^a-zA-Z0-9_-]+", "-", conversation_id).strip("-") or "conv"
-    timestamp = int(time.time())
-    return f"attachments/{clean_user}/{clean_conv}/{timestamp}_{clean_name}"
+    prefix = digest[:16] if digest else str(int(time.time()))
+    return f"attachments/{clean_user}/{clean_conv}/{prefix}_{clean_name}"
 
 
 def build_public_file_url(s3_key: str) -> str:
@@ -409,7 +410,8 @@ def upload_attachment_data(
         if canonical_mime in ext_map:
             clean_fname += ext_map[canonical_mime]
 
-    s3_key = build_s3_key(clean_fname, conversation_id, user_id)
+    digest = hashlib.sha256(raw_bytes).hexdigest()
+    s3_key = build_s3_key(clean_fname, conversation_id, user_id, digest=digest)
     content_disp = f'inline; filename="{clean_fname}"'
 
     try:

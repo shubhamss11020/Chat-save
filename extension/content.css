@@ -7,7 +7,7 @@
   z-index: 999999;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
-  color: #f1f5f9;
+  color: #e6e9ee;
   user-select: none;
 }
 
@@ -15,29 +15,29 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(15, 23, 42, 0.85);
+  background: #171c22;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid #2a323c;
   border-radius: 9999px;
   padding: 6px 14px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chatsave-badge:hover {
   transform: translateY(-2px);
-  background: rgba(30, 41, 59, 0.95);
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  background: #1d232b;
+  border-color: #39434f;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .chatsave-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
+  background: #5fb392;
   transition: background-color 0.3s ease;
 }
 
@@ -56,12 +56,12 @@
   bottom: calc(100% + 12px);
   right: 0;
   width: 270px;
-  background: rgba(15, 23, 42, 0.95);
+  background: #171c22;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid #2a323c;
   border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   padding: 14px;
   animation: chatsave-fade-in 0.2s ease-out;
 }
@@ -71,15 +71,15 @@
   justify-content: space-between;
   align-items: center;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #2a323c;
   font-weight: 600;
   font-size: 13px;
-  color: #e2e8f0;
+  color: #e6e9ee;
 }
 
 .chatsave-close {
   cursor: pointer;
-  color: #94a3b8;
+  color: #9aa5b1;
   font-size: 14px;
   padding: 2px 6px;
   border-radius: 4px;
@@ -87,8 +87,8 @@
 }
 
 .chatsave-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: #232a33;
+  color: #e6e9ee;
 }
 
 .chatsave-body {
@@ -103,30 +103,30 @@
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  color: #94a3b8;
+  color: #9aa5b1;
 }
 
 .chatsave-row code {
-  background: rgba(0, 0, 0, 0.35);
+  background: #11161b;
   padding: 2px 6px;
   border-radius: 4px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
-  color: #38bdf8;
+  color: #9cb8d6;
 }
 
 .chatsave-footer {
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #2a323c;
 }
 
 .chatsave-btn {
   width: 100%;
   padding: 6px 10px;
-  background: #3b82f6;
+  background: #2f5d8a;
   border: none;
   border-radius: 6px;
-  color: #fff;
+  color: #e6e9ee;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -134,7 +134,7 @@
 }
 
 .chatsave-btn:hover {
-  background: #2563eb;
+  background: #264d74;
 }
 
 .chatsave-btn:disabled {
@@ -171,18 +171,18 @@
 }
 
 .chatsave-sidebar-dot.chatsave-dot-queued {
-  background: #3b82f6 !important; /* Solid blue dot in queue */
-  box-shadow: 0 0 7px rgba(59, 130, 246, 0.85);
+  background: #6c93bf !important; /* Waiting to be saved */
+  box-shadow: none;
   animation: chatsave-pulse 1.8s infinite ease-in-out;
 }
 
 .chatsave-sidebar-dot.chatsave-dot-dlq {
-  background: #ef4444 !important; /* Red dot for failure / DLQ */
-  box-shadow: 0 0 7px rgba(239, 68, 68, 0.85);
+  background: #a33a3a !important; /* Could not be saved */
+  box-shadow: none;
 }
 
 .chatsave-sidebar-dot.chatsave-dot-synced {
-  background: #10b981 !important;
+  background: #5fb392 !important;
   transform: scale(0.3);
   opacity: 0;
   transition: all 0.5s ease-out;

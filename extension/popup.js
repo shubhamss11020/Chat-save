@@ -1,16 +1,6 @@
 /**
- * Popup Script for Chat-Save Extension
+ * Popup for Chat-Save. Shows plain-language status and offers two actions.
  */
-
-/** Set a button's icon + label without parsing HTML from server-supplied text. */
-function setButtonLabel(btn, icon, label) {
-  btn.replaceChildren();
-  const iconEl = document.createElement("span");
-  iconEl.textContent = icon;
-  const labelEl = document.createElement("span");
-  labelEl.textContent = label;
-  btn.append(iconEl, labelEl);
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   const statusPill = document.getElementById("statusPill");
@@ -21,136 +11,91 @@ document.addEventListener("DOMContentLoaded", () => {
   const valQueue = document.getElementById("valQueue");
   const valReceipt = document.getElementById("valReceipt");
   const valLastSync = document.getElementById("valLastSync");
+  const valDeadLetter = document.getElementById("valDeadLetter");
+  const rowDeadLetter = document.getElementById("rowDeadLetter");
   const btnSyncNow = document.getElementById("btnSyncNow");
+  const btnRetryDLQ = document.getElementById("btnRetryDLQ");
   const linkOptions = document.getElementById("linkOptions");
+
+  /** level: "ok" | "warn" | "danger" */
+  function setStatus(text, level) {
+    statusText.textContent = text;
+    statusPill.className = `status ${level === "ok" ? "" : level}`.trim();
+  }
 
   function loadStatus() {
     chrome.runtime.sendMessage({ type: "GET_STATUS" }, (res) => {
       if (chrome.runtime.lastError || !res) {
-        statusText.textContent = "Offline";
-        statusPill.style.color = "#ef4444";
-        statusPill.style.borderColor = "rgba(239, 68, 68, 0.3)";
-        statusPill.style.background = "rgba(239, 68, 68, 0.15)";
+        setStatus("Not connected", "danger");
         return;
       }
 
       const { config, pendingCount, deadLetterCount, lastReceipt, lastSyncTime } = res;
 
-      valUser.textContent = config.identity?.user || "(not connected: run Test Connection)";
-      valServer.textContent = config.serverUrl || "Not configured";
-
-      if (config.isManaged) {
-        managedBadge.style.display = "inline-block";
-      }
-
-      const rowDeadLetter = document.getElementById("rowDeadLetter");
-      const valDeadLetter = document.getElementById("valDeadLetter");
-      const btnRetryDLQ = document.getElementById("btnRetryDLQ");
+      valUser.textContent = config.identity?.user || "Not connected yet";
+      valServer.textContent = config.serverUrl || "Not set";
+      if (config.isManaged) managedBadge.style.display = "inline-block";
 
       if (deadLetterCount > 0) {
         rowDeadLetter.style.display = "flex";
-        valDeadLetter.textContent = `${deadLetterCount} item(s) failed`;
+        valDeadLetter.textContent = `${deadLetterCount} conversation(s)`;
         btnRetryDLQ.style.display = "flex";
-        statusText.textContent = "Action Needed (DLQ)";
-        statusPill.style.color = "#ef4444";
-        statusPill.style.borderColor = "rgba(239, 68, 68, 0.3)";
-        statusPill.style.background = "rgba(239, 68, 68, 0.15)";
+        setStatus("Needs attention", "danger");
       } else {
         rowDeadLetter.style.display = "none";
         btnRetryDLQ.style.display = "none";
+        if (pendingCount > 0) {
+          setStatus("Saving...", "warn");
+        } else {
+          setStatus("Up to date", "ok");
+        }
       }
 
       if (pendingCount > 0) {
-        valQueue.textContent = `${pendingCount} item(s) pending`;
-        valQueue.style.color = "#f59e0b";
-        if (deadLetterCount === 0) {
-          statusText.textContent = "Offline (Queued)";
-          statusPill.style.color = "#f59e0b";
-          statusPill.style.borderColor = "rgba(245, 158, 11, 0.3)";
-          statusPill.style.background = "rgba(245, 158, 11, 0.15)";
-        }
+        valQueue.textContent = `${pendingCount} conversation(s)`;
+        valQueue.className = "val warn";
       } else {
-        valQueue.textContent = "0 pending (clean)";
-        valQueue.style.color = "#10b981";
-        if (deadLetterCount === 0) {
-          statusText.textContent = "Active";
-          statusPill.style.color = "#10b981";
-          statusPill.style.borderColor = "rgba(16, 185, 129, 0.3)";
-          statusPill.style.background = "rgba(16, 185, 129, 0.15)";
-        }
+        valQueue.textContent = "None";
+        valQueue.className = "val";
       }
 
       if (lastReceipt) {
-        valReceipt.textContent = `${lastReceipt.receipt_id} (${lastReceipt.saved_messages} msgs)`;
+        const n = lastReceipt.saved_messages || 0;
+        valReceipt.textContent = `${n} message${n === 1 ? "" : "s"} saved`;
       }
 
       if (lastSyncTime) {
         const d = new Date(lastSyncTime);
-        valLastSync.textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        valLastSync.textContent = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       }
     });
   }
 
-  const btnRetryDLQ = document.getElementById("btnRetryDLQ");
-  if (btnRetryDLQ) {
-    btnRetryDLQ.addEventListener("click", () => {
-      btnRetryDLQ.disabled = true;
-      btnRetryDLQ.textContent = "Re-queueing...";
-      chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
-        if (chrome.runtime.lastError) { /* consumed */ }
-        setTimeout(() => {
-          loadStatus();
-          btnRetryDLQ.disabled = false;
-          btnRetryDLQ.textContent = "Retry Dead Letter Items";
-        }, 800);
-      });
+  btnRetryDLQ.addEventListener("click", () => {
+    btnRetryDLQ.disabled = true;
+    btnRetryDLQ.textContent = "Trying again...";
+    chrome.runtime.sendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+      if (chrome.runtime.lastError) { /* consumed */ }
+      setTimeout(() => {
+        loadStatus();
+        btnRetryDLQ.disabled = false;
+        btnRetryDLQ.textContent = "Try again for failed saves";
+      }, 800);
     });
-  }
+  });
 
   btnSyncNow.addEventListener("click", () => {
     btnSyncNow.disabled = true;
-    btnSyncNow.innerHTML = "<span>⟳</span><span>Syncing...</span>";
+    btnSyncNow.textContent = "Saving...";
     chrome.runtime.sendMessage({ type: "SYNC_NOW" }, () => {
       if (chrome.runtime.lastError) { /* consumed */ }
       setTimeout(() => {
         loadStatus();
         btnSyncNow.disabled = false;
-        btnSyncNow.innerHTML = "<span>⟳</span><span>Sync Outbox Now</span>";
+        btnSyncNow.textContent = "Save now";
       }, 1000);
     });
   });
-
-  const btnReconcile = document.getElementById("btnReconcile");
-  if (btnReconcile) {
-    btnReconcile.addEventListener("click", () => {
-      btnReconcile.disabled = true;
-      btnReconcile.innerHTML = "<span>☁</span><span>Scanning Claude Chats...</span>";
-      chrome.runtime.sendMessage({ type: "TRIGGER_RECONCILE", maxDays: 2 }, (res) => {
-        if (chrome.runtime.lastError) {
-          btnReconcile.disabled = false;
-          btnReconcile.innerHTML = "<span>⚠</span><span>Refresh Claude tab</span>";
-          setTimeout(() => {
-            btnReconcile.innerHTML = "<span>☁</span><span>Sync Recent Cloud Chats (48h)</span>";
-          }, 3500);
-          return;
-        }
-        setTimeout(() => {
-          loadStatus();
-          btnReconcile.disabled = false;
-          if (res && res.enqueued > 0) {
-            btnReconcile.innerHTML = `<span>✓</span><span>Queued ${res.enqueued} Chats</span>`;
-          } else if (res && res.error) {
-            setButtonLabel(btnReconcile, "⚠", String(res.error).slice(0, 20));
-          } else {
-            btnReconcile.innerHTML = `<span>✓</span><span>All Chats Up to Date</span>`;
-          }
-          setTimeout(() => {
-            btnReconcile.innerHTML = "<span>☁</span><span>Sync Recent Cloud Chats (48h)</span>";
-          }, 3000);
-        }, 1200);
-      });
-    });
-  }
 
   linkOptions.addEventListener("click", () => {
     if (chrome.runtime.openOptionsPage) {

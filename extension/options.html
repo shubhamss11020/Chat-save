@@ -5,22 +5,66 @@
   <title>Chat-Save Settings</title>
   <style>
     :root {
-      --bg: #0b0f19;
-      --card: #111827;
-      --card-border: #1f2937;
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --border: #dde3ea;
+      --text: #1f2a37;
+      --text-muted: #5f6b7a;
+      --accent: #2f5d8a;
+      --accent-hover: #264d74;
+      --ok: #2e7d5b;
+      --ok-bg: #e8f3ee;
+      --warn: #9a6700;
+      --warn-bg: #fdf4e3;
+      --danger: #a33a3a;
+      --danger-bg: #fbeeee;
+      --field: #ffffff;
+      --field-border: #c9d2dc;
+      --code-bg: #eef2f6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #101418;
+        --surface: #171c22;
+        --border: #2a323c;
+        --text: #e6e9ee;
+        --text-muted: #9aa5b1;
+        --accent: #6c93bf;
+        --accent-hover: #86a9d1;
+        --ok: #5fb392;
+        --ok-bg: #163025;
+        --warn: #d9a441;
+        --warn-bg: #33270f;
+        --danger: #e08585;
+        --danger-bg: #3a1f1f;
+        --field: #11161b;
+        --field-border: #39434f;
+        --code-bg: #11161b;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #101418;
+      --surface: #171c22;
+      --border: #2a323c;
+      --text: #e6e9ee;
+      --text-muted: #9aa5b1;
+      --accent: #6c93bf;
+      --accent-hover: #86a9d1;
+      --ok: #5fb392;
+      --ok-bg: #163025;
+      --warn: #d9a441;
+      --warn-bg: #33270f;
+      --danger: #e08585;
+      --danger-bg: #3a1f1f;
+      --field: #11161b;
+      --field-border: #39434f;
+      --code-bg: #11161b;
     }
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     body {
       background: var(--bg);
@@ -28,39 +72,44 @@
       padding: 40px 20px;
       display: flex;
       justify-content: center;
+      font-size: 14px;
+      line-height: 1.5;
     }
     .container {
-      max-width: 640px;
+      max-width: 680px;
       width: 100%;
     }
     header {
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
     h1 {
       font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
+      font-weight: 600;
+      margin-bottom: 4px;
     }
     p.subtitle {
       color: var(--text-muted);
-      font-size: 14px;
+      font-size: 13px;
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
     }
     .card h2 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .card .section-note {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 14px;
     }
     .form-group {
       margin-bottom: 18px;
@@ -68,8 +117,7 @@
     label {
       display: block;
       font-size: 13px;
-      font-weight: 500;
-      color: #e5e7eb;
+      font-weight: 600;
       margin-bottom: 6px;
     }
     .help-text {
@@ -80,22 +128,21 @@
     input[type="text"],
     input[type="password"] {
       width: 100%;
-      padding: 10px 12px;
-      background: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      color: #fff;
+      padding: 9px 11px;
+      background: var(--field);
+      border: 1px solid var(--field-border);
+      border-radius: 6px;
+      color: var(--text);
       font-size: 13px;
       outline: none;
-      transition: border-color 0.15s ease;
     }
     input[type="text"]:focus,
     input[type="password"]:focus {
-      border-color: var(--primary);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
     }
     input:disabled {
-      background: #111827;
-      color: #6b7280;
+      opacity: 0.6;
       cursor: not-allowed;
     }
     .input-row {
@@ -112,72 +159,98 @@
       width: 16px;
       height: 16px;
       cursor: pointer;
+      accent-color: var(--accent);
     }
     .actions {
       display: flex;
-      gap: 12px;
-      margin-top: 24px;
+      gap: 10px;
+      margin-top: 22px;
     }
     .btn {
-      padding: 10px 18px;
-      border-radius: 8px;
+      padding: 9px 16px;
+      border-radius: 6px;
       font-size: 13px;
       font-weight: 500;
-      border: none;
+      border: 1px solid transparent;
       cursor: pointer;
-      transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
-    .btn-primary {
-      background: var(--primary);
-      color: white;
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: default;
     }
-    .btn-primary:hover {
-      background: var(--primary-hover);
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
     }
     .btn-secondary {
-      background: #374151;
-      color: #e5e7eb;
+      background: transparent;
+      color: var(--text);
+      border-color: var(--field-border);
     }
-    .btn-secondary:hover {
-      background: #4b5563;
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--code-bg);
     }
     .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.4);
+      background: transparent;
+      color: var(--danger);
+      border-color: color-mix(in srgb, var(--danger) 45%, transparent);
     }
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.3);
+    .btn-danger:hover:not(:disabled) {
+      background: var(--danger-bg);
     }
     .alert {
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 11px 14px;
+      border-radius: 6px;
       font-size: 13px;
       margin-top: 16px;
       display: none;
+      border: 1px solid var(--border);
     }
     .alert-success {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
+      background: var(--ok-bg);
+      border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+      color: var(--ok);
     }
     .alert-error {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #f87171;
+      background: var(--danger-bg);
+      border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+      color: var(--danger);
     }
     .managed-banner {
-      background: rgba(167, 139, 250, 0.12);
-      border: 1px solid rgba(167, 139, 250, 0.3);
-      color: #c4b5fd;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
       padding: 10px 14px;
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 12px;
       margin-bottom: 20px;
       display: none;
+    }
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .dot.ok { background: var(--ok); }
+    .dot.warn { background: var(--warn); }
+    .dot.danger { background: var(--danger); }
+    .identity {
+      font-size: 15px;
+      font-weight: 600;
     }
     table {
       width: 100%;
@@ -188,17 +261,17 @@
     th, td {
       padding: 8px 10px;
       text-align: left;
-      border-bottom: 1px solid #1f2937;
+      border-bottom: 1px solid var(--border);
     }
     th {
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600;
     }
     code {
       font-family: ui-monospace, Menlo, Consolas, monospace;
-      color: #38bdf8;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 2px 4px;
+      font-size: 12px;
+      background: var(--code-bg);
+      padding: 2px 5px;
       border-radius: 4px;
     }
   </style>
@@ -206,82 +279,69 @@
 <body>
   <div class="container">
     <header>
-      <h1>Chat-Save Connector Settings</h1>
-      <p class="subtitle">Configure connection to your organization's central Chat-Save ingestion service.</p>
+      <h1>Chat-Save Settings</h1>
+      <p class="subtitle">Chat-Save saves your Claude conversations automatically. Nothing here needs regular attention.</p>
     </header>
 
     <div class="managed-banner" id="managedBanner">
-      🏢 <strong>Managed by Organization:</strong> Some or all settings are enforced by enterprise policy.
+      <strong>Managed by your organization.</strong> Some settings are set by your administrator and can't be changed here.
     </div>
 
     <div class="card">
-      <h2>Server Configuration</h2>
+      <h2>Connection</h2>
+      <p class="section-note">Where your conversations are saved, and who you are.</p>
 
       <div class="form-group">
-        <label for="serverUrl">Chat-Save Server URL</label>
-        <input type="text" id="serverUrl" placeholder="http://localhost:8000 or https://chat-save.onrender.com">
-        <p class="help-text">URL of the central Chat-Save service receiving captured transcripts.</p>
+        <label for="serverUrl">Server address</label>
+        <input type="text" id="serverUrl" placeholder="https://chat-save.onrender.com">
+        <p class="help-text">The Chat-Save server that stores your conversations. Your administrator gives you this address.</p>
       </div>
 
       <div class="form-group">
-        <label for="authToken">Auth Token (MCP_AUTH_TOKEN)</label>
+        <label for="authToken">Your access key</label>
         <div class="input-row">
-          <input type="password" id="authToken" placeholder="Enter server auth token">
+          <input type="password" id="authToken" placeholder="Paste the key you were given">
           <button class="btn btn-secondary" id="btnToggleToken" type="button">Show</button>
         </div>
-        <p class="help-text">Your personal token, issued by the Chat-Save admin. It determines whose transcripts these are.</p>
+        <p class="help-text">Personal to you. Your administrator issues it, and it decides whose conversations are saved.</p>
       </div>
 
       <div class="form-group">
-        <label>Signed in as</label>
-        <p id="identityValue" class="help-text"><strong>Not connected yet</strong> &mdash; click Test Connection.</p>
-        <div class="input-row">
-          <button class="btn btn-secondary" id="btnAutoDetect" type="button">Auto-Detect</button>
-        </div>
-        <p class="help-text">Transcripts are saved under <code>raw_queries/&lt;name&gt;/claude/</code>. The name comes from your token, not from this page. Auto-Detect only shows which Claude session the browser is logged into, for information.</p>
+        <label>Saving as</label>
+        <p id="identityValue" class="help-text"><strong>Not connected yet.</strong> Click Test connection to check.</p>
+        <p class="help-text">Your conversations are stored under your name, which comes from your access key.</p>
       </div>
 
       <div class="form-group checkbox-group">
         <input type="checkbox" id="autoSync" checked>
-        <label for="autoSync" style="margin-bottom: 0;">Automatically capture &amp; sync chats in real-time</label>
+        <label for="autoSync" style="margin-bottom: 0;">Save conversations automatically</label>
       </div>
 
       <div class="actions">
-        <button class="btn btn-primary" id="btnSave">Save Settings</button>
-        <button class="btn btn-secondary" id="btnTest">Test Connection</button>
+        <button class="btn btn-primary" id="btnSave">Save settings</button>
+        <button class="btn btn-secondary" id="btnTest">Test connection</button>
       </div>
 
       <div class="alert" id="alertBox"></div>
     </div>
 
     <div class="card">
-      <h2>☁ Mobile &amp; Cloud Chat Reconciler</h2>
-      <p class="subtitle">Scans your Claude account for conversations created on mobile or other devices and synchronizes them to Git and S3.</p>
+      <h2>Waiting to save</h2>
+      <p class="section-note" id="queueSummary">Checking...</p>
+      <p class="help-text">Conversations that have been captured and will be saved automatically. Usually this list is empty. If an item stays here, check your connection, then press Try again now.</p>
 
-      <div style="margin-top: 14px; display: flex; gap: 10px;">
-        <button class="btn btn-secondary" id="btnOptionsReconcile" style="background: #4f46e5; color: #fff;">
-          Scan &amp; Sync Recent Chats (Past 48h)
-        </button>
-      </div>
-      <p class="help-text" id="reconcileStatusText" style="margin-top: 8px;"></p>
-    </div>
-
-    <div class="card">
-      <h2>Offline Queue Inspector</h2>
-      <p class="subtitle" id="queueSummary">Loading queue...</p>
-
-      <div style="margin-top: 14px; display: flex; gap: 10px;">
-        <button class="btn btn-secondary" id="btnRetryQueue">Retry Outbox</button>
-        <button class="btn btn-danger" id="btnClearQueue">Clear Outbox</button>
+      <div class="actions" style="margin-top: 14px;">
+        <button class="btn btn-secondary" id="btnRetryQueue">Try again now</button>
+        <button class="btn btn-danger" id="btnClearQueue">Discard waiting items</button>
       </div>
 
       <table id="queueTable" style="display: none;">
         <thead>
           <tr>
-            <th>Thread</th>
+            <th>Conversation</th>
             <th>Attempts</th>
-            <th>Next Try</th>
-            <th>Error</th>
+            <th>Next try in</th>
+            <th>Last problem</th>
           </tr>
         </thead>
         <tbody id="queueTbody"></tbody>
@@ -289,18 +349,19 @@
     </div>
 
     <div class="card">
-      <h2 style="color: #f87171;">Dead Letter Queue (DLQ)</h2>
-      <p class="subtitle" id="dlqSummary">0 failed items in Dead Letter Queue.</p>
+      <h2>Could not save</h2>
+      <p class="section-note" id="dlqSummary">Nothing has failed.</p>
+      <p class="help-text">Conversations that failed to save after several attempts. Fix the cause (for example the server address or your access key), then press Try again. Discarding removes them for good.</p>
 
-      <div style="margin-top: 14px; display: flex; gap: 10px;">
-        <button class="btn btn-secondary" id="btnRetryDLQ">Re-queue All DLQ Items</button>
-        <button class="btn btn-danger" id="btnClearDLQ">Clear DLQ</button>
+      <div class="actions" style="margin-top: 14px;">
+        <button class="btn btn-secondary" id="btnRetryDLQ">Try again</button>
+        <button class="btn btn-danger" id="btnClearDLQ">Discard</button>
       </div>
 
-      <table id="dlqTable" style="display: none; margin-top: 12px;">
+      <table id="dlqTable" style="display: none;">
         <thead>
           <tr>
-            <th>Thread</th>
+            <th>Conversation</th>
             <th>Attempts</th>
             <th>Reason</th>
           </tr>
@@ -310,6 +371,7 @@
     </div>
   </div>
 
+  <script src="queue_store.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

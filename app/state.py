@@ -8,14 +8,13 @@ Tables:
 """
 import hashlib
 import json
-import re
 import sqlite3
 import time
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Optional
 
-from .config import GIT_DIR, STATE_DB, STORAGE, UNKNOWN_USER, USERNAME
+from .config import DATABASE_URL, STATE_DB, STORAGE, UNKNOWN_USER, USERNAME
 from .models import Conversation, ExtensionIngestPayload, Message
 
 SCHEMA = """
@@ -23,7 +22,7 @@ CREATE TABLE IF NOT EXISTS conversations (
   id TEXT PRIMARY KEY,
   platform TEXT NOT NULL DEFAULT 'claude',
   external_conversation_id TEXT,
-  user_id TEXT NOT NULL DEFAULT 'shubham',
+  user_id TEXT NOT NULL DEFAULT 'unknown',
   title TEXT NOT NULL DEFAULT 'Untitled conversation',
   created_at TEXT,
   updated_at TEXT,
@@ -86,10 +85,66 @@ CREATE TABLE IF NOT EXISTS client_heartbeats (
 
 
 _db_initialized = False
+_pg_pool = None
+
+# PostgreSQL schema: same tables, with Postgres types.
+SCHEMA_PG = (
+    SCHEMA.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
+    .replace(" REAL", " DOUBLE PRECISION")
+)
+PG_MIGRATIONS = (
+    "ALTER TABLE conversations ADD COLUMN IF NOT EXISTS files TEXT DEFAULT '[]'",
+    "ALTER TABLE conversations ADD COLUMN IF NOT EXISTS archive_path TEXT",
+)
+
+
+def _is_pg() -> bool:
+    return bool(DATABASE_URL)
+
+
+def _get_pg_pool():
+    """One shared connection pool per process. Opening a new connection per request is slow on Neon."""
+    global _pg_pool
+    if _pg_pool is None:
+        from psycopg.rows import dict_row
+        from psycopg_pool import ConnectionPool
+        _pg_pool = ConnectionPool(
+            DATABASE_URL, min_size=1, max_size=10, open=True,
+            kwargs={"row_factory": dict_row},
+        )
+    return _pg_pool
+
+
+class _PgConn:
+    """Gives a Postgres connection the same execute / executemany / cursor calls as sqlite3,
+    with '?' placeholders, so the rest of this module is unchanged."""
+
+    def __init__(self, raw):
+        self._raw = raw
+
+    def execute(self, sql, params=()):
+        return self._raw.execute(sql.replace("?", "%s"), params)
+
+    def executemany(self, sql, seq):
+        with self._raw.cursor() as cur:
+            cur.executemany(sql.replace("?", "%s"), seq)
+
+    def cursor(self):
+        return self._raw.cursor()
+
 
 def _init_db() -> None:
     global _db_initialized
     if _db_initialized:
+        return
+    if _is_pg():
+        with _get_pg_pool().connection() as raw:
+            for stmt in SCHEMA_PG.split(";"):
+                if stmt.strip():
+                    raw.execute(stmt)
+            for stmt in PG_MIGRATIONS:
+                raw.execute(stmt)
+        _db_initialized = True
         return
     STORAGE.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(STATE_DB, timeout=30)
@@ -98,11 +153,15 @@ def _init_db() -> None:
         c.execute("PRAGMA synchronous=NORMAL;")
         c.execute("PRAGMA busy_timeout=30000;")
         c.executescript(SCHEMA)
-        try:
-            c.execute("ALTER TABLE conversations ADD COLUMN files TEXT DEFAULT '[]'")
-            c.commit()
-        except Exception:
-            pass
+        for column_sql in (
+            "ALTER TABLE conversations ADD COLUMN files TEXT DEFAULT '[]'",
+            "ALTER TABLE conversations ADD COLUMN archive_path TEXT",
+        ):
+            try:
+                c.execute(column_sql)
+                c.commit()
+            except Exception:
+                pass  # column already exists
         _db_initialized = True
     finally:
         c.close()
@@ -111,6 +170,11 @@ def _init_db() -> None:
 def conn():
     if not _db_initialized:
         _init_db()
+    if _is_pg():
+        # Commits on success and rolls back on error.
+        with _get_pg_pool().connection() as raw:
+            yield _PgConn(raw)
+        return
     c = sqlite3.connect(STATE_DB, timeout=30)
     c.row_factory = sqlite3.Row
     try:
@@ -133,7 +197,7 @@ def compute_content_hash(text: str) -> str:
 def compute_conversation_hash(conv: Conversation) -> str:
     h = hashlib.sha256(f"{conv.platform}\0{conv.id}\0{conv.title}".encode())
     for m in conv.messages:
-        h.update(f"\0{m.id}\0{m.role}\0{m.content}".encode())
+        h.update(f"\0{m.id}\0{m.role}\0{m.content}\0{m.timestamp or ''}".encode())
     for f in conv.files or []:
         fname = f.get("name") or f.get("path") or ""
         fcontent = str(f.get("content") or "")[:200]
@@ -204,7 +268,8 @@ def save_conversation_atomic(conv: Conversation) -> bool:
                         WHEN length(excluded.content) >= length(messages.content) THEN excluded.content_hash
                         ELSE messages.content_hash
                     END,
-                    sequence = excluded.sequence
+                    sequence = excluded.sequence,
+                    created_at = COALESCE(excluded.created_at, messages.created_at)
                 """,
                 (
                     f"{conv.id}_{m.id}",
@@ -290,7 +355,7 @@ def claim(limit: int) -> list[tuple[int, Conversation]]:
     with conn() as c:
         rows = c.execute(
             "SELECT id, payload, conversation_id FROM outbox WHERE status='pending' "
-            "AND next_attempt_at<=? ORDER BY id LIMIT ?",
+            "AND next_attempt_at<=? ORDER BY id LIMIT ?" + (" FOR UPDATE SKIP LOCKED" if _is_pg() else ""),
             (time.time(), limit)
         ).fetchall()
         if not rows:
@@ -365,12 +430,20 @@ def stats() -> dict:
                 "FROM client_heartbeats ORDER BY last_seen DESC LIMIT 25"
             )
         ]
+    now = time.time()
+    with conn() as c:
+        oldest = c.execute("SELECT MIN(created_at) AS t FROM outbox WHERE status='pending'").fetchone()["t"]
+    last_commit = get_sig("archive", "last_commit")
     return {
         "outbox": counts,
         "conversations": total_convs,
         "messages": total_msgs,
         "errors": errs,
-        "extension_clients": clients
+        "extension_clients": clients,
+        # Monitoring: how far behind the archive is, and how long the oldest save has been waiting.
+        "waiting_saves": counts.get("pending", 0),
+        "oldest_waiting_seconds": round(now - oldest, 1) if oldest else 0,
+        "last_archive_at": datetime.fromtimestamp(float(last_commit)).isoformat() if last_commit else None,
     }
 
 
@@ -506,8 +579,10 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
         user_id=user,
         username=user,
         title=payload.title or (existing.title if existing else "Untitled conversation"),
-        created_at=existing.created_at if existing and existing.created_at else (payload.captured_at or now_str),
-        updated_at=now_str,
+        # Keep Claude's own times when the client sends them, so the archive shows when things
+        # were said. Fall back to now only for captures that carry no Claude time.
+        created_at=existing.created_at if existing and existing.created_at else (payload.created_at or payload.captured_at or now_str),
+        updated_at=payload.captured_at or now_str,
         status="active",
         messages=messages_to_save,
         files=merged_files
@@ -544,31 +619,20 @@ def get_sig(source: str, key: str) -> str | None:
 
 def set_sig(source: str, key: str, sig: str) -> None:
     with conn() as c:
-        c.execute("INSERT OR REPLACE INTO source_state VALUES (?,?,?)", (source, key, sig))
+        c.execute(
+            "INSERT INTO source_state (source, key, sig) VALUES (?,?,?) "
+            "ON CONFLICT (source, key) DO UPDATE SET sig = excluded.sig",
+            (source, key, sig),
+        )
 
 
-def get_committed_conversations(user_id: str = "") -> dict[str, str]:
-    """Return map of {conversation_id: updated_at} of all conversations already saved in SQLite or Git."""
-    result = {}
+def get_archive_path(conversation_id: str) -> Optional[str]:
+    """Where this conversation's Markdown file lives in the archive (relative to raw_queries/)."""
     with conn() as c:
-        rows = c.execute("SELECT id, updated_at FROM conversations").fetchall()
-        for r in rows:
-            result[r["id"]] = r["updated_at"] or "committed"
+        row = c.execute("SELECT archive_path FROM conversations WHERE id=?", (conversation_id,)).fetchone()
+        return row["archive_path"] if row and row["archive_path"] else None
 
-    # Also scan Git markdown files
-    uname = (user_id or USERNAME or UNKNOWN_USER).strip().lower()
-    conv_dir = GIT_DIR / uname / "claude"
-    if conv_dir.exists():
-        for f in conv_dir.glob("*.md"):
-            try:
-                txt = f.read_text(encoding="utf-8")
-                m = re.search(r'^conversation_id:\s*["\']?([^"\'\s]+)', txt, re.MULTILINE)
-                if m and m.group(1):
-                    cid = m.group(1).strip()
-                    if cid not in result:
-                        m_up = re.search(r'^updated_at:\s*["\']?([^"\'\n]+)', txt, re.MULTILINE)
-                        result[cid] = m_up.group(1).strip() if m_up else "committed"
-            except Exception:
-                pass
-    return result
 
+def set_archive_path(conversation_id: str, rel: str) -> None:
+    with conn() as c:
+        c.execute("UPDATE conversations SET archive_path=? WHERE id=?", (rel, conversation_id))

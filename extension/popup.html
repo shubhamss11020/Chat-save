@@ -2,32 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chat-Save Claude Connector</title>
+  <title>Chat-Save</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --border: rgba(255, 255, 255, 0.1);
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --border: #dde3ea;
+      --text: #1f2a37;
+      --text-muted: #5f6b7a;
+      --accent: #2f5d8a;
+      --accent-hover: #264d74;
+      --ok: #2e7d5b;
+      --ok-bg: #e8f3ee;
+      --warn: #9a6700;
+      --warn-bg: #fdf4e3;
+      --danger: #a33a3a;
+      --danger-bg: #fbeeee;
+      --code-bg: #eef2f6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #101418;
+        --surface: #171c22;
+        --border: #2a323c;
+        --text: #e6e9ee;
+        --text-muted: #9aa5b1;
+        --accent: #6c93bf;
+        --accent-hover: #86a9d1;
+        --ok: #5fb392;
+        --ok-bg: #163025;
+        --warn: #d9a441;
+        --warn-bg: #33270f;
+        --danger: #e08585;
+        --danger-bg: #3a1f1f;
+        --code-bg: #11161b;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #101418;
+      --surface: #171c22;
+      --border: #2a323c;
+      --text: #e6e9ee;
+      --text-muted: #9aa5b1;
+      --accent: #6c93bf;
+      --accent-hover: #86a9d1;
+      --ok: #5fb392;
+      --ok-bg: #163025;
+      --warn: #d9a441;
+      --warn-bg: #33270f;
+      --danger: #e08585;
+      --danger-bg: #3a1f1f;
+      --code-bg: #11161b;
     }
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     body {
       width: 320px;
       background: var(--bg);
       color: var(--text);
-      padding: 16px;
+      padding: 14px;
       font-size: 13px;
+      line-height: 1.45;
     }
     .header {
       display: flex;
@@ -35,41 +74,33 @@
       align-items: center;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-    .title-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .title-group h1 {
-      font-size: 14px;
+    .header h1 {
+      font-size: 15px;
       font-weight: 600;
-      letter-spacing: -0.01em;
     }
-    .status-pill {
+    .status {
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 500;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ok);
     }
+    .status.warn { color: var(--warn); }
+    .status.danger { color: var(--danger); }
     .status-dot {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: currentColor;
     }
     .card {
-      background: var(--card);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 8px;
+      padding: 12px 14px;
       margin-bottom: 12px;
       display: flex;
       flex-direction: column;
@@ -80,70 +111,73 @@
       justify-content: space-between;
       align-items: center;
       font-size: 12px;
+      gap: 12px;
     }
     .label {
       color: var(--text-muted);
+      white-space: nowrap;
     }
     .val {
-      font-weight: 500;
-      max-width: 170px;
+      font-weight: 600;
+      max-width: 180px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-align: right;
     }
-    code.val {
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 11px;
-      color: #38bdf8;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 2px 5px;
-      border-radius: 4px;
-    }
+    .val.warn { color: var(--warn); }
+    .val.danger { color: var(--danger); }
     .btn {
       width: 100%;
-      padding: 8px 12px;
+      padding: 9px 12px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
-      border: none;
+      border: 1px solid transparent;
       cursor: pointer;
-      transition: background 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
     }
     .btn-primary {
-      background: var(--primary);
-      color: white;
+      background: var(--accent);
+      color: #fff;
     }
-    .btn-primary:hover {
-      background: var(--primary-hover);
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
     }
+    .btn-secondary:hover:not(:disabled) { background: var(--code-bg); }
     .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+      opacity: 0.55;
+      cursor: default;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 11px;
       color: var(--text-muted);
     }
     .link {
-      color: #60a5fa;
+      color: var(--accent);
       text-decoration: none;
       cursor: pointer;
     }
-    .link:hover {
-      text-decoration: underline;
-    }
+    .link:hover { text-decoration: underline; }
     .managed-badge {
       font-size: 10px;
-      color: #a78bfa;
-      background: rgba(167, 139, 250, 0.15);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
       padding: 2px 6px;
       border-radius: 4px;
       display: none;
@@ -152,61 +186,51 @@
 </head>
 <body>
   <div class="header">
-    <div class="title-group">
+    <div>
       <h1>Chat-Save</h1>
-      <span class="managed-badge" id="managedBadge">Enterprise Managed</span>
+      <span class="managed-badge" id="managedBadge">Managed by your organization</span>
     </div>
-    <div class="status-pill" id="statusPill">
+    <div class="status" id="statusPill">
       <span class="status-dot"></span>
-      <span id="statusText">Active</span>
+      <span id="statusText">Connected</span>
     </div>
   </div>
 
   <div class="card">
     <div class="card-row">
-      <span class="label">User:</span>
-      <span class="val" id="valUser">shubham</span>
+      <span class="label">Saving as</span>
+      <span class="val" id="valUser">Not connected</span>
     </div>
     <div class="card-row">
-      <span class="label">Server:</span>
-      <span class="val" id="valServer">http://localhost:8000</span>
+      <span class="label">Server</span>
+      <span class="val" id="valServer">Not set</span>
     </div>
     <div class="card-row">
-      <span class="label">Offline Queue:</span>
-      <span class="val" id="valQueue">0 pending</span>
+      <span class="label">Waiting to save</span>
+      <span class="val" id="valQueue">None</span>
     </div>
     <div class="card-row" id="rowDeadLetter" style="display: none;">
-      <span class="label" style="color: #f87171;">Dead Letter:</span>
-      <span class="val" id="valDeadLetter" style="color: #f87171; font-weight: 600;">0 failed</span>
+      <span class="label">Could not save</span>
+      <span class="val danger" id="valDeadLetter">0</span>
     </div>
     <div class="card-row">
-      <span class="label">Last Receipt:</span>
-      <code class="val" id="valReceipt">None yet</code>
+      <span class="label">Last save</span>
+      <span class="val" id="valReceipt">None yet</span>
     </div>
     <div class="card-row">
-      <span class="label">Last Synced:</span>
+      <span class="label">Last sync</span>
       <span class="val" id="valLastSync">Never</span>
     </div>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 8px;">
-    <button class="btn btn-primary" id="btnSyncNow">
-      <span>⟳</span>
-      <span>Sync Outbox Now</span>
-    </button>
-    <button class="btn" id="btnReconcile" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4);">
-      <span>☁</span>
-      <span>Sync Recent Cloud Chats (48h)</span>
-    </button>
-    <button class="btn" id="btnRetryDLQ" style="display: none; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">
-      <span>⚠</span>
-      <span>Retry Dead Letter Items</span>
-    </button>
+  <div class="actions">
+    <button class="btn btn-primary" id="btnSyncNow">Save now</button>
+    <button class="btn btn-secondary" id="btnRetryDLQ" style="display: none;">Try again for failed saves</button>
   </div>
 
   <div class="footer">
     <span id="versionText">v1.0.0</span>
-    <a class="link" id="linkOptions">Settings &amp; Logs ↗</a>
+    <a class="link" id="linkOptions">Settings</a>
   </div>
 
   <script src="popup.js"></script>

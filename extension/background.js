@@ -4,6 +4,8 @@
  * and telemetry heartbeat for Claude Team web capture.
  */
 
+importScripts("queue_store.js", "cloud_sync.js");
+
 const DEFAULT_CONFIG = {
   serverUrl: "http://localhost:8000",
   authToken: "",
@@ -17,14 +19,17 @@ chrome.runtime.onInstalled.addListener(async () => {
   await getClientId();
   chrome.alarms.create("chatsave_queue_worker", { periodInMinutes: 1 });
   chrome.alarms.create("chatsave_heartbeat", { periodInMinutes: 5 });
-  chrome.alarms.create("chatsave_reconcile_worker", { periodInMinutes: 20 });
+  chrome.alarms.create("chatsave_reconcile_worker", { periodInMinutes: RECONCILE_EVERY_MINUTES });
   processQueue();
   sendHeartbeat();
+  reconcileFromCloud();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
+  chrome.alarms.create("chatsave_reconcile_worker", { periodInMinutes: RECONCILE_EVERY_MINUTES });
   processQueue();
   sendHeartbeat();
+  reconcileFromCloud();
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -33,7 +38,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   } else if (alarm.name === "chatsave_heartbeat") {
     sendHeartbeat();
   } else if (alarm.name === "chatsave_reconcile_worker") {
-    triggerReconcileInTabs();
+    reconcileFromCloud();
   }
 });
 
@@ -81,15 +86,14 @@ async function getConfig() {
  * Reads the current local outbox queue.
  */
 async function getQueue() {
-  const data = await chrome.storage.local.get("chatsave_outbox");
-  return data.chatsave_outbox || [];
+  return loadOutbox();  // IndexedDB, see queue_store.js
 }
 
 /**
  * Saves the local outbox queue.
  */
 async function saveQueue(queue) {
-  await chrome.storage.local.set({ chatsave_outbox: queue });
+  await storeOutbox(queue);
 }
 
 // Every read-modify-write of the outbox or dead-letter queue runs through this lock, so
@@ -103,11 +107,63 @@ function withQueueLock(fn) {
 }
 
 /**
+ * Attachments go to object storage once, not inside the queued JSON. For each inline file,
+ * ask the server for a presigned upload URL, PUT the bytes there, and keep only the link.
+ * If anything fails, the file stays inline, so a failed upload never loses a file.
+ */
+async function presignAttachment(config, name, contentType, conversationId, bytes) {
+  const headers = { "Content-Type": "application/json" };
+  if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
+  const res = await fetch(`${config.serverUrl}/api/attachments/presign`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      filename: name,
+      content_type: contentType,
+      conversation_id: conversationId || "default",
+      size_bytes: bytes.length,
+    }),
+  });
+  if (!res.ok) return null;  // storage not configured on the server, or an error: keep the file inline
+  const data = await res.json();
+  await rememberIssuedUpload(data.upload_url);
+  const put = await fetch(data.upload_url, {
+    method: "PUT",
+    headers: { "Content-Type": contentType, ...(data.headers || {}) },
+    body: bytes,
+  });
+  return put.ok ? data.file_url : null;
+}
+
+async function offloadAttachments(payload, config) {
+  for (const file of payload.files || []) {
+    if (typeof file.content !== "string" || !file.content.startsWith("data:") || !file.content.includes(";base64,")) {
+      continue;
+    }
+    try {
+      const b64 = file.content.split(";base64,")[1];
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const url = await presignAttachment(config, file.name || "attachment",
+        file.type || "application/octet-stream", payload.conversation_id, bytes);
+      if (url) {
+        file.url = url;
+        file.uploaded_to_s3 = true;
+        file.content = "";
+      }
+    } catch (err) {
+      console.warn("[Chat-Save] Attachment kept inline (upload failed):", err.message);
+    }
+  }
+}
+
+/**
  * Enqueue a conversation snapshot into the persistent outbox.
  */
 async function enqueue(payload) {
   const clientId = await getClientId();
   payload.client_id = clientId;
+  // Upload inline files first, so the queued copy holds only links (retries never re-upload).
+  await offloadAttachments(payload, await getConfig());
 
   const queue = await withQueueLock(async () => {
     const current = await getQueue();
@@ -205,8 +261,72 @@ async function purgeExpiredToDLQ() {
   });
 }
 
+const BATCH_SIZE = 10;  // conversations per request
+const PACE_MS = 600;    // pause between requests
+
+/** Build an Error from a failed response, keeping Retry-After for the queue. */
+async function httpError(res, url) {
+  const errText = await res.text();
+  let summary = `HTTP ${res.status}: ${errText.slice(0, 150)}`;
+  if (errText.includes("<title>Blocked</title>") || errText.includes("Cloudflare")) {
+    summary = `Blocked by Cloudflare/WAF at ${url} (HTTP ${res.status}). Verify Server URL in extension options.`;
+  }
+  const err = new Error(summary);
+  const retryAfter = Number(res.headers?.get?.("Retry-After"));
+  if (Number.isFinite(retryAfter) && retryAfter > 0) err.retryAfterMs = Math.min(retryAfter, 3600) * 1000;
+  return err;
+}
+
 /**
- * Process the local outbox queue with exponential backoff retry and request pacing.
+ * Send one group of queued items. Returns one outcome per item, in order:
+ * { receipt } when saved, or { error } when that item failed. Throws when the whole request failed.
+ */
+async function sendGroup(group, config) {
+  if (!config.serverUrl || config.serverUrl.includes("claude.ai")) {
+    throw new Error(`Invalid Server URL: "${config.serverUrl || ""}". Server URL must be your Chat-Save backend service (e.g. http://localhost:8000 or your Render URL), NOT claude.ai.`);
+  }
+  // The token identifies the person; no user is sent in the URL or body.
+  const headers = { "Content-Type": "application/json" };
+  if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
+
+  const batchUrl = `${config.serverUrl}/api/extension/ingest-batch`;
+  const res = await fetch(batchUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ items: group.map(i => i.payload) })
+  });
+
+  if (res.status === 404) {
+    // Older server without the batch endpoint: send the items one at a time.
+    const singleUrl = `${config.serverUrl}/api/extension/ingest`;
+    const outcomes = [];
+    for (const item of group) {
+      await new Promise(r => setTimeout(r, PACE_MS));
+      try {
+        const single = await fetch(singleUrl, { method: "POST", headers, body: JSON.stringify(item.payload) });
+        if (!single.ok) throw await httpError(single, singleUrl);
+        outcomes.push({ receipt: await single.json() });
+      } catch (err) {
+        outcomes.push({ error: err });
+      }
+    }
+    return outcomes;
+  }
+
+  if (!res.ok) throw await httpError(res, batchUrl);
+
+  const body = await res.json();
+  return group.map((_, k) => {
+    const r = body.results?.[k];
+    if (!r) return { error: new Error("HTTP 500: server returned no result for this conversation") };
+    if (r.status === "error") return { error: new Error(`HTTP 500: ${r.error || "save failed on the server"}`) };
+    return { receipt: r };
+  });
+}
+
+/**
+ * Process the local outbox queue: send due items in groups of BATCH_SIZE, with exponential
+ * backoff on failure and honouring Retry-After.
  */
 async function processQueue() {
   if (isProcessingQueue) return;
@@ -217,7 +337,7 @@ async function processQueue() {
     await purgeExpiredToDLQ();
 
     const config = await getConfig();
-    let queue = await getQueue();
+    const queue = await getQueue();
     if (!queue.length) {
       isProcessingQueue = false;
       return;
@@ -228,111 +348,101 @@ async function processQueue() {
     // items enqueued while we were sending are never lost or overwritten.
     const updates = new Map();   // id -> item with new attempts / nextAttemptAt / lastError
     const finished = new Set();  // ids delivered or moved to the dead-letter queue
+    const due = queue.filter(item => item.nextAttemptAt <= now);
 
-    for (let i = 0; i < queue.length; i++) {
-      const item = queue[i];
-      if (item.nextAttemptAt > now) {
-        continue;
-      }
+    // Returns true when the failure means the server or Cloudflare needs time (pause the run).
+    const failItem = async (item, err) => {
+      console.warn("[Chat-Save] Queue delivery failed:", err.message);
+      // A rate-limit reply that names a wait time is not a failed attempt.
+      if (!err.retryAfterMs) item.attempts += 1;
+      item.lastError = err.message;
 
-      // Smooth pacing between requests so we never flood Render or trigger Cloudflare rate limits
-      await new Promise(r => setTimeout(r, 600));
+      const isAuthError = err.message.includes("HTTP 401") || err.message.includes("Invalid Server URL");
+      const isRateLimitOrWaf = err.message.includes("Blocked") || err.message.includes("HTTP 403") || err.message.includes("HTTP 429") || err.message.includes("502") || err.message.includes("503") || err.message.includes("Failed to fetch");
+      const MAX_RETRIES = isAuthError ? 4 : 10;
 
-      try {
-        if (!config.serverUrl || config.serverUrl.includes("claude.ai")) {
-          throw new Error(`Invalid Server URL: "${config.serverUrl || ""}". Server URL must be your Chat-Save backend service (e.g. http://localhost:8000 or your Render URL), NOT claude.ai.`);
-        }
-
-        // The token identifies the person; no user is sent in the URL or body.
-        const url = `${config.serverUrl}/api/extension/ingest`;
-        const headers = {
-          "Content-Type": "application/json"
-        };
-        if (config.authToken) {
-          headers["Authorization"] = `Bearer ${config.authToken}`;
-        }
-
-        const res = await fetch(url, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(item.payload)
+      if (item.attempts >= MAX_RETRIES) {
+        await moveToDeadLetter({
+          ...item,
+          deadLetterAt: Date.now(),
+          failureReason: isAuthError
+            ? `Delivery failed (${err.message.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
+            : `Exceeded ${MAX_RETRIES} attempts: ${err.message}`
         });
-
-        if (!res.ok) {
-          const errText = await res.text();
-          let summary = `HTTP ${res.status}: ${errText.slice(0, 150)}`;
-          if (errText.includes("<title>Blocked</title>") || errText.includes("Cloudflare")) {
-            summary = `Blocked by Cloudflare/WAF at ${url} (HTTP ${res.status}). Verify Server URL in extension options.`;
-          }
-          throw new Error(summary);
-        }
-
-        const receipt = await res.json();
-        await chrome.storage.local.set({
-          chatsave_last_receipt: receipt,
-          chatsave_last_sync_time: new Date().toISOString()
-        });
-
         finished.add(item.id);
+        console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
         broadcastToTabs({
-          type: "SYNC_SUCCESS",
+          type: "DEAD_LETTER_EVENT",
           conversationId: item.payload?.conversation_id,
-          capturedAt: item.payload?.captured_at,
-          receipt
+          error: item.lastError
         });
-
-      } catch (err) {
-        console.warn("[Chat-Save] Queue delivery failed:", err.message);
-        item.attempts += 1;
-        item.lastError = err.message;
-
-        const isAuthError = err.message.includes("HTTP 401") || err.message.includes("Invalid Server URL");
-        const isRateLimitOrWaf = err.message.includes("Blocked") || err.message.includes("HTTP 403") || err.message.includes("HTTP 429") || err.message.includes("502") || err.message.includes("503") || err.message.includes("Failed to fetch");
-        const MAX_RETRIES = isAuthError ? 4 : 10;
-
-        if (item.attempts >= MAX_RETRIES) {
-          await moveToDeadLetter({
-            ...item,
-            deadLetterAt: Date.now(),
-            failureReason: isAuthError
-              ? `Delivery failed (${err.message.slice(0, 120)}) - Please check Server URL & Auth Token in settings`
-              : `Exceeded ${MAX_RETRIES} attempts: ${err.message}`
-          });
-          finished.add(item.id);
-          console.error(`[Chat-Save] Item moved to Dead Letter Queue: ${item.id}`, item.lastError);
-          broadcastToTabs({
-            type: "DEAD_LETTER_EVENT",
-            conversationId: item.payload?.conversation_id,
-            error: item.lastError
-          });
-        } else {
-          // Exponential backoff with jitter (longer backoff for rate limiting/WAF blocks)
-          const backoffMs = isRateLimitOrWaf
+      } else {
+        // Exponential backoff with jitter (longer backoff for rate limiting/WAF blocks)
+        const backoffMs = err.retryAfterMs
+          ? err.retryAfterMs
+          : isRateLimitOrWaf
             ? (10000 + Math.random() * 5000)
             : (Math.min(120000, 2000 * Math.pow(2, item.attempts)) + Math.random() * 1000);
-          item.nextAttemptAt = Date.now() + backoffMs;
-          updates.set(item.id, item);
+        item.nextAttemptAt = Date.now() + backoffMs;
+        updates.set(item.id, item);
+      }
+
+      broadcastToTabs({
+        type: "SYNC_ERROR",
+        conversationId: item.payload?.conversation_id,
+        error: err.message,
+        pendingCount: queue.length - finished.size
+      });
+      return isRateLimitOrWaf;
+    };
+
+    const succeed = async (item, receipt) => {
+      finished.add(item.id);
+      await chrome.storage.local.set({
+        chatsave_last_receipt: receipt,
+        chatsave_last_sync_time: new Date().toISOString()
+      });
+      if (item.payload?.source === "reconcile") {
+        await markSynced(item.payload.conversation_id, item.payload.captured_at);
+      }
+      broadcastToTabs({
+        type: "SYNC_SUCCESS",
+        conversationId: item.payload?.conversation_id,
+        capturedAt: item.payload?.captured_at,
+        receipt
+      });
+    };
+
+    for (let start = 0; start < due.length; start += BATCH_SIZE) {
+      const group = due.slice(start, start + BATCH_SIZE);
+      // Smooth pacing so we never flood Render or trigger Cloudflare rate limits
+      await new Promise(r => setTimeout(r, PACE_MS));
+
+      let outcomes;
+      try {
+        outcomes = await sendGroup(group, config);
+      } catch (groupErr) {
+        // The whole request failed (network, server error, rate limit, bad URL).
+        let pause = false;
+        for (const item of group) {
+          pause = (await failItem(item, groupErr)) || pause;
         }
-
-        broadcastToTabs({
-          type: "SYNC_ERROR",
-          conversationId: item.payload?.conversation_id,
-          error: err.message,
-          pendingCount: queue.length - finished.size
-        });
-
-        // If rate limited or Cloudflare blocked or server down, pause remaining items instead of failing all 50+ immediately
-        if (isRateLimitOrWaf) {
+        if (pause) {
+          // Pause what is left instead of failing it all: the server or Cloudflare needs time.
           console.warn("[Chat-Save] Pausing queue batch processing to allow Cloudflare/server to cool down");
-          for (let j = i + 1; j < queue.length; j++) {
-            const nextItem = queue[j];
-            if (nextItem.nextAttemptAt <= now) {
-              nextItem.nextAttemptAt = Date.now() + 8000 + Math.random() * 4000;
-              updates.set(nextItem.id, nextItem);
-            }
+          for (const item of due.slice(start + BATCH_SIZE)) {
+            item.nextAttemptAt = Date.now() + 8000 + Math.random() * 4000;
+            updates.set(item.id, item);
           }
           break;
         }
+        continue;
+      }
+
+      for (let k = 0; k < group.length; k++) {
+        const outcome = outcomes[k];
+        if (outcome.error) await failItem(group[k], outcome.error);
+        else await succeed(group[k], outcome.receipt);
       }
     }
 
@@ -365,15 +475,14 @@ async function processQueue() {
  * Reads the dead letter queue.
  */
 async function getDeadLetterQueue() {
-  const data = await chrome.storage.local.get("chatsave_dead_letter");
-  return data.chatsave_dead_letter || [];
+  return loadDeadLetter();  // IndexedDB, see queue_store.js
 }
 
 /**
  * Saves the dead letter queue.
  */
 async function saveDeadLetterQueue(dlq) {
-  await chrome.storage.local.set({ chatsave_dead_letter: dlq });
+  await storeDeadLetter(dlq);
 }
 
 // Upload URLs this extension obtained from /api/attachments/presign. UPLOAD_TO_S3 only PUTs to
@@ -672,98 +781,4 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     return true;
   }
 
-  if (req.type === "TRIGGER_RECONCILE") {
-    chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
-      if (tabs && tabs.length > 0) {
-        chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays: req.maxDays || 2 }, (res) => {
-          if (chrome.runtime.lastError) {
-            sendResponse({
-              success: false,
-              error: "Please refresh your open Claude.ai tab to reconnect the extension."
-            });
-            return;
-          }
-          sendResponse(res || { success: true, enqueued: 0, message: "Reconciliation initiated" });
-        });
-      } else {
-        sendResponse({ success: false, error: "No active claude.ai tab open" });
-      }
-    });
-    return true;
-  }
-
-  if (req.type === "DETECT_USER") {
-      (async () => {
-        // 1. Check cached detection
-        const stored = await chrome.storage.local.get(["chatsave_detected_user", "chatsave_config"]);
-        if (stored.chatsave_detected_user) {
-          sendResponse({ success: true, user: stored.chatsave_detected_user });
-          return;
-        }
-        if (stored.chatsave_config?.userId && stored.chatsave_config.userId !== "user" && stored.chatsave_config.userId !== "unknown") {
-          sendResponse({ success: true, user: stored.chatsave_config.userId });
-          return;
-        }
-  
-        // 2. Query open Claude tabs
-        chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
-          if (!tabs || tabs.length === 0) {
-            sendResponse({
-              success: false,
-              error: "No active claude.ai tab found. Please open claude.ai in Chrome and log in, then click Auto-Detect."
-            });
-            return;
-          }
-  
-          let answered = false;
-          let attempts = tabs.length;
-          let hadDisconnect = false;
-  
-          tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, { type: "GET_CLAUDE_USER" }, (res) => {
-              if (chrome.runtime.lastError) {
-                hadDisconnect = true;
-              } else if (res && res.user && !answered) {
-                answered = true;
-                chrome.storage.local.set({ chatsave_detected_user: res.user });
-                sendResponse({ success: true, user: res.user });
-                return;
-              }
-  
-              attempts--;
-              if (attempts === 0 && !answered) {
-                if (hadDisconnect) {
-                  sendResponse({
-                    success: false,
-                    error: "Claude tab found, but was open before extension reload. Please refresh (F5) your claude.ai tab, then click Auto-Detect."
-                  });
-                } else {
-                  sendResponse({
-                    success: false,
-                    error: "Could not auto-detect Claude user. Make sure you are logged into claude.ai."
-                  });
-                }
-              }
-            });
-          });
-        });
-      })();
-      return true;
-    }
 });
-
-/**
- * Sends a message to the active claude.ai tab to reconcile recent conversations from the past 48 hours.
- */
-function triggerReconcileInTabs(maxDays = 2) {
-  chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
-    if (tabs && tabs.length > 0) {
-      chrome.tabs.sendMessage(tabs[0].id, { type: "TRIGGER_RECONCILE", maxDays }, () => {
-        if (chrome.runtime.lastError) {
-          // Tab not refreshed or script not ready; safely consumed
-        }
-      });
-    }
-  });
-}
-

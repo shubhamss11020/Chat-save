@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import math
 from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
@@ -9,11 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import capture, outbox, s3, state
 from .auth import TokenAuth, current_user, token_bound_var
-from .config import ADMIN_USERS, CAPTURE, CORS_ORIGINS, RECONCILE_SECONDS, UNKNOWN_USER
+from .config import ADMIN_USERS, CAPTURE, CORS_ORIGINS, INGEST_RATE_PER_MIN, RECONCILE_SECONDS, UNKNOWN_USER
+from .ratelimit import SlidingWindowLimiter
 from .mcp_server import mcp
 from .models import (
     Conversation,
     ConversationEvent,
+    ExtensionBatchPayload,
     ExtensionHeartbeat,
     ExtensionIngestPayload,
     ExtensionIngestResponse,
@@ -26,6 +29,7 @@ from .sources.claude_desktop import ClaudeDesktopSource
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("chatsave")
 
+ingest_limiter = SlidingWindowLimiter(INGEST_RATE_PER_MIN)
 controller = capture.CaptureController({
     "claude": ClaudeSource(),
     "claude_desktop": ClaudeDesktopSource()
@@ -128,9 +132,33 @@ def extension_ingest(payload: ExtensionIngestPayload, bg: BackgroundTasks):
     and returns a save receipt with deduplication status.
     """
     effective_user = current_user.get() or payload.user_id or ""
+    wait = ingest_limiter.check(effective_user or UNKNOWN_USER)
+    if wait:
+        raise HTTPException(status_code=429, detail="Too many saves; try again shortly.",
+                            headers={"Retry-After": str(math.ceil(wait))})
     receipt = state.ingest_extension(payload, effective_user=effective_user)
     bg.add_task(outbox.drain)
     return receipt
+
+
+@app.post("/api/extension/ingest-batch")
+def extension_ingest_batch(batch: ExtensionBatchPayload, bg: BackgroundTasks):
+    """Several conversations in one request. Each item gets its own receipt, so one bad item
+    does not fail the others. The batch counts as one request for the rate limit."""
+    effective_user = current_user.get() or ""
+    wait = ingest_limiter.check(effective_user or UNKNOWN_USER)
+    if wait:
+        raise HTTPException(status_code=429, detail="Too many saves; try again shortly.",
+                            headers={"Retry-After": str(math.ceil(wait))})
+    results = []
+    for item in batch.items:
+        try:
+            results.append(state.ingest_extension(item, effective_user=effective_user))
+        except Exception as e:  # keep the others going
+            log.exception("batch item %s failed", item.conversation_id)
+            results.append({"conversation_id": item.conversation_id, "status": "error", "error": str(e)[:200]})
+    bg.add_task(outbox.drain)
+    return {"results": results}
 
 
 @app.post("/api/extension/heartbeat")
@@ -153,14 +181,6 @@ def extension_heartbeat(hb: ExtensionHeartbeat):
 def list_extension_clients():
     """List all reporting browser extensions and their telemetry for monitoring."""
     return {"clients": state.get_heartbeats()}
-
-
-@app.get("/api/extension/synced-state")
-def get_extension_synced_state():
-    """Return map of {conversation_id: updated_at} of all conversations already saved in SQLite or Git."""
-    effective_user = current_user.get() or UNKNOWN_USER
-    return state.get_committed_conversations(effective_user)
-
 
 
 @app.post("/api/outbox/retry-dlq")

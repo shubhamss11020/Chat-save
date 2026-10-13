@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       if (!who.ok) throw new Error(`whoami failed: HTTP ${who.status}`);
       const identity = await who.json();
-      showIdentity(identity.user, identity.token_bound);
+      showIdentity({ user: identity.user, tokenBound: identity.token_bound });
       await chrome.storage.local.set({
         chatsave_config: {
           serverUrl: url,
@@ -154,29 +154,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Auto-Detect: informational only. It shows which Claude session the browser is logged into.
-  // It never sets the identity; transcripts are filed under the name in the server token.
-  const btnAutoDetect = document.getElementById("btnAutoDetect");
-  if (btnAutoDetect) {
-    btnAutoDetect.addEventListener("click", () => {
-      btnAutoDetect.disabled = true;
-      btnAutoDetect.textContent = "Detecting...";
-      chrome.runtime.sendMessage({ type: "DETECT_USER" }, (res) => {
-        btnAutoDetect.disabled = false;
-        btnAutoDetect.textContent = "Auto-Detect";
-        if (chrome.runtime.lastError) {
-          showAlert("Extension error: " + chrome.runtime.lastError.message, "error");
-          return;
-        }
-        if (res && res.success && res.user) {
-          showAlert(`Browser is logged into Claude as "${res.user}" (information only). Your transcripts are filed under the name in your token.`, "normal");
-        } else {
-          showAlert(res?.error || "Could not detect the Claude session. Make sure claude.ai is open and refresh it (F5).", "error");
-        }
-      });
-    });
-  }
-
   /** Show who the server says this token belongs to. Text only, never HTML. */
   function showIdentity(identity, tokenBound) {
     identityEl.replaceChildren();
@@ -186,8 +163,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       identityEl.append(s, document.createTextNode(" — click Test Connection."));
       return;
     }
-    const name = typeof identity === "string" ? identity : identity.user;
-    const bound = typeof identity === "string" ? tokenBound : identity.tokenBound;
+    const name = identity.user;
+    const bound = identity.tokenBound;
     const s = document.createElement("strong");
     s.textContent = name;
     identityEl.append(document.createTextNode("Signed in as "), s,
@@ -208,24 +185,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // 5. Queue Inspector
+  // 5. Waiting to save
   async function loadQueue() {
     await new Promise(r => chrome.runtime.sendMessage({ type: "GET_STATUS" }, () => {
       if (chrome.runtime.lastError) { /* consumed */ }
       r();
     }));
-    const data = await chrome.storage.local.get("chatsave_outbox");
-    const queue = data.chatsave_outbox || [];
+    const queue = await loadOutbox();
 
     if (queue.length === 0) {
-      queueSummary.textContent = "Outbox is completely clear. All captured chats delivered.";
+      queueSummary.textContent = "Everything has been saved. Nothing is waiting.";
       queueTable.style.display = "none";
       btnRetryQueue.disabled = true;
       btnClearQueue.disabled = true;
       return;
     }
 
-    queueSummary.textContent = `${queue.length} item(s) waiting in offline queue:`;
+    queueSummary.textContent = `${queue.length} conversation(s) waiting to be saved:`;
     queueTable.style.display = "table";
     btnRetryQueue.disabled = false;
     btnClearQueue.disabled = false;
@@ -252,13 +228,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadQueue();
         loadDLQ();
         btnRetryQueue.disabled = false;
-        btnRetryQueue.textContent = "Retry Outbox";
+        btnRetryQueue.textContent = "Try again now";
       }, 600);
     });
   });
 
   btnClearQueue.addEventListener("click", () => {
-    if (confirm("Are you sure you want to clear all pending items in the offline queue?")) {
+    if (confirm("Discard all conversations waiting to be saved? They will not be saved.")) {
       btnClearQueue.disabled = true;
       chrome.runtime.sendMessage({ type: "CLEAR_QUEUE" }, () => {
         if (chrome.runtime.lastError) { /* consumed */ }
@@ -269,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // 6. Dead Letter Queue Inspector
+  // 6. Could not save
   const dlqSummary = document.getElementById("dlqSummary");
   const dlqTable = document.getElementById("dlqTable");
   const dlqTbody = document.getElementById("dlqTbody");
@@ -277,18 +253,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnClearDLQ = document.getElementById("btnClearDLQ");
 
   async function loadDLQ() {
-    const data = await chrome.storage.local.get("chatsave_dead_letter");
-    const dlq = data.chatsave_dead_letter || [];
+    const dlq = await loadDeadLetter();
 
     if (dlq.length === 0) {
-      dlqSummary.textContent = "0 failed items in Dead Letter Queue (all clear).";
+      dlqSummary.textContent = "Nothing has failed.";
       dlqTable.style.display = "none";
       btnRetryDLQ.disabled = true;
       btnClearDLQ.disabled = true;
       return;
     }
 
-    dlqSummary.textContent = `${dlq.length} item(s) permanently failed and saved in Dead Letter Queue:`;
+    dlqSummary.textContent = `${dlq.length} conversation(s) could not be saved:`;
     dlqTable.style.display = "table";
     btnRetryDLQ.disabled = false;
     btnClearDLQ.disabled = false;
@@ -317,43 +292,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   btnClearDLQ.addEventListener("click", () => {
-    if (confirm("Are you sure you want to discard all items in the Dead Letter Queue?")) {
+    if (confirm("Discard conversations that could not be saved? This cannot be undone.")) {
       chrome.runtime.sendMessage({ type: "CLEAR_DEAD_LETTER" }, () => {
         if (chrome.runtime.lastError) { /* consumed */ }
         loadDLQ();
       });
     }
   });
-
-  const btnOptionsReconcile = document.getElementById("btnOptionsReconcile");
-  const reconcileStatusText = document.getElementById("reconcileStatusText");
-  if (btnOptionsReconcile) {
-    btnOptionsReconcile.addEventListener("click", () => {
-      btnOptionsReconcile.disabled = true;
-      btnOptionsReconcile.textContent = "Scanning Claude Conversations...";
-      if (reconcileStatusText) reconcileStatusText.textContent = "Connecting to open Claude tab to fetch recent conversation list...";
-      chrome.runtime.sendMessage({ type: "TRIGGER_RECONCILE", maxDays: 2 }, (res) => {
-        if (chrome.runtime.lastError) {
-          btnOptionsReconcile.disabled = false;
-          btnOptionsReconcile.textContent = "Scan & Sync Recent Chats (Past 48h)";
-          if (reconcileStatusText) reconcileStatusText.textContent = "⚠ Could not connect to Claude tab. Please refresh your open claude.ai tab.";
-          return;
-        }
-        setTimeout(() => {
-          btnOptionsReconcile.disabled = false;
-          btnOptionsReconcile.textContent = "Scan & Sync Recent Chats (Past 48h)";
-          if (res && res.enqueued > 0) {
-            if (reconcileStatusText) reconcileStatusText.textContent = `✓ Found and queued ${res.enqueued} stale/mobile conversation(s) into outbox for syncing!`;
-          } else if (res && res.error) {
-            if (reconcileStatusText) reconcileStatusText.textContent = `⚠ ${res.error}`;
-          } else {
-            if (reconcileStatusText) reconcileStatusText.textContent = "✓ All conversations from the past 48h are already up-to-date.";
-          }
-          loadQueue();
-        }, 1500);
-      });
-    });
-  }
 
   loadQueue();
   loadDLQ();

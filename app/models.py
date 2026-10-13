@@ -51,6 +51,8 @@ class ExtensionIngestPayload(BaseModel):
     files: list[dict] = Field(default_factory=list)
     is_final: bool = True
     captured_at: Optional[str] = None
+    created_at: Optional[str] = None   # Claude's creation time (cloud sync)
+    source: Optional[str] = None       # "reconcile" for cloud sync, otherwise a page capture
 
 
 class ExtensionHeartbeat(BaseModel):
@@ -86,3 +88,9 @@ class PresignUploadResponse(BaseModel):
     s3_key: str
     method: str = "PUT"
     headers: dict[str, str] = Field(default_factory=dict)
+
+
+class ExtensionBatchPayload(BaseModel):
+    """Several captured conversations in one request (the extension sends up to 25 at a time)."""
+    items: list[ExtensionIngestPayload] = Field(default_factory=list, max_length=25)
+

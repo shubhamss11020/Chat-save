@@ -1,22 +1,13 @@
-"""Background outbox worker: pending snapshots -> MCP server (or local Git) -> completed."""
+"""Background outbox worker: pending conversations -> local Git archive -> completed."""
 import logging
 import threading
+import time
 
-from . import gitstore, mcp_client, state
-from .config import BATCH_SIZE, MCP_URL
+from . import gitstore, state
+from .config import BATCH_SIZE
 
 log = logging.getLogger("chatsave")
 _drain_lock = threading.Lock()  # hook events and the periodic tick must not claim twice
-
-
-def _deliver(convs) -> dict:
-    # PREVIOUS IMPLEMENTATION (COMMENTED OUT):
-    # The outbox previously called the MCP save_chat_transcript tool remotely:
-    # return mcp_client.save_batch(convs) if MCP_URL else gitstore.save_batch(convs)
-    
-    # DIRECT GITHUB REPO FUNCTIONALITY:
-    # Saves rendered markdown directly to raw_queries/<user>/claude/<slug>.md and pushes to Git
-    return gitstore.save_batch(convs)
 
 
 def drain() -> int:
@@ -32,8 +23,8 @@ def _drain() -> int:
         if not batch:
             return done
         try:
-            result = _deliver([c for _, c in batch])
-        except Exception as e:  # server/Git unreachable: nothing is lost, retry later
+            result = gitstore.save_batch([c for _, c in batch])
+        except Exception as e:  # Git unreachable: nothing is lost, retry later
             log.warning("delivery failed, will retry: %s", e)
             state.fail([i for i, _ in batch], str(e))
             return done
@@ -44,5 +35,7 @@ def _drain() -> int:
             if c.id not in saved:
                 state.fail([i], failed.get(c.id, "not saved"))
         state.complete(ok)
+        if ok:
+            state.set_sig("archive", "last_commit", str(time.time()))  # for /status monitoring
         done += len(ok)
-        log.info("saved %d conversation(s) via %s", len(ok), "MCP" if MCP_URL else "Git")
+        log.info("saved %d conversation(s) to the archive", len(ok))

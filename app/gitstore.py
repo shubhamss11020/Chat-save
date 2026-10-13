@@ -9,7 +9,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 from typing import Optional
 
-from . import s3
+from . import s3, state
 from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, UNKNOWN_USER, USERNAME
 from .models import Conversation, Message
 
@@ -174,13 +174,6 @@ def render(conv: Conversation, created_at: str = "", updated_at: str = "") -> st
     return "\n".join(out)
 
 
-def rel_path(conv: Conversation) -> str:
-    # Use title for filename so it's human-readable on GitHub
-    uname = _normalize_username(conv.username or USERNAME)
-    name_slug = _slug(conv.title) if conv.title and conv.title.lower() != "untitled conversation" else _slug(conv.id)
-    return f"{uname}/{conv.platform}/{name_slug}.md"
-
-
 def _parse_existing_messages(text: str) -> list[Message]:
     """Parse existing markdown messages into a list of Message objects."""
     messages = []
@@ -264,29 +257,12 @@ def _merge_messages(existing: list[Message], incoming: list[Message]) -> list[Me
     return merged
 
 
-STOP_WORDS = {
-    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "with",
-    "of", "by", "from", "up", "about", "into", "over", "after", "is", "are", "was",
-    "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "not",
-    "conv", "claude", "gpt", "chat", "thread"
-}
-
-CONTINUATION_PREFIXES = (
-    "similarly", "also", "and", "next", "continue", "now", "what about",
-    "how about", "same for", "do for", "compare with", "another", "as well",
-    "tell me more", "explain further", "why", "how to fix", "fix this",
-    "can you also", "could you", "in addition", "follow up", "following up"
-)
-
-
-def _extract_keywords(text: str) -> set[str]:
-    """Extract significant lowercase keywords from a title or slug."""
-    tokens = re.findall(r"[a-zA-Z0-9]+", text.lower())
-    return {t for t in tokens if len(t) >= 3 and t not in STOP_WORDS}
-
-
 def _find_existing_thread_file(conv: Conversation) -> Path | None:
     """Find if a file already exists for this thread deterministically by conversation_id or exact slug."""
+    # Fast path: the database remembers where each conversation was written, so saves do not scan folders.
+    indexed = state.get_archive_path(conv.id) if conv.id else None
+    if indexed and (GIT_DIR / indexed).is_file():
+        return GIT_DIR / indexed
     uname = _normalize_username(conv.username or USERNAME)
     search_dirs = [GIT_DIR / uname / conv.platform]
     legacy_user_dir = GIT_DIR / "user" / conv.platform
@@ -332,13 +308,27 @@ def _find_existing_thread_file(conv: Conversation) -> Path | None:
     return None
 
 
-def commit_snapshot(conv: Conversation) -> None:
-    """Write + commit one transcript. Merges new turns into existing file if present."""
+def _paths_for(conv: Conversation) -> list[str]:
+    """Paths of an already-written conversation, for committing on its own."""
+    rel = state.get_archive_path(conv.id)
+    if not rel:
+        return []
+    paths = [f"raw_queries/{rel}"]
+    stem = Path(rel).stem
+    files_dir = GIT_DIR / Path(rel).parent / f"{stem}_files"
+    if files_dir.exists() and any(p.is_file() for p in files_dir.rglob("*")):
+        paths.append(f"raw_queries/{Path(rel).parent.as_posix()}/{stem}_files")
+    return paths
+
+
+def write_snapshot(conv: Conversation) -> list[str]:
+    """Write one transcript to disk. Merges new turns into the existing file if present.
+    Returns the git-relative paths to commit (empty if nothing changed)."""
     uname = _normalize_username(conv.username or conv.user_id or USERNAME)
     existing_file = _find_existing_thread_file(conv)
 
     if existing_file:
-        rel = f"{uname}/{conv.platform}/{existing_file.name}"
+        rel = existing_file.relative_to(GIT_DIR).as_posix()
         path = GIT_DIR / rel
         path.parent.mkdir(parents=True, exist_ok=True)
     else:
@@ -391,7 +381,8 @@ def commit_snapshot(conv: Conversation) -> None:
         else:
             created_at = now_est
 
-    updated_at = now_est
+    # Header time = Claude's last activity on the conversation, not the time it was saved here.
+    updated_at = _format_to_edt(conv.updated_at) or now_est
 
     # Authoritative canonical message list: merge robustly to preserve all multi-prompt turns
     valid_incoming = [m for m in conv.messages if m.content and m.content.strip()]
@@ -432,7 +423,7 @@ def commit_snapshot(conv: Conversation) -> None:
             old_body = re.sub(r'(?m)^updated_at:.*$', '', old_full).strip()
             new_body = re.sub(r'(?m)^updated_at:.*$', '', rendered_text).strip()
             if old_body == new_body and not conv.files:
-                return  # Identical snapshot already committed on disk, skip redundant write & git op
+                return []  # Identical snapshot already on disk, nothing to write or commit
         except Exception:
             pass
     path.write_text(rendered_text, encoding="utf-8", newline="\n")
@@ -480,21 +471,34 @@ def commit_snapshot(conv: Conversation) -> None:
                 target_f.write_text(str(fcontent), encoding="utf-8", newline="\n")
                 f["has_file_on_disk"] = True
 
-    full = f"raw_queries/{rel}"
-    full_files = f"raw_queries/{uname}/{conv.platform}/{path.stem}_files"
-    _check(_git("add", "--", full), "git add")
-    if files_dir.exists():
-        _check(_git("add", "--", full_files), "git add files")
+    # Remember where this conversation lives, so the next save finds it without a folder scan.
+    state.set_archive_path(conv.id, rel)
+    paths = [f"raw_queries/{rel}"]
+    if files_dir.exists() and any(p.is_file() for p in files_dir.rglob("*")):
+        paths.append(f"raw_queries/{uname}/{conv.platform}/{path.stem}_files")
+    return paths
 
+
+def _commit_paths(paths: list[str], labels: list[str], when: str) -> None:
+    """Stage the given paths and make ONE commit for all of them (skipped if nothing changed)."""
+    unique = list(dict.fromkeys(paths))
+    if not unique:
+        return
+    _check(_git("add", "--", *unique), "git add")
     if _git("diff", "--cached", "--quiet").returncode == 0:
         return  # identical to what is already committed
+    if len(labels) == 1:
+        commit_msg = f"claude: [{when}] {labels[0]}"
+    else:
+        commit_msg = f"claude: [{when}] archived {len(labels)} conversations"
+    _check(_git("commit", "-m", commit_msg, "--", *unique), "git commit")
 
-    edt_commit_time = _format_to_edt(updated_at or created_at or now_est)
-    commit_msg = f"{conv.platform}: [{edt_commit_time}] {conv.title} ({conv.id[:8]})"
-    commit_args = ["commit", "-m", commit_msg, "--", full]
-    if files_dir.exists():
-        commit_args.append(full_files)
-    _check(_git(*commit_args), "git commit")
+
+def commit_snapshot(conv: Conversation) -> None:
+    """Write and commit one transcript."""
+    paths = write_snapshot(conv)
+    when = _format_to_edt(conv.updated_at or conv.created_at) or datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M:%S %Z")
+    _commit_paths(paths, [f"{conv.title} ({conv.id[:8]})"], when)
 
 
 def prepare() -> None:
@@ -527,7 +531,7 @@ def push() -> None:
         # Step 1: Pull with rebase & autostash
         _git("pull", "--rebase", "--autostash", "origin", GIT_BRANCH)
         _check(_git("push", "-u", "origin", f"HEAD:{GIT_BRANCH}"), "git push")
-    except Exception as first_err:
+    except Exception:
         try:
             # Step 2: Retry with explicit fetch + rebase
             _git("fetch", "origin", GIT_BRANCH)
@@ -545,12 +549,28 @@ def save_batch(convs: list[Conversation]) -> dict:
     with _lock:
         prepare()
         saved, failed = [], {}
+        written, paths = [], []
         for c in convs:
             try:
-                commit_snapshot(c)
-                saved.append(c.id)
+                paths.extend(write_snapshot(c))
+                written.append(c)
             except Exception as e:
                 failed[c.id] = str(e)
+        if written:
+            try:
+                when = datetime.now(EASTERN).strftime("%Y-%m-%d %H:%M:%S %Z")
+                labels = [f"{c.title} ({c.id[:8]})" for c in written]
+                _commit_paths(paths, labels, when)
+                saved = [c.id for c in written]
+            except Exception:
+                # Commit each conversation separately, so one bad item cannot hold up the rest.
+                saved = []
+                for c in written:
+                    try:
+                        _commit_paths(_paths_for(c), [f"{c.title} ({c.id[:8]})"], when)
+                        saved.append(c.id)
+                    except Exception as single_err:
+                        failed[c.id] = str(single_err)
         if saved:
             try:
                 push()
@@ -561,57 +581,55 @@ def save_batch(convs: list[Conversation]) -> dict:
 
 def search_transcripts(query: str, user: str = "") -> str:
     """Search saved markdown transcripts by keyword, title, or content."""
-    with _lock:
-        prepare()
-        if not GIT_DIR.exists():
-            return "No transcripts saved yet."
-        u = _normalize_username(user) if user else ""
-        target_dir = GIT_DIR / u if u and u != "user" else GIT_DIR
-        if not target_dir.exists():
-            return f"No transcripts found for user '{user}'."
-        files = sorted(target_dir.rglob("*.md"), reverse=True)
-        if not files:
-            return "No transcripts found."
-        q = query.lower()
-        results = []
-        for path in files:
-            try:
-                content = path.read_text(encoding="utf-8")
-                lines = content.splitlines()
-                matches = []
-                for i, line in enumerate(lines):
-                    if q in line.lower():
-                        start = max(0, i - 1)
-                        end = min(len(lines), i + 3)
-                        matches.append("\n".join(lines[start:end]))
-                if matches:
-                    rel = path.relative_to(REPO_DIR)
-                    results.append(f"### {rel}\n" + "\n---\n".join(matches[:3]))
-            except Exception:
-                continue
-        if not results:
-            return f"No results for '{query}'."
-        return f"Total results for '{query}': {len(results)}\n\n" + "\n\n".join(results[:10])
+    # Reads take no lock: a save never makes a search or list wait.
+    if not GIT_DIR.exists():
+        return "No transcripts saved yet."
+    u = _normalize_username(user) if user else ""
+    target_dir = GIT_DIR / u if u and u != "user" else GIT_DIR
+    if not target_dir.exists():
+        return f"No transcripts found for user '{user}'."
+    files = sorted(target_dir.rglob("*.md"), reverse=True)
+    if not files:
+        return "No transcripts found."
+    q = query.lower()
+    results = []
+    for path in files:
+        try:
+            content = path.read_text(encoding="utf-8")
+            lines = content.splitlines()
+            matches = []
+            for i, line in enumerate(lines):
+                if q in line.lower():
+                    start = max(0, i - 1)
+                    end = min(len(lines), i + 3)
+                    matches.append("\n".join(lines[start:end]))
+            if matches:
+                rel = path.relative_to(REPO_DIR)
+                results.append(f"### {rel}\n" + "\n---\n".join(matches[:3]))
+        except Exception:
+            continue
+    if not results:
+        return f"No results for '{query}'."
+    return f"Total results for '{query}': {len(results)}\n\n" + "\n\n".join(results[:10])
 
 
 def list_transcripts(user: str = "") -> str:
     """List all saved markdown transcripts, newest first."""
-    with _lock:
-        prepare()
-        if not GIT_DIR.exists():
-            return "No transcripts saved yet."
-        u = _normalize_username(user) if user else ""
-        target_dir = GIT_DIR / u if u and u != "user" else GIT_DIR
-        if not target_dir.exists():
-            return f"No transcripts found for user '{user}'."
-        files = sorted(target_dir.rglob("*.md"), reverse=True)
-        if not files:
-            return "No transcripts saved yet."
-        lines = []
-        for f in files[:100]:
-            rel = str(f.relative_to(REPO_DIR))
-            lines.append(f"- [{f.stem}]({rel})")
-        return f"Total saved transcripts: {len(files)}\n\n" + "\n".join(lines)
+    # Reads take no lock: a save never makes a search or list wait.
+    if not GIT_DIR.exists():
+        return "No transcripts saved yet."
+    u = _normalize_username(user) if user else ""
+    target_dir = GIT_DIR / u if u and u != "user" else GIT_DIR
+    if not target_dir.exists():
+        return f"No transcripts found for user '{user}'."
+    files = sorted(target_dir.rglob("*.md"), reverse=True)
+    if not files:
+        return "No transcripts saved yet."
+    lines = []
+    for f in files[:100]:
+        rel = str(f.relative_to(REPO_DIR))
+        lines.append(f"- [{f.stem}]({rel})")
+    return f"Total saved transcripts: {len(files)}\n\n" + "\n".join(lines)
 
 
 def _safe_transcript_path(file_path: str) -> Path | None:
@@ -627,13 +645,12 @@ def _safe_transcript_path(file_path: str) -> Path | None:
 
 def get_transcript(file_path: str, owner: str | None = None) -> str:
     """Read a transcript by relative path. If `owner` is given, only that user's folder is readable."""
-    with _lock:
-        prepare()
-        p = _safe_transcript_path(file_path)
-        if p is None:
+    # Reads take no lock: a save never makes a search or list wait.
+    p = _safe_transcript_path(file_path)
+    if p is None:
+        return f"File not found: {file_path}"
+    if owner is not None:
+        first = p.relative_to(GIT_DIR.resolve()).parts[0]
+        if first != _user_folder(owner):
             return f"File not found: {file_path}"
-        if owner is not None:
-            first = p.relative_to(GIT_DIR.resolve()).parts[0]
-            if first != _user_folder(owner):
-                return f"File not found: {file_path}"
-        return p.read_text(encoding="utf-8")
+    return p.read_text(encoding="utf-8")

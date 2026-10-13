@@ -15,7 +15,6 @@
   let pendingCount = 0;
   let currentQueuedIds = new Set();
   let currentDlqIds = new Set();
-  let detectedUser = null;
   let isContextInvalidated = false;
   let urlCheckInterval = null;
   let sidebarInterval = null;
@@ -134,106 +133,6 @@
         resolve();
       }
     });
-  }
-
-  function safeStorageRemove(keys) {
-    return new Promise((resolve) => {
-      if (!isExtensionValid()) {
-        resolve();
-        return;
-      }
-      try {
-        chrome.storage.local.remove(keys, () => {
-          try {
-            if (chrome.runtime && chrome.runtime.lastError) { /* consumed */ }
-          } catch (e) {}
-          resolve();
-        });
-      } catch (e) {
-        markContextInvalidated();
-        resolve();
-      }
-    });
-  }
-
-  // Auto-detect authenticated Claude user (email handle / name) from session
-  async function resolveClaudeUser() {
-    if (detectedUser) return detectedUser;
-    let found = null;
-
-    // 1. Direct auth current_user endpoint
-    try {
-      const res = await fetch("/api/auth/current_user", { credentials: "include" });
-      if (res.ok) {
-        const u = await res.json();
-        const email = u.email_address || u.email || u.account?.email_address || u.account?.email || u.user?.email || "";
-        if (email && email.includes("@")) {
-          found = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-        } else if (u.full_name || u.name || u.account?.full_name) {
-          found = (u.full_name || u.name || u.account?.full_name).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
-        }
-      }
-    } catch (e) {}
-
-    // 2. Local storage session cache
-    if (!found) {
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          const v = localStorage.getItem(k);
-          if (v && v.includes("@")) {
-            const m = v.match(/["']?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})["']?/);
-            if (m) {
-              const uPart = m[1].split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-              if (uPart && !["support", "anthropic", "claude", "admin", "noreply"].includes(uPart)) {
-                found = uPart;
-                break;
-              }
-            }
-          }
-        }
-      } catch (e) {}
-    }
-
-    // 3. Organization members
-    if (!found) {
-      try {
-        const orgsRes = await fetch("/api/organizations", { credentials: "include" });
-        if (orgsRes.ok) {
-          const orgs = await orgsRes.json();
-          if (Array.isArray(orgs) && orgs.length > 0) {
-            const org = orgs[0];
-            if (org.members && Array.isArray(org.members)) {
-              const self = org.members.find(m => m.is_current_user || m.self);
-              if (self && (self.email || self.email_address)) {
-                const email = self.email || self.email_address;
-                found = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-              }
-            }
-          }
-        }
-      } catch (e) {}
-    }
-
-    // 4. User profile / account button in DOM
-    if (!found) {
-      try {
-        const userBtn = document.querySelector('[data-testid="user-menu-button"], [aria-label*="account"], [aria-label*="profile"], [aria-label*="User"]');
-        if (userBtn) {
-          const txt = userBtn.textContent || userBtn.getAttribute("aria-label") || "";
-          const m = txt.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-          if (m) {
-            found = m[1].split("@")[0].toLowerCase().replace(/[^a-z0-9_-]/g, "");
-          }
-        }
-      } catch (e) {}
-    }
-
-    if (found) {
-      detectedUser = found;
-      safeStorageSet({ chatsave_detected_user: found });
-    }
-    return detectedUser;
   }
 
   // 1. Extract Conversation ID from URL
@@ -875,7 +774,7 @@
       </div>
       <div class="chatsave-popover" id="chatsave-popover" style="display: none;">
         <div class="chatsave-header">
-          <strong>Chat-Save Connector</strong>
+          <strong>Chat-Save</strong>
           <span class="chatsave-close" id="chatsave-popover-close">✕</span>
         </div>
         <div class="chatsave-body">
@@ -888,17 +787,16 @@
             <code id="chatsave-pop-thread">-</code>
           </div>
           <div class="chatsave-row">
-            <span>Last Receipt:</span>
+            <span>Last save:</span>
             <code id="chatsave-pop-receipt">None yet</code>
           </div>
           <div class="chatsave-row" id="chatsave-pending-row" style="display:none;">
-            <span>Offline Queue:</span>
-            <strong id="chatsave-pop-queue" style="color: #eab308;">0 pending</strong>
+            <span>Waiting to save:</span>
+            <strong id="chatsave-pop-queue">0</strong>
           </div>
         </div>
         <div class="chatsave-footer" style="display: flex; gap: 6px;">
           <button id="chatsave-btn-sync" class="chatsave-btn" style="flex: 1;">Sync Thread</button>
-          <button id="chatsave-btn-reconcile" class="chatsave-btn" style="flex: 1; background: #4f46e5;">Sync 48h</button>
         </div>
       </div>
     `;
@@ -910,7 +808,6 @@
     const popover = root.querySelector("#chatsave-popover");
     const closeBtn = root.querySelector("#chatsave-popover-close");
     const syncBtn = root.querySelector("#chatsave-btn-sync");
-    const reconcileBtn = root.querySelector("#chatsave-btn-reconcile");
 
     badge.addEventListener("click", () => {
       popover.style.display = popover.style.display === "none" ? "block" : "none";
@@ -934,20 +831,6 @@
         }, 1000);
       });
     });
-
-    if (reconcileBtn) {
-      reconcileBtn.addEventListener("click", () => {
-        reconcileBtn.disabled = true;
-        reconcileBtn.textContent = "Scanning...";
-        reconcileStaleConversations(2, true).then(res => {
-          reconcileBtn.textContent = (res && res.enqueued > 0) ? `Queued ${res.enqueued}` : "Up to date ✓";
-          setTimeout(() => {
-            reconcileBtn.disabled = false;
-            reconcileBtn.textContent = "Sync 48h";
-          }, 2500);
-        });
-      });
-    }
   }
 
   function updateHud(status, data = {}) {
@@ -978,10 +861,10 @@
       }, 4000);
     } else if (status === "offline") {
       const count = data.pendingCount !== undefined ? data.pendingCount : pendingCount;
-      label.textContent = count > 0 ? `Offline (${count} queued)` : "Offline";
+      label.textContent = count > 0 ? `Waiting to save (${count})` : "Waiting to save";
       dot.style.background = "#f59e0b";
     } else if (status === "error") {
-      label.textContent = "Sync Error ⚠";
+      label.textContent = "Could not save";
       dot.style.background = "#ef4444";
     } else {
       label.textContent = "Chat-Save";
@@ -990,6 +873,15 @@
 
     updatePopoverData();
   }
+
+  const HUD_LABELS = {
+    idle: "Connected",
+    streaming: "Claude is replying",
+    syncing: "Saving",
+    synced: "Up to date",
+    offline: "Waiting to save",
+    error: "Could not save",
+  };
 
   function updatePopoverData() {
     if (!hudElement) return;
@@ -1001,15 +893,16 @@
 
     const convId = getConversationId();
     popThread.textContent = convId ? (convId.slice(0, 12) + "...") : "None";
-    popStatus.textContent = hudStatus.toUpperCase();
+    popStatus.textContent = HUD_LABELS[hudStatus] || "Connected";
 
     if (lastReceipt) {
-      popReceipt.textContent = `${lastReceipt.receipt_id || "OK"} (${lastReceipt.saved_messages || 0} msgs)`;
+      const n = lastReceipt.saved_messages || 0;
+      popReceipt.textContent = `${n} message${n === 1 ? "" : "s"} saved`;
     }
 
     if (pendingCount > 0) {
       pendingRow.style.display = "flex";
-      popQueue.textContent = `${pendingCount} item(s) waiting`;
+      popQueue.textContent = `${pendingCount} conversation(s)`;
     } else {
       pendingRow.style.display = "none";
     }
@@ -1033,21 +926,21 @@
         if (!dot) {
           dot = document.createElement("span");
           dot.className = "chatsave-sidebar-dot chatsave-dot-queued";
-          dot.title = "Chat queued in local outbox for sync";
+          dot.title = "Waiting to be saved";
           link.appendChild(dot);
         } else if (!dot.classList.contains("chatsave-dot-queued")) {
           dot.className = "chatsave-sidebar-dot chatsave-dot-queued";
-          dot.title = "Chat queued in local outbox for sync";
+          dot.title = "Waiting to be saved";
         }
       } else if (currentDlqIds.has(convId)) {
         if (!dot) {
           dot = document.createElement("span");
           dot.className = "chatsave-sidebar-dot chatsave-dot-dlq";
-          dot.title = "Sync failed - in Dead Letter Queue";
+          dot.title = "Could not be saved. See Chat-Save settings.";
           link.appendChild(dot);
         } else if (!dot.classList.contains("chatsave-dot-dlq")) {
           dot.className = "chatsave-sidebar-dot chatsave-dot-dlq";
-          dot.title = "Sync failed - in Dead Letter Queue";
+          dot.title = "Could not be saved. See Chat-Save settings.";
         }
       } else {
         if (dot) {
@@ -1089,17 +982,7 @@
     if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
       chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         if (!isExtensionValid()) return;
-        if (msg.type === "GET_CLAUDE_USER") {
-          resolveClaudeUser().then(u => {
-            sendResponse({ user: u });
-          });
-          return true; // async reply
-        } else if (msg.type === "TRIGGER_RECONCILE") {
-          reconcileStaleConversations(msg.maxDays || 7, true).then(res => {
-            sendResponse(res);
-          });
-          return true; // async reply
-        } else if (msg.type === "SYNC_SUCCESS") {
+        if (msg.type === "SYNC_SUCCESS") {
           lastReceipt = msg.receipt;
           pendingCount = 0;
           updateHud("synced");
@@ -1107,12 +990,6 @@
             currentQueuedIds.delete(msg.conversationId);
             currentDlqIds.delete(msg.conversationId);
             clearSidebarDot(msg.conversationId);
-            if (msg.capturedAt) {
-              getStoredSyncedThreads().then(threads => {
-                threads[msg.conversationId] = msg.capturedAt;
-                saveStoredSyncedThreads(threads);
-              });
-            }
           }
           fetchQueueStateAndUpdateSidebar();
         } else if (msg.type === "SYNC_ERROR") {
@@ -1123,12 +1000,6 @@
           if (msg.conversationId) {
             currentQueuedIds.delete(msg.conversationId);
             currentDlqIds.add(msg.conversationId);
-            getStoredSyncedThreads().then(threads => {
-              if (threads[msg.conversationId]) {
-                delete threads[msg.conversationId];
-                saveStoredSyncedThreads(threads);
-              }
-            });
           }
           fetchQueueStateAndUpdateSidebar();
         } else if (msg.type === "QUEUE_UPDATED") {
@@ -1150,343 +1021,6 @@
       });
     }
   } catch (e) {}
-
-  // 13. Cloud / Mobile Conversation Reconciliation Worker
-  let isReconciling = false;
-
-  async function getStoredSyncedThreads() {
-    const data = await safeStorageGet("chatsave_synced_threads");
-    return data.chatsave_synced_threads || {};
-  }
-
-  async function saveStoredSyncedThreads(syncedMap) {
-    await safeStorageSet({ chatsave_synced_threads: syncedMap });
-  }
-
-  // Extract complete, untruncated message text from Claude API message object
-  function extractApiMessageText(m) {
-    if (!m) return "";
-    const parts = [];
-
-    // 1. Direct text field
-    if (typeof m.text === "string" && m.text.trim()) {
-      parts.push(m.text.trim());
-    }
-
-    // 2. Content field: can be string or array of blocks
-    if (typeof m.content === "string" && m.content.trim()) {
-      if (!parts.includes(m.content.trim())) {
-        parts.push(m.content.trim());
-      }
-    } else if (Array.isArray(m.content)) {
-      m.content.forEach(b => {
-        if (!b) return;
-        if (typeof b === "string" && b.trim()) {
-          const raw = b.trim();
-          if (!raw.toLowerCase().includes("this block is not supported on your current device yet") && !parts.includes(raw)) {
-            parts.push(raw);
-          }
-        } else if (typeof b === "object") {
-          const txt = (b.text || b.content || "");
-          if (typeof txt === "string" && txt.trim()) {
-            const raw = txt.trim();
-            if (!raw.toLowerCase().includes("this block is not supported on your current device yet") && !parts.includes(raw)) {
-              parts.push(raw);
-            }
-          } else if (b.type === "thinking" && b.thinking && typeof b.thinking === "string") {
-            parts.push(`> *Thinking:*\n> ${b.thinking.trim().replace(/\n/g, "\n> ")}`);
-          } else if (b.type === "tool_use" && b.name) {
-            const inStr = typeof b.input === "object" ? JSON.stringify(b.input, null, 2) : (b.input || "");
-            parts.push(`*Tool Call: ${b.name}*` + (inStr ? `\n\`\`\`json\n${inStr}\n\`\`\`` : ""));
-          } else if (b.type === "tool_result") {
-            const resStr = typeof b.content === "string" ? b.content : JSON.stringify(b.content || b.output || "");
-            if (resStr && resStr.trim()) {
-              parts.push(`*Tool Result:*\n\`\`\`\n${resStr.slice(0, 500)}\n\`\`\``);
-            }
-          }
-        }
-      });
-    }
-
-    let full = parts.join("\n\n");
-    full = sanitizeText(full);
-    return full;
-  }
-
-  let tabAutoSynced = false;
-
-  async function reconcileStaleConversations(maxDays = 2, force = false, isOnTabOpen = false) {
-    if (!isExtensionValid()) return { success: false, reason: "Extension context invalidated" };
-
-    // 1. In-memory check and cross-tab lock to prevent running twice
-    if (isReconciling) {
-      return { success: false, reason: "Reconciliation already in progress in this tab" };
-    }
-
-    if (isOnTabOpen) {
-      if (tabAutoSynced) {
-        return { success: true, enqueued: 0, reason: "Already auto-synced this tab session" };
-      }
-      tabAutoSynced = true;
-    }
-
-    const lockData = await safeStorageGet("chatsave_reconcile_lock");
-    const lockTime = lockData.chatsave_reconcile_lock || 0;
-    if (!force && Date.now() - lockTime < 45000) {
-      return { success: true, enqueued: 0, reason: "Sync already in progress in another tab" };
-    }
-
-    // Set lock
-    await safeStorageSet({ chatsave_reconcile_lock: Date.now() });
-    isReconciling = true;
-
-    try {
-      // 2. Throttle check for non-tab-open background calls (skip if recently reconciled within 10 min)
-      if (!force && !isOnTabOpen) {
-        const lastCheckData = await safeStorageGet("chatsave_last_reconcile_time");
-        const lastCheckTime = lastCheckData.chatsave_last_reconcile_time || 0;
-        const tenMinutes = 10 * 60 * 1000;
-        if (Date.now() - lastCheckTime < tenMinutes) {
-          isReconciling = false;
-          await safeStorageRemove("chatsave_reconcile_lock");
-          return { success: true, enqueued: 0, skipped: true, reason: "Recently reconciled" };
-        }
-      }
-
-      updateHud("syncing");
-
-      // Auto-retry any items stranded in Dead Letter Queue so no conversations are missed
-      safeSendMessage({ type: "RETRY_DEAD_LETTER" });
-
-      // 3. Query server for already committed conversations for true idempotency
-      let serverCommitted = {};
-      try {
-        const configData = await safeStorageGet("chatsave_config");
-        const config = configData.chatsave_config || {};
-        const sUrl = (config.serverUrl || "http://localhost:8000").replace(/\/+$/, "");
-        if (sUrl && !sUrl.includes("claude.ai")) {
-          const headers = {};
-          if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
-          const resState = await fetch(`${sUrl}/api/extension/synced-state`, { headers });
-          if (resState.ok) {
-            serverCommitted = await resState.json();
-          }
-        }
-      } catch (e) {
-        // Fall back to local synced threads cache
-      }
-
-      // 4. Discover active organization ID
-      let orgId = "";
-      try {
-        const orgsRes = await fetch("/api/organizations", { credentials: "include" });
-        if (orgsRes.ok) {
-          const orgs = await orgsRes.json();
-          if (Array.isArray(orgs) && orgs.length > 0) {
-            orgId = orgs[0].uuid;
-          }
-        }
-      } catch (e) {}
-
-      if (!orgId) {
-        isReconciling = false;
-        await safeStorageRemove("chatsave_reconcile_lock");
-        updateHud("synced");
-        return { success: false, error: "Could not resolve Claude organization" };
-      }
-
-      // 5. Fetch list of conversations
-      const convListRes = await fetch(`/api/organizations/${orgId}/chat_conversations`, { credentials: "include" });
-      if (!convListRes.ok) {
-        isReconciling = false;
-        await safeStorageRemove("chatsave_reconcile_lock");
-        updateHud("synced");
-        return { success: false, error: `HTTP ${convListRes.status} from chat_conversations` };
-      }
-      const allConvs = await convListRes.json();
-      if (!Array.isArray(allConvs) || allConvs.length === 0) {
-        isReconciling = false;
-        await safeStorageRemove("chatsave_reconcile_lock");
-        updateHud("synced");
-        return { success: true, enqueued: 0 };
-      }
-
-      // 6. Strictly filter conversations updated in the last 48 hours (maxDays)
-      const cutoffTime = Date.now() - (maxDays * 24 * 60 * 60 * 1000);
-      const recentConvs = allConvs.filter(c => {
-        const upTime = c.updated_at ? new Date(c.updated_at).getTime() : (c.created_at ? new Date(c.created_at).getTime() : 0);
-        return upTime >= cutoffTime;
-      });
-
-      const syncedThreads = await getStoredSyncedThreads();
-      const currentActiveId = getConversationId();
-
-      // Check if conversation has new turns or hasn't been synced at this updated_at timestamp
-      const staleToSync = recentConvs.filter(c => {
-        const localSyncedAt = syncedThreads[c.uuid];
-        const serverSyncedAt = serverCommitted[c.uuid];
-        const currentUpdatedAt = c.updated_at || c.created_at || "";
-
-        // If this item was in Dead Letter Queue, NEVER skip it!
-        if (currentDlqIds.has(c.uuid)) {
-          return true;
-        }
-
-        // If the server state is available:
-        if (serverCommitted && Object.keys(serverCommitted).length > 0) {
-          if (serverSyncedAt && (serverSyncedAt === currentUpdatedAt || serverSyncedAt.includes(currentUpdatedAt))) {
-            syncedThreads[c.uuid] = currentUpdatedAt;
-            return false;
-          }
-          return true; // Server doesn't have it yet, must sync!
-        }
-
-        // Fallback if server was unreachable:
-        if (localSyncedAt && localSyncedAt === currentUpdatedAt) {
-          return false;
-        }
-
-        return true; // There are new prompts or newer updates to sync!
-      });
-
-      if (staleToSync.length === 0) {
-        await saveStoredSyncedThreads(syncedThreads);
-        await safeStorageSet({ chatsave_last_reconcile_time: Date.now() });
-        isReconciling = false;
-        await safeStorageRemove("chatsave_reconcile_lock");
-        updateHud("synced");
-        return { success: true, enqueued: 0, message: "All conversations from the past 48h are already committed" };
-      }
-
-      // 7. Fetch details and enqueue stale conversations with exact, complete responses
-      let enqueuedCount = 0;
-      for (const convMeta of staleToSync) {
-        try {
-          await new Promise(r => setTimeout(r, 1200));
-
-          // Fetch full conversation history from Claude API (includes all 8+ prompts and responses)
-          const detailRes = await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}?tree=True&rendering_mode=messages`, { credentials: "include" })
-            .catch(() => null) || await fetch(`/api/organizations/${orgId}/chat_conversations/${convMeta.uuid}`, { credentials: "include" });
-          if (!detailRes || !detailRes.ok) continue;
-
-          const detail = await detailRes.json();
-          const chatMsgs = detail.chat_messages || [];
-          if (!chatMsgs.length) continue;
-
-          // Strictly sort chronologically by created_at to guarantee correct sequential turn order
-          chatMsgs.sort((a, b) => {
-            const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
-            const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
-            if (tA && tB && tA !== tB) return tA - tB;
-            if (typeof a.index === "number" && typeof b.index === "number") return a.index - b.index;
-            return 0;
-          });
-
-          const messages = [];
-          const files = [];
-          let seq = 1;
-
-          chatMsgs.forEach(m => {
-            const role = (m.sender === "human" || m.sender === "user") ? "user" : "assistant";
-            let bodyText = extractApiMessageText(m);
-            if (!bodyText) {
-              const attsList = [...(m.attachments || []), ...(m.files || [])];
-              if (attsList.length > 0) {
-                const names = attsList.map(a => a.file_name || a.name || "document").join(", ");
-                bodyText = `*(Attached: ${names})*`;
-              } else if (role === "user") {
-                bodyText = `*(User Prompt ${seq})*`;
-              }
-            }
-            if (!bodyText) return;
-
-            // Deduplicate consecutive identical turns
-            const lastMsg = messages[messages.length - 1];
-            if (lastMsg && lastMsg.role === role && lastMsg.content === bodyText) {
-              return;
-            }
-
-            messages.push({
-              // Same id scheme as the live DOM capture (extractConversation), so the server
-              // merges both capture paths onto the same turns instead of storing duplicates.
-              id: `${convMeta.uuid}_msg_${seq}_${role}`,
-              sequence: seq,
-              role: role,
-              content: bodyText
-            });
-
-            const atts = [...(m.attachments || []), ...(m.files || [])];
-            atts.forEach(att => {
-              const fname = att.file_name || att.name || "attachment";
-              const safeName = fname.replace(/\s+/g, "_");
-              const cached = recentUploadedFiles.get(safeName.toLowerCase()) || recentUploadedFiles.get(fname.toLowerCase());
-              const realBinary = cached ? cached.dataUrl : "";
-              const extractedText = (att.extracted_content && att.extracted_content !== fname) ? att.extracted_content : "";
-              const mime = getCanonicalMimeType(safeName, realBinary, "application/octet-stream");
-
-              files.push({
-                name: safeName,
-                path: `attachments/${safeName}`,
-                url: att.url || att.download_url || undefined,
-                type: mime,
-                content: realBinary,
-                extracted_text: extractedText,
-                role: role,
-                turn_sequence: seq,
-                is_attachment: true
-              });
-            });
-
-            seq++;
-          });
-
-          if (messages.length > 0) {
-            const payload = {
-              conversation_id: convMeta.uuid,
-              title: convMeta.name || "Untitled conversation",
-              platform: "claude",
-              url: `https://claude.ai/chat/${convMeta.uuid}`,
-              messages: messages,
-              files: files,
-              is_final: true,
-              captured_at: convMeta.updated_at || new Date().toISOString()
-            };
-
-            await new Promise(resolve => {
-              safeSendMessage({ type: "INGEST_CONVERSATION", payload, force: false }, (res) => {
-                resolve(res);
-              });
-            });
-
-            // If this is currently the active tab conversation, also trigger live capture
-            if (convMeta.uuid === currentActiveId && isExtensionValid()) {
-              triggerCapture(false);
-            }
-
-            // Immediately mark as synced in persistent storage so no other process retries it
-            syncedThreads[convMeta.uuid] = convMeta.updated_at;
-            await saveStoredSyncedThreads(syncedThreads);
-            enqueuedCount++;
-          }
-        } catch (itemErr) {
-          console.warn("[Chat-Save] Failed to fetch thread details for", convMeta.uuid, itemErr);
-        }
-      }
-
-      await saveStoredSyncedThreads(syncedThreads);
-      await safeStorageSet({ chatsave_last_reconcile_time: Date.now() });
-
-      isReconciling = false;
-      await safeStorageRemove("chatsave_reconcile_lock");
-      updateHud("synced");
-      return { success: true, enqueued: enqueuedCount };
-    } catch (err) {
-      isReconciling = false;
-      await safeStorageRemove("chatsave_reconcile_lock");
-      updateHud("synced");
-      return { success: false, error: err.message };
-    }
-  }
 
   // 14. Initialization
   function init() {
@@ -1515,26 +1049,6 @@
       if (isExtensionValid()) triggerCapture(false);
     }, 2000);
 
-    // Auto-sync on Claude opening when extension is connected (runs 3.5s after load, once per tab session)
-    setTimeout(async () => {
-      if (!isExtensionValid()) return;
-      try {
-        const configData = await safeStorageGet("chatsave_config");
-        const config = configData.chatsave_config || {};
-        const sUrl = (config.serverUrl || "http://localhost:8000").replace(/\/+$/, "");
-        if (sUrl && !sUrl.includes("claude.ai")) {
-          const headers = {};
-          if (config.authToken) headers["Authorization"] = `Bearer ${config.authToken}`;
-          const pingRes = await fetch(`${sUrl}/api/extension/synced-state`, { headers }).catch(() => null);
-          if (pingRes && pingRes.ok && isExtensionValid()) {
-            console.log("[Chat-Save] Extension connected. Auto-syncing recent Claude cloud chats (past 48h)...");
-            reconcileStaleConversations(2, false, true);
-          }
-        }
-      } catch (e) {
-        // Safe fallback
-      }
-    }, 3500);
   }
 
   if (document.readyState === "loading") {

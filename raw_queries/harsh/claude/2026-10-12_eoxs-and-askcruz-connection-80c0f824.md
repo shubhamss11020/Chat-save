@@ -4,18 +4,21 @@ platform: claude
 username: "harsh"
 title: "EOXS and AskCruz connection"
 created_at: "2026-10-12 15:16:08 EDT"
-updated_at: "2026-10-13 07:15:31 EDT"
+updated_at: "2026-10-13 08:33:33 EDT"
 ---
 
 # EOXS and AskCruz connection
 
-## User (2026-10-13 07:15:31 EDT)
+## User (2026-10-13 08:33:33 EDT)
 
 what about eoxs and askcruz how they are linked
 
-## Claude (2026-10-13 07:15:31 EDT)
+## Claude (2026-10-13 08:33:33 EDT)
 
 I'll start by reading the two skill files.
+
+> *Thinking:*
+>
 
 AskCruz is the AI product (the "Company Brain") that EOXS sells and runs. It is sold by the same people, to the same customers, and is run from inside the EOXS business, but its legal structure is not clearly documented.
 

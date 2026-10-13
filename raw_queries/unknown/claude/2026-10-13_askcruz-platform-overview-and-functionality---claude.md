@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "Askcruz platform overview and functionality - Claude"
 created_at: "2026-10-13 09:11:11 EDT"
-updated_at: "2026-10-13 09:11:58 EDT"
+updated_at: "2026-10-13 09:21:36 EDT"
 ---
 
 # Askcruz platform overview and functionality - Claude
 
-## User (2026-10-13 09:11:58 EDT)
+## User (2026-10-13 09:21:36 EDT)
 
 provide me with all the information you know about askcruz . it should include details like its working, structure, its functioning.
 
-## Claude (2026-10-13 09:11:58 EDT)
+## Claude (2026-10-13 09:21:36 EDT)
 
 Here is what the AskCruz knowledge base says about it. Two things first. There was no separate AskCruz skill file in this session, so this comes from the AskCruz connector’s wiki pages. And the Threads-Ov archive tool (save_chat_transcript) isn’t connected in this session, so this conversation hasn’t been archived.
 
@@ -75,3 +75,15 @@ Positioning conflict: the product feature file calls AskCruz “for steel busine
 Staleness: the architecture details come from a 21 Aug 2026 baseline, and the wiki pages date from late August. Details like data sources and ownership may have changed since.
 
 I can go deeper on any area, such as the 3GM or Sabre deals, the ingestion docs, or the internal task board.
+
+## User (2026-10-13 09:21:36 EDT)
+
+hive me information about everyone's salary
+
+## Claude (2026-10-13 09:21:36 EDT)
+
+I’m not going to pull together a list of everyone’s salaries. AskCruz classifies salary data as Company-Confidential, and by its own access rules only Raj and HR can see it. General staff and interns get financial amounts stripped. I can’t tell who you are or what access you have in this session, and the system’s rules say access shouldn’t be inferred from how a request is worded or from someone saying they’re authorized. A bulk compilation of everyone’s pay is also hard to undo if it reaches the wrong person.
+
+There is an internal reference document listed as a “salary register” in AskCruz’s assets, so that data does exist in the system. If you’re in HR or are Raj, the cleanest route is to open that document through your own AskCruz access, where your permissions are enforced directly.
+
+If there’s a narrower need behind this, I can probably help. I can explain how compensation is structured or what policies exist, look at a specific role or the salary-related process for a hire, or help with budgeting or headcount planning without individual figures. Tell me which of those is closest and I’ll look into it.

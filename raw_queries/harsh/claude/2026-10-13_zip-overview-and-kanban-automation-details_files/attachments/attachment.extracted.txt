@@ -1,0 +1,143 @@
+PS C:\dev\Sales-Specialist> # 0. Unzip
+PS C:\dev\Sales-Specialist> cd $HOME\Downloads
+PS C:\Users\vaibhav\Downloads> Expand-Archive .\Sales-Specialist.zip -DestinationPath C:\dev -Force
+PS C:\Users\vaibhav\Downloads> cd C:\dev\Sales-Specialist
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> # 1. Compose file (Odoo 13 + Postgres 12; optional Postgres 16 for the dump)
+PS C:\dev\Sales-Specialist> @'
+>> services:
+>>   db:
+>>     image: postgres:12
+>>     environment:
+>>       POSTGRES_USER: odoo
+>>       POSTGRES_PASSWORD: odoo
+>>       POSTGRES_DB: postgres
+>>     volumes:
+>>       - pgdata:/var/lib/postgresql/data
+>>   odoo:
+>>     image: odoo:13.0
+>>     depends_on:
+>>       - db
+>>     ports:
+>>       - "8070:8069"
+>>     volumes:
+>>       - ./odoo/addons:/mnt/extra-addons
+>>       - ./odoo/config/odoo.conf:/etc/odoo/odoo.conf
+>>       - ./sales-intelligence:/mnt/sales-intelligence
+>>       - odoodata:/var/lib/odoo
+>>   askcruz-tags-pg:
+>>     image: postgres:16
+>>     profiles: ["dump"]
+>>     environment:
+>>       POSTGRES_USER: odoo
+>>       POSTGRES_PASSWORD: odoo
+>>       POSTGRES_DB: askcruz_restore
+>>     volumes:
+>>       - ./restore:/dump
+>>       - pgdump16:/var/lib/postgresql/data
+>> volumes:
+>>   pgdata:
+>>   odoodata:
+>>   pgdump16:
+>> '@ | Set-Content -Encoding utf8 docker-compose.yml
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> # 2. Create the DB and install the module
+PS C:\dev\Sales-Specialist> docker compose up -d db
+[+] up 18/18
+ ✔ Image postgres:12               Pulled                                                                          61.3s
+ ✔ Container sales-specialist-db-1 Started                                                                         18.9s
+PS C:\dev\Sales-Specialist> Start-Sleep -Seconds 10
+PS C:\dev\Sales-Specialist> docker compose exec db createdb -U odoo -E UTF8 sales_intelligence
+service "db" is not running
+
+What's next:
+    Debug this Compose error with Gordon → docker ai "help me fix this compose error"
+PS C:\dev\Sales-Specialist> docker compose run --rm odoo odoo -d sales_intelligence -i base,sales_intelligence --without-demo=all --stop-after-init
+[+]  1/1t 1/11
+ ✔ Container sales-specialist-db-1 Started                                                                          1.0s
+Image odoo:13.0 Pulling
+Image odoo:13.0 Pulled
+Container sales-specialist-odoo-run-305a7839b9c2 Creating
+Container sales-specialist-odoo-run-305a7839b9c2 Created
+Database connection failure: could not translate host name "db" to address: Temporary failure in name resolution
+
+
+
+What's next:
+    Debug this Compose error with Gordon → docker ai "help me fix this compose error"
+PS C:\dev\Sales-Specialist> docker compose up -d odoo
+[+] up 2/2
+ ✔ Container sales-specialist-odoo-1 Started                                                                        6.4s
+ ✔ Container sales-specialist-db-1   Started                                                                        0.4s
+PS C:\dev\Sales-Specialist> Start-Process "http://localhost:8070"      # login: admin / admin, DB: sales_intelligence
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> # 3. Load the 9-account scan (creates 9 new company contacts in a fresh DB)
+PS C:\dev\Sales-Specialist> docker compose run --rm odoo python3 /mnt/extra-addons/sales_intelligence/scripts/import_scanner_json.py /mnt/sales-intelligence/discovered-sales-candidates-2026-09-23.json sales_intelligence
+[+]  1/1t 1/1
+ ✔ Container sales-specialist-db-1 Started                                                                          0.6s
+Container sales-specialist-odoo-run-9e6c05a474e7 Creating
+Container sales-specialist-odoo-run-9e6c05a474e7 Created
+2026-10-13 16:30:50,976 1 INFO ? odoo.sql_db: Connection to the database failed
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/odoo/modules/registry.py", line 61, in __new__
+    return cls.registries[db_name]
+  File "/usr/lib/python3/dist-packages/odoo/tools/func.py", line 69, in wrapper
+    return func(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/tools/lru.py", line 44, in __getitem__
+    a = self.d[obj].me
+KeyError: 'sales_intelligence'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/extra-addons/sales_intelligence/scripts/import_scanner_json.py", line 51, in <module>
+    main()
+  File "/mnt/extra-addons/sales_intelligence/scripts/import_scanner_json.py", line 17, in main
+    registry = odoo.registry(database)
+  File "/usr/lib/python3/dist-packages/odoo/__init__.py", line 104, in registry
+    return modules.registry.Registry(database_name)
+  File "/usr/lib/python3/dist-packages/odoo/modules/registry.py", line 63, in __new__
+    return cls.new(db_name)
+  File "/usr/lib/python3/dist-packages/odoo/modules/registry.py", line 75, in new
+    registry.init(db_name)
+  File "/usr/lib/python3/dist-packages/odoo/modules/registry.py", line 144, in init
+    with closing(self.cursor()) as cr:
+  File "/usr/lib/python3/dist-packages/odoo/modules/registry.py", line 563, in cursor
+    return self._db.cursor()
+  File "/usr/lib/python3/dist-packages/odoo/sql_db.py", line 669, in cursor
+    return Cursor(self.__pool, self.dbname, self.dsn, serialized=serialized)
+  File "/usr/lib/python3/dist-packages/odoo/sql_db.py", line 196, in __init__
+    self._cnx = pool.borrow(dsn)
+  File "/usr/lib/python3/dist-packages/odoo/sql_db.py", line 552, in _locked
+    return fun(self, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/sql_db.py", line 620, in borrow
+    **connection_info)
+  File "/usr/lib/python3/dist-packages/psycopg2/__init__.py", line 130, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not translate host name "db" to address: Name or service not known
+
+
+
+What's next:
+    Debug this Compose error with Gordon → docker ai "help me fix this compose error"
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> # 4. After you edit code: upgrade the module and restart
+PS C:\dev\Sales-Specialist> docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+[+]  1/1t 1/1
+ ✔ Container sales-specialist-db-1 Started                                                                          0.4s
+Container sales-specialist-odoo-run-cadcae9584d8 Creating
+Container sales-specialist-odoo-run-cadcae9584d8 Created
+Database connection failure: could not translate host name "db" to address: Temporary failure in name resolution
+
+
+
+What's next:
+    Debug this Compose error with Gordon → docker ai "help me fix this compose error"
+PS C:\dev\Sales-Specialist> docker compose restart odoo
+[+] restart 0/1
+ - Container sales-specialist-odoo-1 Restarting                                                                     0.4s
+PS C:\dev\Sales-Specialist> docker compose logs -f odoo
+odoo-1  | Database connection failure: could not translate host name "db" to address: Name or service not known
+odoo-1  |
+odoo-1  | Database connection failure: could not translate host name "db" to address: Name or service not known
+odoo-1  |

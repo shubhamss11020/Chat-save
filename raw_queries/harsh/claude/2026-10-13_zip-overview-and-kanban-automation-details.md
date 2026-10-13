@@ -1,0 +1,430 @@
+---
+conversation_id: feb81882-6b34-4659-9781-e4c3514e9402
+platform: claude
+username: "harsh"
+title: "Zip overview and kanban automation details"
+created_at: "2026-10-13 12:04:21 EDT"
+updated_at: "2026-10-13 12:37:33 EDT"
+---
+
+# Zip overview and kanban automation details
+
+## User (2026-10-13 12:03:32 EDT)
+
+Explain this whole zip to me that what it is about and then tell me that are there any things regarding the automations and then tell me about the banners on the kanban view that are they generating automatically on the board after the info is fetched from the wiki or not
+
+**Attachments:**
+- 📎 **Sales-Specialist.zip** *(Attached in Claude conversation)*
+
+## Claude (2026-10-13 12:04:21 EDT)
+
+I'll start by reading the two skill files, then look inside the zip.
+
+Still going: I've read the plan docs and I'm now checking the Odoo addon code for automations and the kanban banners.
+
+> *Thinking:*
+>
+
+Almost done: I've finished reading the zip and am about to write up the answer. First I need to locate the archive-save tool the org instructions require.
+
+**Archive note:** The save tool (`save_chat_transcript`) isn't connected in this session, so this conversation hasn't been archived. If it should be, reconnect the Notes connector in Settings → Connectors.
+
+## What the zip is
+
+It's a git repo (`ijassandhu/Sales-Intelligence`, one commit, Sept 2026) for a **Sales Specialist** project. The goal is a Claude-driven sales associate for AskCruz/EOXS that reads company context, builds a contact card per company, flags stalled or risky deals and drafts follow-ups, with Ayan reviewing everything. The pipeline is:
+
+```
+Thread Wiki (saved Claude chats) → scanner → JSON → Odoo/TeamAskCruz contact cards
+```
+
+| Part | What it is |
+|---|---|
+| `SALES_AGENT_SYSTEM_PLAN.md` | The operating spec: objectives, card template, report format, Claude instructions, pilot plan. Prospect emails are draft-only and the CEO is cc'd on reports. |
+| `HUMAN_REVIEW_CHECKLIST.md` | Rules for approving scanner output before it goes into a canonical card. |
+| `ODOO_RPC_BRIDGE.md` | How scanner JSON is pushed into Odoo through a service account. |
+| `company-cards/`, `thread-evidence/` | Pilot cards for Sabre, 3GM, Brannon and Greer. The Sabre card is still a mostly "Unknown" draft. |
+| `sales-intelligence/` | The 2026-09-23 scan: a JSON with 9 scored accounts (Sabre Alloys 114, 3GM 87, Discount Pipe 82, and so on) plus about 25 briefs. |
+| `odoo/addons/sales_intelligence/` | The custom Odoo module: account, evidence and signal models, kanban/tree/form views, an import wizard and a sync wizard. It also has helper scripts for importing contacts and syncing categories. |
+| `odoo/addons/contacts/` | A stock Odoo contacts addon with translation files. |
+| `askcruz_..._20260924.dump.zst` | A 9 MB Postgres dump of the AskCruz DB. I didn't decompress it. |
+
+Not included: the scanner service itself, `push-to-odoo-rpc.js`, `docker-compose`, and files the plan references (`LOCAL_PILOT_WORKFLOW.md`, `THREAD_WIKI_SCANNER.md` and others).
+
+## Automations
+
+**Nothing in this code runs on its own.** I found no `ir.cron`, no `base.automation` rules and no scheduled jobs in the module. Everything is triggered by a person or script:
+
+- **Sync wizard, "Run live scan and sync":** a user clicks it, and Odoo POSTs to a `scanner` service (`http://scanner:3000/run`). The scanner queries Thread Wiki live, writes JSON, and Odoo imports it.
+- **Sync wizard, "Sync latest scan":** a user clicks it, and Odoo reads the newest `discovered-sales-candidates-YYYY-MM-DD.json` from a folder.
+- **Import wizard:** a user uploads a JSON file.
+- **`npm run odoo:push`:** a script pushes JSON to Odoo over JSON-RPC.
+
+Once any of these runs, `upsert_from_payload` does the following automatically:
+- matches or creates the contact card (by source id, LinkedIn or domain);
+- recreates evidence and signals;
+- writes a sync log;
+- optionally posts a chatter note.
+
+New accounts always start as `pending_review`. The plan also treats automatic sending as out of scope: emails and reports are draft-only. Updating a contact's profile text and approving or rejecting an account are manual buttons.
+
+## Kanban banners
+
+**There are no banners in the code.** There is no ribbon, banner or alert in any view. What the kanban views have is badges on the cards, and those are filled in only after something is synced:
+
+- **Scanner Reviews kanban** (`sales.intelligence.account`): columns are grouped by `review_state`. Each card shows the score badge, stage, risk, confidence and scan date.
+- **Contacts kanban** (`res.partner`): a "Scanner score" badge plus stage, risk and scan date appear on a contact only if it has a linked scanner account.
+
+So the answer to your question is partly yes and partly no. Once a scan is run and synced, the cards and badges are generated automatically from the fetched wiki data, but nothing triggers that sync on a schedule. The wiki fetch happens inside the external scanner service, which isn't in this zip, so I can't verify how it works. Cards then stay in "Pending Review" until a person moves them.
+
+If by "banners" you mean something else, such as a dashboard strip or the "Scanner Cards" filter, tell me which view you saw and I'll check that.
+
+## User (2026-10-13 12:07:32 EDT)
+
+okay so now i want to update it on my local so how will I do that and give me everything through powershell
+
+## Claude (2026-10-13 12:07:54 EDT)
+
+> *Thinking:*
+>
+
+Here's the full local setup in PowerShell. Two things to know first:
+
+- The zip has **no `docker-compose.yml` and no scanner service**, so the script below creates the compose file for you. That means "Run live scan" won't work, but "Sync latest scan" and the JSON import will.
+- I assumed **Odoo 16** (the views use `kanban-box` and `tree`, so it's 16 or 17). Step 0 shows how to confirm.
+
+**Prerequisite:** Docker Desktop must be running.
+
+### 0. Unzip and check the Odoo version
+
+```powershell
+cd $HOME\Downloads
+Expand-Archive .\Sales-Specialist.zip -DestinationPath C:\dev -Force
+cd C:\dev\Sales-Specialist
+
+# Which Odoo version? (look for 16.0.x or 17.0.x)
+Select-String -Path .\odoo\addons\contacts\__manifest__.py -Pattern "version"
+docker --version
+```
+
+If it says 17.0, change `odoo:16.0` to `odoo:17.0` in step 1.
+
+### 1. Create the docker-compose file
+
+```powershell
+@'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  odoo:
+    image: odoo:16.0
+    depends_on:
+      - db
+    ports:
+      - "8070:8069"
+    volumes:
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/config/odoo.conf:/etc/odoo/odoo.conf
+      - ./sales-intelligence:/mnt/sales-intelligence
+      - odoodata:/var/lib/odoo
+volumes:
+  pgdata:
+  odoodata:
+'@ | Set-Content -Encoding utf8 docker-compose.yml
+```
+
+### 2. First install of the module
+
+```powershell
+docker compose up -d db
+Start-Sleep -Seconds 10
+docker compose run --rm odoo odoo -d sales_intelligence -i base,sales_intelligence --without-demo=all --stop-after-init
+docker compose up -d odoo
+Start-Process "http://localhost:8070"
+```
+
+Log in with `admin` / `admin`, database `sales_intelligence`.
+
+### 3. Load the scan into Odoo
+
+In Odoo, open **Contacts**, then the Sync action ("Sync Latest Scan"), and click **Sync latest scan**. It reads `discovered-sales-candidates-2026-09-23.json` from the mounted `/mnt/sales-intelligence` folder. Alternatively, use **Import Scanner JSON** and upload `sales-intelligence\discovered-sales-candidates-2026-09-23.json`.
+
+Then open **Scanner Reviews** to see the kanban, and the Contacts kanban for the score badges.
+
+### 4. Updating after you change code (the "update" part)
+
+```powershell
+# Python or XML changes: upgrade the module, then restart
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+
+# Watch logs / debug
+docker compose logs -f odoo
+```
+
+If you only edit a view's XML, the `-u` command above is enough. For a pure Python edit, `docker compose restart odoo` alone usually works.
+
+### 5. Optional: restore the AskCruz DB dump
+
+This is only needed for the "AskCruz Dump Contacts" data. I haven't verified the dump's format, so treat this as a best attempt.
+
+```powershell
+winget install zstd
+zstd -d .\askcruz_askcruz_20260924_2238PKT.dump.zst -o askcruz.dump
+docker compose cp askcruz.dump db:/tmp/askcruz.dump
+docker compose exec db createdb -U odoo askcruz
+docker compose exec db pg_restore -U odoo -d askcruz --no-owner /tmp/askcruz.dump
+```
+
+If `pg_restore` complains about the format, the dump is plain SQL, so use `psql -U odoo -d askcruz -f /tmp/askcruz.dump` instead.
+
+### 6. Stop or reset
+
+```powershell
+docker compose down        # stop (data kept)
+docker compose down -v     # wipe everything and start fresh
+```
+
+If you want live scans from Odoo, you'd need the scanner service (`http://scanner:3000/run`) from the original repo, plus a `THREAD_WIKI_AUTH_TOKEN`. It isn't in this zip, so ask whoever built it (the git author is `ijassandhu`) for it.
+
+## User (2026-10-13 12:23:21 EDT)
+
+there were many things in the folder Why did you use only some selected parts
+
+## Claude (2026-10-13 12:23:30 EDT)
+
+> *Thinking:*
+>
+
+I read selectively because I was trying to answer your three questions quickly, and that left gaps you should know about.
+
+**What I read in full or near-full**
+- The plan, review checklist and RPC bridge docs
+- The module manifest and the kanban views
+- The upsert and profile-update logic and the sync wizard
+- The scan JSON structure
+
+**What I only sampled**
+- **Briefs:** I opened 1 of about 25.
+- **Company cards:** I opened 1 of 4, and the one I opened is mostly "Unknown".
+- **Evidence files:** I opened 1 of 4.
+- **`models/sales_intelligence.py`:** It's 1,533 lines and I read roughly 350 of them. I skipped the signal classification, the evidence scoring and the contact matching logic.
+
+**What I didn't open at all**
+- The `scripts/` folder (contact import, category sync, partner matching, the cleanup script that removes scanner-created contacts)
+- The full security file and the remaining wizard and view XML
+- The 9 MB DB dump
+- The stock `contacts` addon (probably just standard Odoo, but I didn't diff it)
+
+I skipped the briefs and evidence because they're scan output rather than logic, so they don't settle whether anything is automated or how the kanban renders. But my "what the zip is" summary was built partly from that sampling, so it's a decent overview and not a full audit. My "no automations" conclusion rests on a keyword search for cron and automation rules across the code and docs, plus reading the wizards. It could still miss something in the unread scripts.
+
+I also didn't verify my PowerShell assumptions. I never ran the Odoo version check, so Odoo 16 is a guess from the view syntax, and the dump restore steps are unverified.
+
+I can go through the rest properly: all the scripts, the full model file, every brief and card, and a peek inside the dump. I'd then give you a corrected, complete summary and confirm the Odoo version before you run the setup. Do you want me to do that?
+
+## User (2026-10-13 12:24:01 EDT)
+
+input everything now
+
+## Claude (2026-10-13 12:26:45 EDT)
+
+Reading everything I skipped now, starting with the scripts and the rest of the module.
+
+> *Thinking:*
+>
+
+Still working: the dump is a full Odoo database, so I'm decoding its data blocks to confirm the Odoo version and see which crons and automations it actually contains.
+
+Still reading: I've confirmed the dump is Odoo 13 with no custom automations, and I'm now going through the cards, evidence files, briefs and the rest of the model code.
+
+I've now read everything in the zip, and it changes some of what I told you earlier. **My PowerShell setup was wrong: this is Odoo 13, not 16.**
+
+## Corrections
+
+| Earlier | Now |
+|---|---|
+| Assumed Odoo 16 (`odoo:16.0`, `postgres:15`) | **Odoo 13.0.** The dump's installed modules are all `13.0.1.x`. Other signs: the code uses `api.Environment.manage()`, the contacts addon's translation template is 13.0, and the bundled compiled files are Python 3.7. |
+| "The dump may be SQL or custom format" | It's a `pg_dump` custom-format file (`PGDMP`) from **PostgreSQL 16.15**, database `askcruz`, 514 tables, about 50 MB uncompressed. |
+| "No automations, based on a keyword search" | Confirmed, and more strongly (details below). |
+
+## The dump
+
+It's a full production Odoo 13 database, not just contacts. The custom modules in it are `askcruz_contact_design`, `fields_eoxs`, `crm_lead_stage_touchpoints`, `custom_project_task`, and `askcruz_hr_*` (approvals, attendance, compensation, documents, encryption, subscriptions). Two things matter here:
+- It contains HR and compensation tables, so restore it locally only and don't share it.
+- It has no `sales_intelligence` tables. Install the module in a separate database, not on top of the AskCruz DB, because the module redefines the same partner fields and lookup models.
+
+## Automations: confirmed none
+
+- The module has no cron jobs, no automated rules, and no scheduled actions.
+- In the dump, the `base_automation` module ("Automated Action Rules") is uninstalled.
+- The dump has 15 scheduled jobs I could parse, and all are stock Odoo or OCA ones (mail queue, fetchmail, currency rates, lead scoring and so on). The only unusual one, "Daily Task Timesheet Reminder", is inactive.
+- The only "automation" is manual: the Sync wizard, the Import wizard, and the scripts.
+
+## Kanban banners: confirmed none
+
+- There are no ribbons or banners anywhere in the views.
+- The two kanban views only show badges: the Scanner Reviews kanban shows score, stage and risk, and the Contacts kanban shows a "Scanner score" badge.
+- The Contacts badge only appears when the contact has a linked scanner account.
+- Those values are filled in only after someone runs a sync or import, so nothing refreshes them on its own.
+
+## Other findings from the full read
+
+- **Company cards are empty.** All 4 are still "Draft - source search pending" with everything "Unknown". The 40–46 KB evidence files next to them haven't been merged in.
+- **The scan is noisy.** The JSON has 9 accounts, but there are 25 briefs. The extra 16 include things like "AskCruz hiring", "Odoo ERP ops" and "Vaibhav company email summary", many labelled "Likely active client", which looks like scanner false positives.
+- **Duplicate briefs differ.** 2 of the 9 briefs in the date subfolder differ from their top-level copies (Discount Pipe has 21 excerpts in one and 18 in the other, and Eastern States differs too).
+- **Permissions are wide open.** Every internal user can read, write, create and delete all scanner models.
+- **Two scripts are destructive.** `import_askcruz_contacts.py` deletes all non-system contacts and lookup tables, but only with `--replace-existing-local-data`. `remove_scanner_created_contacts.py` deletes six named contacts, and only with `--confirm-remove-scanner-created`. Never run either against production.
+- **The contact import can't run from this zip.** It needs an `askcruz_contact_export.json` that isn't included. The category sync script expects a Postgres container called `askcruz-tags-pg` with a database `askcruz_restore`.
+- **Missing from the zip:**
+  - the scanner service
+  - `push-to-odoo-rpc.js` and `package.json`, so `npm run odoo:push` won't work
+  - `docker-compose.yml`
+  - `LOCAL_PILOT_WORKFLOW.md`
+  - `MCP_CONNECTOR_SETUP.md`
+  - `team-askcruz-snapshots/`
+- **README.md** is UTF-16 and contains only a title.
+
+## Corrected PowerShell setup
+
+Docker Desktop must be running.
+
+```powershell
+# 0. Unzip
+cd $HOME\Downloads
+Expand-Archive .\Sales-Specialist.zip -DestinationPath C:\dev -Force
+cd C:\dev\Sales-Specialist
+
+# 1. Compose file (Odoo 13 + Postgres 12; optional Postgres 16 for the dump)
+@'
+services:
+  db:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  odoo:
+    image: odoo:13.0
+    depends_on:
+      - db
+    ports:
+      - "8070:8069"
+    volumes:
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/config/odoo.conf:/etc/odoo/odoo.conf
+      - ./sales-intelligence:/mnt/sales-intelligence
+      - odoodata:/var/lib/odoo
+  askcruz-tags-pg:
+    image: postgres:16
+    profiles: ["dump"]
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: askcruz_restore
+    volumes:
+      - ./restore:/dump
+      - pgdump16:/var/lib/postgresql/data
+volumes:
+  pgdata:
+  odoodata:
+  pgdump16:
+'@ | Set-Content -Encoding utf8 docker-compose.yml
+
+# 2. Create the DB and install the module
+docker compose up -d db
+Start-Sleep -Seconds 10
+docker compose exec db createdb -U odoo -E UTF8 sales_intelligence
+docker compose run --rm odoo odoo -d sales_intelligence -i base,sales_intelligence --without-demo=all --stop-after-init
+docker compose up -d odoo
+Start-Process "http://localhost:8070"      # login: admin / admin, DB: sales_intelligence
+
+# 3. Load the 9-account scan (creates 9 new company contacts in a fresh DB)
+docker compose run --rm odoo python3 /mnt/extra-addons/sales_intelligence/scripts/import_scanner_json.py /mnt/sales-intelligence/discovered-sales-candidates-2026-09-23.json sales_intelligence
+
+# 4. After you edit code: upgrade the module and restart
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+docker compose logs -f odoo
+```
+
+The dump step is optional. It's only useful for inspecting the data, because the contact import it would feed isn't runnable without the missing export JSON.
+
+```powershell
+# 5. Optional: inspect the AskCruz dump (contains HR data; keep local)
+New-Item -ItemType Directory -Force restore | Out-Null
+docker run --rm -v "${PWD}:/w" alpine sh -c "apk add --no-cache zstd && zstd -d /w/askcruz_askcruz_20260924_2238PKT.dump.zst -o /w/restore/askcruz.dump"
+docker compose --profile dump up -d askcruz-tags-pg
+Start-Sleep -Seconds 10
+docker compose exec -T askcruz-tags-pg pg_restore -U odoo -d askcruz_restore --no-owner --no-privileges /dump/askcruz.dump
+docker compose exec -T askcruz-tags-pg psql -U odoo -d askcruz_restore -c "select count(*) from res_partner;"
+
+# Stop / full reset
+docker compose down
+docker compose down -v
+```
+
+I couldn't run Docker or `pg_restore` here, so the commands are untested. The Odoo version comes from the dump's module versions, so it's reliable. "Run live scan" will still fail, because the scanner service isn't in the zip.
+
+## User (2026-10-13 12:33:20 EDT)
+
+*(Attached: document)*
+
+**Attachments:**
+- 📎 **attachment** *(Attached in Claude conversation)*
+
+## Claude (2026-10-13 12:33:30 EDT)
+
+> *Thinking:*
+>
+
+Neither of the errors is in the Odoo code. The `db` container is starting and then exiting almost immediately, so the name `db` can't be resolved by Odoo and `createdb` says "service db is not running". I can't see why Postgres is exiting from this output, so check its logs first.
+
+### 1. See why `db` is stopping
+
+```powershell
+docker compose stop odoo
+docker compose ps -a
+docker compose logs db --tail 60
+```
+
+Paste the output of the last command here and I can tell you the cause.
+
+### 2. If it's a leftover or corrupt volume
+
+Postgres exits on startup when its volume is bad, which is the usual cause. Wipe the volumes and restart:
+
+```powershell
+docker compose down -v
+docker compose up -d db
+docker compose logs -f db
+```
+
+Wait until you see `database system is ready to accept connections`, then press Ctrl+C.
+
+### 3. Confirm it's up before continuing
+
+```powershell
+docker compose exec db pg_isready -U odoo
+```
+
+If that prints `accepting connections`, continue with:
+
+```powershell
+docker compose exec db createdb -U odoo -E UTF8 sales_intelligence
+docker compose run --rm odoo odoo -d sales_intelligence -i base,sales_intelligence --without-demo=all --stop-after-init
+docker compose up -d odoo
+```
+
+Then run the import and upgrade steps from before.
+
+A few notes:
+- **Don't fix this on the Odoo side.** Odoo is just reporting that nothing answers at `db`. The `docker compose up -d odoo` and `restart` commands will keep failing until Postgres stays up.
+- **The Postgres 16 dump container** isn't involved, because it only starts with `--profile dump`.
+- **Docker Desktop on Windows** is another possibility. If the logs mention permissions or a mount error, tell me, since that points to a Docker setup problem rather than the compose file.

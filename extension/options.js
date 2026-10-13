@@ -154,6 +154,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // Auto-Detect: informational only. It shows which Claude session the browser is logged into.
+  // It never sets the identity; transcripts are filed under the name in the server token.
+  const btnAutoDetect = document.getElementById("btnAutoDetect");
+  if (btnAutoDetect) {
+    btnAutoDetect.addEventListener("click", () => {
+      btnAutoDetect.disabled = true;
+      btnAutoDetect.textContent = "Detecting...";
+      chrome.runtime.sendMessage({ type: "DETECT_USER" }, (res) => {
+        btnAutoDetect.disabled = false;
+        btnAutoDetect.textContent = "Auto-Detect";
+        if (chrome.runtime.lastError) {
+          showAlert("Extension error: " + chrome.runtime.lastError.message, "error");
+          return;
+        }
+        if (res && res.success && res.user) {
+          showAlert(`Browser is logged into Claude as "${res.user}" (information only). Your transcripts are filed under the name in your token.`, "normal");
+        } else {
+          showAlert(res?.error || "Could not detect the Claude session. Make sure claude.ai is open and refresh it (F5).", "error");
+        }
+      });
+    });
+  }
+
   /** Show who the server says this token belongs to. Text only, never HTML. */
   function showIdentity(identity, tokenBound) {
     identityEl.replaceChildren();

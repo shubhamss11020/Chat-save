@@ -235,7 +235,10 @@
       <div class="form-group">
         <label>Signed in as</label>
         <p id="identityValue" class="help-text"><strong>Not connected yet</strong> &mdash; click Test Connection.</p>
-        <p class="help-text">Transcripts are saved under <code>raw_queries/&lt;name&gt;/claude/</code>. The name comes from your token, not from this page.</p>
+        <div class="input-row">
+          <button class="btn btn-secondary" id="btnAutoDetect" type="button">Auto-Detect</button>
+        </div>
+        <p class="help-text">Transcripts are saved under <code>raw_queries/&lt;name&gt;/claude/</code>. The name comes from your token, not from this page. Auto-Detect only shows which Claude session the browser is logged into, for information.</p>
       </div>
 
       <div class="form-group checkbox-group">

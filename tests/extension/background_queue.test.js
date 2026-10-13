@@ -15,11 +15,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function makeSandbox() {
   const store = {};
+  const listeners = [];
   const chrome = {
     runtime: {
       onInstalled: { addListener() {} },
       onStartup: { addListener() {} },
-      onMessage: { addListener() {} },
+      onMessage: { addListener(fn) { listeners.push(fn); } },
       getManifest: () => ({ version: "1.0.0" }),
     },
     alarms: { create() {}, onAlarm: { addListener() {} } },
@@ -50,7 +51,7 @@ function makeSandbox() {
   vm.runInContext(src, ctx);
   // Server URL that passes the "not claude.ai" check.
   store.chatsave_config = { serverUrl: "http://server.test", authToken: "", userId: "tester", autoSync: true };
-  return { ctx, store };
+  return { ctx, store, listeners };
 }
 
 async function waitUntil(ctx, expr, timeoutMs = 10000) {
@@ -79,4 +80,15 @@ test("an item enqueued while another is being sent is not lost", async () => {
   await vm.runInContext("processQueue()", ctx);
   await waitUntil(ctx, "!isProcessingQueue");
   assert.equal((store.chatsave_outbox || []).length, 0);
+});
+
+test("UPLOAD_TO_S3 refuses a URL the extension never issued", async () => {
+  const { ctx, listeners } = makeSandbox();
+  const handler = listeners[0];
+  const result = await new Promise((resolve) => {
+    const keep = handler({ type: "UPLOAD_TO_S3", upload_url: "https://attacker.example/put", body: "x" }, {}, resolve);
+    assert.equal(keep, true, "handler should answer asynchronously");
+  });
+  assert.equal(result.success, false);
+  assert.match(result.error, /not issued by this extension/);
 });

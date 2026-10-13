@@ -7,7 +7,6 @@
 const DEFAULT_CONFIG = {
   serverUrl: "http://localhost:8000",
   authToken: "",
-  userId: "user",
   autoSync: true
 };
 
@@ -71,9 +70,10 @@ async function getConfig() {
   return {
     serverUrl: (managed.serverUrl || localConfig.serverUrl || DEFAULT_CONFIG.serverUrl).replace(/\/+$/, ""),
     authToken: managed.authToken || localConfig.authToken || DEFAULT_CONFIG.authToken,
-    userId: managed.userId || localConfig.userId || DEFAULT_CONFIG.userId,
+    // Identity is decided by the server from the token; this is only what it last reported.
+    identity: localConfig.identity || null,
     autoSync: managed.autoSync !== undefined ? managed.autoSync : (localConfig.autoSync !== undefined ? localConfig.autoSync : DEFAULT_CONFIG.autoSync),
-    isManaged: Boolean(managed.serverUrl || managed.authToken || managed.userId)
+    isManaged: Boolean(managed.serverUrl || managed.authToken)
   };
 }
 
@@ -243,8 +243,8 @@ async function processQueue() {
           throw new Error(`Invalid Server URL: "${config.serverUrl || ""}". Server URL must be your Chat-Save backend service (e.g. http://localhost:8000 or your Render URL), NOT claude.ai.`);
         }
 
-        const effectiveUser = item.payload?.user_id || config.userId || "shubham";
-        const url = `${config.serverUrl}/api/extension/ingest?user=${encodeURIComponent(effectiveUser)}`;
+        // The token identifies the person; no user is sent in the URL or body.
+        const url = `${config.serverUrl}/api/extension/ingest`;
         const headers = {
           "Content-Type": "application/json"
         };
@@ -376,6 +376,23 @@ async function saveDeadLetterQueue(dlq) {
   await chrome.storage.local.set({ chatsave_dead_letter: dlq });
 }
 
+// Upload URLs this extension obtained from /api/attachments/presign. UPLOAD_TO_S3 only PUTs to
+// a URL in this list, so a page script can't use the extension to write to an arbitrary URL.
+const ISSUED_UPLOADS_KEY = "chatsave_issued_uploads";
+
+async function rememberIssuedUpload(url) {
+  await withQueueLock(async () => {
+    const data = await chrome.storage.local.get(ISSUED_UPLOADS_KEY);
+    const list = (data[ISSUED_UPLOADS_KEY] || []).concat(url).slice(-200);
+    await chrome.storage.local.set({ [ISSUED_UPLOADS_KEY]: list });
+  });
+}
+
+async function wasIssuedUpload(url) {
+  const data = await chrome.storage.local.get(ISSUED_UPLOADS_KEY);
+  return (data[ISSUED_UPLOADS_KEY] || []).includes(url);
+}
+
 /**
  * Append one permanently failed item to the dead-letter queue (serialized).
  */
@@ -397,7 +414,7 @@ async function sendHeartbeat() {
     const queue = await getQueue();
     const lastSync = (await chrome.storage.local.get("chatsave_last_sync_time")).chatsave_last_sync_time || null;
 
-    const url = `${config.serverUrl}/api/extension/heartbeat?user=${encodeURIComponent(config.userId)}`;
+    const url = `${config.serverUrl}/api/extension/heartbeat`;
     const headers = {
       "Content-Type": "application/json"
     };
@@ -407,7 +424,6 @@ async function sendHeartbeat() {
 
     const payload = {
       client_id: clientId,
-      user_id: config.userId,
       extension_version: chrome.runtime.getManifest().version,
       browser: "Chrome/Edge",
       pending_queue_count: queue.length,
@@ -608,6 +624,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
           throw new Error(errData.detail || `HTTP ${res.status}`);
         }
         const data = await res.json();
+        await rememberIssuedUpload(data.upload_url);
         sendResponse({ success: true, ...data });
       } catch (err) {
         sendResponse({ success: false, error: err.message });
@@ -620,6 +637,9 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     (async () => {
       try {
         const uploadUrl = req.upload_url;
+        if (!(await wasIssuedUpload(uploadUrl))) {
+          throw new Error("Upload URL was not issued by this extension's presign step");
+        }
         const contentType = req.content_type || "application/octet-stream";
         let body = req.body;
 
@@ -669,65 +689,6 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
         sendResponse({ success: false, error: "No active claude.ai tab open" });
       }
     });
-    return true;
-  }
-
-  if (req.type === "DETECT_USER") {
-    (async () => {
-      // 1. Check cached detection
-      const stored = await chrome.storage.local.get(["chatsave_detected_user", "chatsave_config"]);
-      if (stored.chatsave_detected_user) {
-        sendResponse({ success: true, user: stored.chatsave_detected_user });
-        return;
-      }
-      if (stored.chatsave_config?.userId && stored.chatsave_config.userId !== "user" && stored.chatsave_config.userId !== "unknown") {
-        sendResponse({ success: true, user: stored.chatsave_config.userId });
-        return;
-      }
-
-      // 2. Query open Claude tabs
-      chrome.tabs.query({ url: "*://claude.ai/*" }, (tabs) => {
-        if (!tabs || tabs.length === 0) {
-          sendResponse({
-            success: false,
-            error: "No active claude.ai tab found. Please open claude.ai in Chrome and log in, then click Auto-Detect."
-          });
-          return;
-        }
-
-        let answered = false;
-        let attempts = tabs.length;
-        let hadDisconnect = false;
-
-        tabs.forEach(tab => {
-          chrome.tabs.sendMessage(tab.id, { type: "GET_CLAUDE_USER" }, (res) => {
-            if (chrome.runtime.lastError) {
-              hadDisconnect = true;
-            } else if (res && res.user && !answered) {
-              answered = true;
-              chrome.storage.local.set({ chatsave_detected_user: res.user });
-              sendResponse({ success: true, user: res.user });
-              return;
-            }
-
-            attempts--;
-            if (attempts === 0 && !answered) {
-              if (hadDisconnect) {
-                sendResponse({
-                  success: false,
-                  error: "Claude tab found, but was open before extension reload. Please refresh (F5) your claude.ai tab, then click Auto-Detect."
-                });
-              } else {
-                sendResponse({
-                  success: false,
-                  error: "Could not auto-detect Claude user. Make sure you are logged into claude.ai."
-                });
-              }
-            }
-          });
-        });
-      });
-    })();
     return true;
   }
 });

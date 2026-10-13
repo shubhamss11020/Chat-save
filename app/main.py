@@ -8,8 +8,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import capture, outbox, s3, state
-from .auth import TokenAuth, current_user
-from .config import CAPTURE, RECONCILE_SECONDS
+from .auth import TokenAuth, current_user, token_bound_var
+from .config import ADMIN_USERS, CAPTURE, CORS_ORIGINS, RECONCILE_SECONDS, UNKNOWN_USER
 from .mcp_server import mcp
 from .models import (
     Conversation,
@@ -68,8 +68,8 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="Chat-Save", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ORIGINS,  # explicit list only; auth is a bearer header, not cookies
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -79,6 +79,17 @@ app.add_middleware(TokenAuth)
 @app.get("/health")
 def health():
     return {"ok": True, "capture": CAPTURE}
+
+
+@app.get("/api/whoami")
+def whoami():
+    """Identity the server assigns to the caller's token. Used by the extension's Test Connection."""
+    user = current_user.get() or UNKNOWN_USER
+    return {
+        "user": user,
+        "token_bound": token_bound_var.get(),
+        "admin": user in ADMIN_USERS,
+    }
 
 
 @app.get("/status")
@@ -125,7 +136,7 @@ def extension_ingest(payload: ExtensionIngestPayload, bg: BackgroundTasks):
 @app.post("/api/extension/heartbeat")
 def extension_heartbeat(hb: ExtensionHeartbeat):
     """Health & connection heartbeat reported by browser extensions."""
-    effective_user = current_user.get() or hb.user_id or "user"
+    effective_user = current_user.get() or hb.user_id or UNKNOWN_USER
     state.record_heartbeat(
         client_id=hb.client_id,
         user_id=effective_user,
@@ -147,7 +158,7 @@ def list_extension_clients():
 @app.get("/api/extension/synced-state")
 def get_extension_synced_state():
     """Return map of {conversation_id: updated_at} of all conversations already saved in SQLite or Git."""
-    effective_user = current_user.get() or "shubham"
+    effective_user = current_user.get() or UNKNOWN_USER
     return state.get_committed_conversations(effective_user)
 
 
@@ -186,7 +197,7 @@ def presign_attachment_upload(req: PresignUploadRequest):
             status_code=503,
             detail="S3 storage is not configured on the server. Set S3_BUCKET_NAME in environment."
         )
-    effective_user = current_user.get() or "user"
+    effective_user = current_user.get() or UNKNOWN_USER
     try:
         data = s3.generate_presigned_upload_url(
             filename=req.filename,

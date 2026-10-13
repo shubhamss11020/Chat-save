@@ -4,9 +4,21 @@ import json
 import os
 from urllib.parse import parse_qs
 
-from .config import AUTH_TOKEN, USERNAME
+from .config import ALLOW_OPEN, AUTH_TOKEN, UNKNOWN_USER, USERNAME
 
 current_user: contextvars.ContextVar[str] = contextvars.ContextVar("current_user", default="")
+# True when the request authenticated with a per-person token (identity cannot be overridden).
+token_bound_var: contextvars.ContextVar[bool] = contextvars.ContextVar("token_bound", default=False)
+
+
+async def _reject(send) -> None:
+    body = b'{"detail":"unauthorized"}'
+    await send({
+        "type": "http.response.start", "status": 401,
+        "headers": [(b"content-type", b"application/json"),
+                    (b"content-length", str(len(body)).encode())]
+    })
+    await send({"type": "http.response.body", "body": body})
 
 
 def _load_user_tokens() -> dict[str, str]:
@@ -48,6 +60,10 @@ class TokenAuth:
         if path == "/health" or path.startswith("/.well-known/") or scope.get("method") == "OPTIONS":
             return await self.app(scope, receive, send)
 
+        # Fail closed: a server with no tokens configured accepts nobody (unless opted in).
+        if not AUTH_TOKEN and not USER_TOKENS_MAP and not ALLOW_OPEN:
+            return await _reject(send)
+
         headers = dict(scope.get("headers", []))
         got = headers.get(b"authorization", b"").decode().removeprefix("Bearer ").strip()
         qs = parse_qs(scope.get("query_string", b"").decode())
@@ -55,35 +71,28 @@ class TokenAuth:
             got = qs.get("key", [""])[0].strip()
 
         explicit_user = qs.get("user", [""])[0].strip()
-        matched_user = ""
 
-        token_bound = False
         if got and got in USER_TOKENS_MAP:
-            # Per-user token: identity is fixed by the token; ?user= is ignored.
+            # Per-person token: the token alone decides who this is. ?user= is ignored.
             matched_user = USER_TOKENS_MAP[got]
             token_bound = True
-        elif AUTH_TOKEN:
-            if got and hmac.compare_digest(got.encode(), AUTH_TOKEN.encode()):
-                # Shared token: the client may name the user it is saving for.
-                matched_user = explicit_user or USERNAME or "user"
-            else:
-                body = b'{"detail":"unauthorized"}'
-                await send({
-                    "type": "http.response.start", "status": 401,
-                    "headers": [(b"content-type", b"application/json"),
-                                (b"content-length", str(len(body)).encode())]
-                })
-                await send({"type": "http.response.body", "body": body})
-                return
+        elif AUTH_TOKEN and got and hmac.compare_digest(got.encode(), AUTH_TOKEN.encode()):
+            # Shared owner token: identity is the server owner. ?user= is NOT honoured,
+            # otherwise anyone holding the shared token could act as any person.
+            matched_user = USERNAME or UNKNOWN_USER
+            token_bound = False
+        elif ALLOW_OPEN and not AUTH_TOKEN and not USER_TOKENS_MAP:
+            # Explicit local-development mode only.
+            matched_user = explicit_user or USERNAME or UNKNOWN_USER
+            token_bound = False
         else:
-            matched_user = explicit_user or USERNAME or "user"
+            return await _reject(send)
 
-        if explicit_user and not token_bound and AUTH_TOKEN:
-            matched_user = explicit_user
-
-        token = current_user.set(matched_user)
+        user_reset = current_user.set(matched_user)
+        bound_reset = token_bound_var.set(token_bound)
         try:
             return await self.app(scope, receive, send)
         finally:
-            current_user.reset(token)
+            token_bound_var.reset(bound_reset)
+            current_user.reset(user_reset)
 

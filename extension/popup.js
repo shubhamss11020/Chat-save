@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const { config, pendingCount, deadLetterCount, lastReceipt, lastSyncTime } = res;
 
-      valUser.textContent = config.userId || "user";
+      valUser.textContent = config.identity?.user || "(not connected: run Test Connection)";
       valServer.textContent = config.serverUrl || "Not configured";
 
       if (config.isManaged) {

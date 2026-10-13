@@ -88,10 +88,11 @@ def test_per_user_token_ignores_user_query_param(auth_config):
     assert user == "rajat"  # identity comes from the token, not the query string
 
 
-def test_shared_token_lets_client_name_the_user(auth_config):
+def test_shared_token_cannot_name_another_user(auth_config):
+    # The shared owner token must not let its holder act as someone else.
     status, user = asyncio.run(_run_auth([b"Bearer shared-secret"], query=b"user=alex"))
     assert status == 200
-    assert user == "alex"
+    assert user == "server-default"
 
 
 def test_shared_token_without_user_falls_back_to_server_default(auth_config):

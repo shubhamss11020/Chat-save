@@ -12,11 +12,6 @@
       "description": "Central MCP_AUTH_TOKEN or individual employee secret token",
       "type": "string"
     },
-    "userId": {
-      "title": "Employee Username or Email",
-      "description": "Unique identifier for the employee (e.g. alex or alex@company.com)",
-      "type": "string"
-    },
     "autoSync": {
       "title": "Automatic Real-Time Sync",
       "description": "Whether conversations are automatically captured and sent as users chat",

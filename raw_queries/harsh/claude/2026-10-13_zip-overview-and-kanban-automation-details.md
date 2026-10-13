@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 13:22:34 EDT"
+updated_at: "2026-10-13 13:42:34 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1065,3 +1065,83 @@ Copy-Item "$path.bak2" $path -Force
 docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
 docker compose restart odoo
 ```
+
+## User (2026-10-13 13:38:02 EDT)
+
+Now let's fix the first problem with the baord now the Drag and drop one
+
+## Claude (2026-10-13 13:38:27 EDT)
+
+> *Thinking:*
+>
+
+The cause of the drag problem is that dragging a card only rewrites `review_state`. It bypasses the Approve and Reject buttons, so Reviewer and Reviewed date stayed empty. Locking the drag only hid the symptom, and I wasn't sure Odoo 13 honours that attribute anyway.
+
+This fix goes to the root. I'll make the model fill in Reviewer and Reviewed date whenever a review moves to Approved or Rejected, by any route (drag, button, or form). With that in place dragging is safe, so I'll also unlock it. I haven't run this, so test it as described below.
+
+```powershell
+cd C:\dev\Sales-Specialist
+
+# ---------- A. Python: audit fields filled on ANY move to Approved/Rejected ----------
+$py   = (Resolve-Path "odoo\addons\sales_intelligence\models\sales_intelligence.py").Path
+$code = [System.IO.File]::ReadAllText($py)
+
+if ($code -match 'AUDIT_ON_STATE_CHANGE') {
+    Write-Host "Python already updated - skipped."
+} else {
+    Copy-Item $py "$py.bak3" -Force
+
+    $method = @'
+    def write(self, vals):
+        # AUDIT_ON_STATE_CHANGE: dragging a kanban card only writes review_state,
+        # so fill the reviewer fields here for every route (drag, button, form).
+        if vals.get("review_state") in ("approved", "rejected"):
+            vals = dict(vals)
+            vals.setdefault("reviewer_id", self.env.user.id)
+            vals.setdefault("reviewed_date", fields.Datetime.now())
+        return super().write(vals)
+
+'@
+    $marker = '    _sql_constraints = ['
+    $i = $code.IndexOf($marker)
+    if ($i -lt 0) { throw "_sql_constraints marker not found - Python not changed." }
+    $code = $code.Insert($i, $method)
+    [System.IO.File]::WriteAllText($py, $code, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Python updated."
+}
+
+# ---------- B. XML: remove the drag lock ----------
+$path = (Resolve-Path "odoo\addons\sales_intelligence\views\sales_intelligence_views.xml").Path
+$xml  = [System.IO.File]::ReadAllText($path)
+
+if ($xml.Contains(' records_draggable="false"')) {
+    Copy-Item $path "$path.bak3" -Force
+    $xml = $xml.Replace(' records_draggable="false"', '')
+    [System.IO.File]::WriteAllText($path, $xml, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Drag lock removed."
+} else {
+    Write-Host "No drag lock found - XML unchanged."
+}
+
+# ---------- C. Verify, upgrade, restart ----------
+Select-String -Path $py   -Pattern "AUDIT_ON_STATE_CHANGE"
+Select-String -Path $path -Pattern "records_draggable"      # should print nothing
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+Start-Process "http://localhost:8070/web#action=sales_intelligence.action_sales_intelligence_account&view_type=kanban"
+```
+
+## How to test
+
+1. Press **F5** on the board and drag a card from Pending Review to **Approved**.
+2. Open that card and check that **Reviewer** is your user and **Reviewed date** is set (Discovery Metadata tab).
+3. Drag it to **Rejected** and check the same two fields.
+4. Drag one to **Needs Context** or back to **Pending Review**. Those moves leave Reviewer and Reviewed date as they were. If you want those cleared, say so.
+
+Each state change also appears in the card's chatter, because `review_state` already has tracking turned on.
+
+## A related problem
+
+Re-importing a scan resets every account to Pending Review, because the import code writes `review_state` on every update. If someone approves an account and the scan is imported again, the approval is undone, although the reviewer fields stay. This is an existing behaviour of the module and I haven't changed it. Want me to fix it so re-imports keep decisions that have already been made?
+
+If the upgrade fails, paste the last 15 lines. To roll back, copy the `.bak3` files over the originals and run the upgrade again.

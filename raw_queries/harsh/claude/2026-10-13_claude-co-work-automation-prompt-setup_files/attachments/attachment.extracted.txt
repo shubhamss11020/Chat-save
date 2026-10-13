@@ -1,0 +1,84 @@
+ASKCRUZ CONTENT TEST - 2026-10-13
+Video: "How long does your customer wait for a quote?" (9:16, 59.4s, burned-in captions)
+
+CALL USED
+2026-10-13, "Study Time" (Fireflies id 2532). The recording contains an internal team check-in followed by a live prospect discovery call with a small building-supply business. Content below is anonymised.
+
+CREATIVE DIRECTOR ASSESSMENT
+- Discussed: a small contractor sales team (about four people) quotes slowly because material lists from plans must be re-typed into their point-of-sale system. Quote time is a week to ten days. AskCruz explained a "company brain" that connects email, calls and the ERP so AI knows the business, then walked through plan -> material list -> own product codes -> stock and supplier lead-time check -> draft quote -> human approval.
+- Most quotable moment: the prospect explaining that the quicker you get a number back, the more likely the job converts, and that word gets around in a small market. Also: the salesperson must still be the final say on price.
+- What it shows about AskCruz: we do not sell generic AI. We make AI context-rich by plugging it into the customer's own systems, with a human as the last check.
+- Problem a viewer recognises: "Our quotes take too long and the customer goes elsewhere."
+
+COUNCIL OF FOUR
+- Strategist: Quote speed is a concrete, measurable outcome and ties straight to the "context-rich AI / company brain" positioning. Strong. Avoid pricing talk.
+- Storyteller: Clear tension (waiting customer vs. slow re-typing), clear payoff (quote out in under 2 days, human still approves). The "tribal knowledge when someone leaves" beat is a good second hook but would make it two ideas.
+- Skeptical Buyer: Cares because it is about winning jobs, not "AI". Wants proof it is not a black box: the human-approval line answers that. Would doubt vague hype, so no big claims.
+- Social Editor: Hook as a direct question about the viewer's own customer stops the scroll better than a statistic.
+Alternatives considered: (a) "Onboarding by asking the AI instead of a 30-minute call", (b) "Generic AI vs context-rich AI". Both lost: (a) is internal-facing, (b) is too abstract for a cold viewer.
+DECISION: One idea - "The first quote in the inbox usually wins, so make yours the fastest." Hook: "How long does your customer wait for a quote?"
+
+FRAMEWORK MAP
+Hook (0-3s): How long does your customer wait for a quote?
+Problem (3-16s): small team, plans by email, hand re-typing, week to ten days, contractor asks someone else.
+Insight (16-40s): first quote usually wins; plan in -> AI builds material list -> uses their own product codes -> checks stock and lead times -> drafts quote -> person approves price -> goal under two days.
+Differentiator (40-54s): generic AI guesses without context; AskCruz builds a company brain from emails, calls and software; knowledge stays when someone leaves.
+CTA (54-59s): Want this for your business? Talk to us. Follow for more.
+
+TIMED SCRIPT / SCENE PLAN (each beat 2.7s; big on-screen text + yellow caption)
+00:00 HOOK      "How long does your customer wait for a quote?"
+00:02.7 PROBLEM "A small building-supply sales team." / cap: A small sales team. Plans arrive by email.
+00:05.4 PROBLEM "Plans come in by email." / cap: Every plan has to become a quote.
+00:08.1 PROBLEM "Someone re-types every material list." / cap: Someone re-types every material list by hand.
+00:10.8 PROBLEM "Quote time: 1 week to 10 days" / cap: Quote time? A week to ten days.
+00:13.5 PROBLEM "Meanwhile the contractor asks someone else."
+00:16.2 INSIGHT "The first quote in the inbox usually wins."
+00:18.9 INSIGHT "Plan in." / cap: So we map it out. A plan comes in.
+00:21.6 INSIGHT "AI reads it. Builds the material list."
+00:24.3 INSIGHT "Uses THEIR product codes."
+00:27.0 INSIGHT "Checks stock. Checks supplier lead times."
+00:29.7 INSIGHT "Drafts the quote in their system."
+00:32.4 INSIGHT "A human still approves the price."
+00:35.1 INSIGHT "Goal: every quote out in under 2 days."
+00:37.8 DIFFERENT "Most AI gives generic answers."
+00:40.5 DIFFERENT "AI without context guesses."
+00:43.2 DIFFERENT "We build a company brain."
+00:45.9 DIFFERENT "Your emails. Your calls. Your software."
+00:48.6 DIFFERENT "And when someone leaves, the knowledge stays."
+00:51.3 CTA "Want this for your business?"
+00:54.0 CTA "Talk to us."
+00:56.7 CTA "Follow for more."  (ends 00:59.4)
+Audio: none in this test render (silent, captions carry it). Recommend a voiceover and light music in a real production.
+
+CAPTION FILE (SRT)
+1  00:00:00,000 --> 00:00:02,700  How long does your customer wait for a quote?
+2  00:00:02,700 --> 00:00:05,400  A small sales team. Plans arrive by email.
+3  00:00:05,400 --> 00:00:08,100  Every plan has to become a quote.
+4  00:00:08,100 --> 00:00:10,800  Someone re-types every material list by hand.
+5  00:00:10,800 --> 00:00:13,500  Quote time? A week to ten days.
+6  00:00:13,500 --> 00:00:16,200  Meanwhile, the contractor asks someone else.
+7  00:00:16,200 --> 00:00:18,900  The first quote in the inbox usually wins.
+8  00:00:18,900 --> 00:00:21,600  So we map it out. A plan comes in.
+9  00:00:21,600 --> 00:00:24,300  AI reads it and builds the material list.
+10 00:00:24,300 --> 00:00:27,000  It uses the team's own product codes.
+11 00:00:27,000 --> 00:00:29,700  It checks stock and supplier lead times.
+12 00:00:29,700 --> 00:00:32,400  Then drafts the quote in their own system.
+13 00:00:32,400 --> 00:00:35,100  A person still approves the price.
+14 00:00:35,100 --> 00:00:37,800  The goal: every quote out in under two days.
+15 00:00:37,800 --> 00:00:40,500  Most AI gives generic answers.
+16 00:00:40,500 --> 00:00:43,200  Because AI without context guesses.
+17 00:00:43,200 --> 00:00:45,900  We build a company brain.
+18 00:00:45,900 --> 00:00:48,600  Your emails, your calls, your software.
+19 00:00:48,600 --> 00:00:51,300  And when someone leaves, the knowledge stays.
+20 00:00:51,300 --> 00:00:54,000  Want this for your business?
+21 00:00:54,000 --> 00:00:56,700  Talk to us.
+22 00:00:56,700 --> 00:00:59,400  Follow for more.
+
+HIRING NOTES
+Fiverr could not be researched: fiverr.com disallows automated fetching (robots restriction) and this run had no browser. No seller was contacted, messaged or paid. Per the fallback, the production below relies on short-form best practice rather than specific sellers, so no named candidates are listed (naming any would be invented).
+Best-practice profile of the freelancer we emulated (what to look for when hiring a real one):
+1. Hook-first editor: question or claim in the first 2 seconds, no logo or intro.
+2. Caption-led pacing: large burned-in captions, a new text beat every 2-3 seconds, high-contrast colours, safe margins away from platform UI.
+3. Single-idea explainer: problem -> insight -> differentiator -> soft CTA, with progress bar and section tags for retention.
+Techniques copied in this render: section tag + progress bar, one-line caption bar, 2.7s beats, plain-language copy, soft CTA.
+Recommended next step when a human reviews Fiverr: shortlist sellers rated 4.9+ with many reviews and Top Rated/Pro status, review portfolios for pacing and caption style, then request a sample in the style above.

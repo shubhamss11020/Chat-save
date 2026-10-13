@@ -2,12 +2,12 @@
 conversation_id: 9d0fbea5-ea1c-4ed8-880b-95ce4553a46d
 platform: claude
 username: "harsh"
-title: "Odoo JSON RPC connection requirements"
+title: "Odoo JSON RPC connection requirements - Claude"
 created_at: "2026-10-13 13:17:39 EDT"
-updated_at: "2026-10-13 13:21:23 EDT"
+updated_at: "2026-10-13 14:51:03 EDT"
 ---
 
-# Odoo JSON RPC connection requirements
+# Odoo JSON RPC connection requirements - Claude
 
 ## User (2026-10-13 13:17:30 EDT)
 

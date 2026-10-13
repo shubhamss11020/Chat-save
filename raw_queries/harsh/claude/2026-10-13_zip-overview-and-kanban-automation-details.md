@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 14:27:35 EDT"
+updated_at: "2026-10-13 14:32:35 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1342,3 +1342,70 @@ Date: 13 October 2026
   - permissions, since any internal user can currently edit or delete reviews
   - scanner noise, such as "AskCruz hiring" labelled "Likely active client"
   - the four company cards, which are still empty templates
+
+## User (2026-10-13 14:29:23 EDT)
+
+make the bullets of 2 line and also remove the fact about odoo 16 and 13 in 3rd point
+
+## Claude (2026-10-13 14:29:28 EDT)
+
+> *Thinking:*
+>
+
+**Log Note: Sales Specialist (Sales-Specialist.zip) Review and Local Setup**
+Date: 13 October 2026
+
+- Reviewed the full Sales-Specialist.zip, including the plan documents, the Odoo `sales_intelligence` module, scripts and the Sept 23 scanner output. Also went through the four pilot company cards and their evidence files.
+- Confirmed from the code and the database dump that the module has no automations or scheduled jobs, and the kanban views have no banners. The kanban only shows badges that fill in after a manual scan sync.
+- Inspected the AskCruz database dump (about 50 MB, 514 tables) to understand its structure and installed modules. It contains HR and compensation tables, so it should be handled only on a local machine.
+- Set up the local Docker environment, and the first attempt failed because of a leftover Postgres volume. After wiping the volumes and reinstalling, `sales_intelligence` installed cleanly with all 20 modules loaded.
+- Identified missing files in the zip: the scanner service, `docker-compose.yml`, `push-to-odoo-rpc.js` and the contact export JSON. As a result, "Run live scan" cannot work locally, and only the saved scan file can be imported.
+- Redesigned the Scanner Reviews kanban cards with risk colours, evidence counts, linked contact and suggested next action. Added Approve, Needs Context and Reject buttons, and the upgrade ran without view errors.
+- Prepared further board changes: a Scanner Reviews menu entry, extra filters, activities, pivot and graph views, and all review columns shown. Also added a fix so Reviewer and Reviewed date are filled however a card moves, and each still needs checking in the UI.
+- Fixed the logic so re-importing a scan no longer resets existing review decisions to Pending Review. This is still to be verified with the re-import test (expected: 0 created, 9 updated).
+- Open items for discussion with Jaskeerat and the team lead include the missing scanner files and wide-open permissions. Also scanner noise such as "AskCruz hiring" labelled "Likely active client", and the four company cards still being empty templates.
+
+## User (2026-10-13 14:30:46 EDT)
+
+and add some bullets inside the bullets if possible
+
+## Claude (2026-10-13 14:30:54 EDT)
+
+**Log Note: Sales Specialist (Sales-Specialist.zip) Review and Local Setup**
+Date: 13 October 2026
+
+- Reviewed the full Sales-Specialist.zip, including the plan documents, the Odoo `sales_intelligence` module, scripts and the Sept 23 scanner output. Also went through the four pilot company cards and their evidence files.
+  - Scanner output covers 9 companies, with 25 briefs in total.
+  - All four company cards (Sabre, 3GM, Brannon, Greer) are still empty templates.
+
+- Confirmed from the code and the database dump that the module has no automations or scheduled jobs, and the kanban views have no banners. The kanban only shows badges that fill in after a manual scan sync.
+  - Nothing runs on its own: the sync wizard, the import wizard and the scripts all need a person to start them.
+  - The Automated Actions module is not installed in the dump.
+
+- Inspected the AskCruz database dump (about 50 MB, 514 tables) to understand its structure and installed modules. It contains HR and compensation tables, so it should be handled only on a local machine.
+  - The dump has custom AskCruz and EOXS modules for HR, contacts and tasks.
+  - It has no `sales_intelligence` tables, so the module is kept in a separate database.
+
+- Set up the local Docker environment, and the first attempt failed because of a leftover Postgres volume. After wiping the volumes and reinstalling, `sales_intelligence` installed cleanly with all 20 modules loaded.
+  - Odoo runs on port 8070, with database `sales_intelligence`.
+  - The warning about two fields sharing the label "Job Position" is harmless.
+
+- Identified missing files in the zip: the scanner service, `docker-compose.yml`, `push-to-odoo-rpc.js` and the contact export JSON. As a result, "Run live scan" cannot work locally, and only the saved scan file can be imported.
+  - I created the `docker-compose.yml` myself for the local setup.
+  - The scanner and export files need to be requested from the original author.
+
+- Redesigned the Scanner Reviews kanban cards with risk colours, evidence counts, linked contact and suggested next action. Added Approve, Needs Context and Reject buttons, and the upgrade ran without view errors.
+  - Cards now show direct, cross-reference and weak evidence counts.
+  - The next action is cut off at 120 characters so cards stay compact.
+
+- Prepared further board changes: a Scanner Reviews menu entry, extra filters, activities, pivot and graph views, and all review columns shown. Also added a fix so Reviewer and Reviewed date are filled however a card moves, and each still needs checking in the UI.
+  - New filters: Unreviewed, My Reviews, Reviewed Last 7 Days, No Linked Contact, Has Direct Evidence and Stage Unclear.
+  - Test by dragging a card to Approved, then checking Reviewer and Reviewed date on the form.
+
+- Fixed the logic so re-importing a scan no longer resets existing review decisions to Pending Review. This is still to be verified with the re-import test (expected: 0 created, 9 updated).
+  - Approve a card, re-run the import, and confirm the card stays in Approved.
+  - A re-import still replaces the evidence under an approved account, which is a point to discuss.
+
+- Open items for discussion with Jaskeerat and the team lead include the missing scanner files and wide-open permissions. Also scanner noise such as "AskCruz hiring" labelled "Likely active client", and the four company cards still being empty templates.
+  - Any internal user can currently create, edit and delete reviews.
+  - Next step to confirm: fix the scanner noise first, or fill the company cards first.

@@ -2,18 +2,18 @@
 conversation_id: 977842d3-e5d9-4b68-ad7a-6f8bc0fbd427
 platform: claude
 username: "unknown"
-title: "3gm and client names - Claude"
+title: "MCP testing and tier implementation - Claude"
 created_at: "2026-10-13 10:34:50 EDT"
-updated_at: "2026-10-13 10:34:51 EDT"
+updated_at: "2026-10-13 10:35:15 EDT"
 ---
 
-# 3gm and client names - Claude
+# MCP testing and tier implementation - Claude
 
-## User (2026-10-13 10:34:51 EDT)
+## User (2026-10-13 10:35:15 EDT)
 
 What is 3gm?
 
-## Claude (2026-10-13 10:34:51 EDT)
+## Claude (2026-10-13 10:35:15 EDT)
 
 3GM Steel, Inc. (legal name on documents: “Three G M Steel, Inc.”) is a Somerset, Kentucky steel trading and distribution company. It buys coil from mills and importers, holds inventory at ports and warehouses, and sells to customers such as carport and metal-building makers. This comes from the vault wiki only; I didn’t check the ERP because the question doesn’t need a live figure.
 
@@ -28,11 +28,11 @@ The vault flags two of 3GM’s own documents as disagreeing on Jan–Aug 2026 gr
 
 Sources: page 191 “3GM Steel, Inc.” (facts sales_ytd_usd, total_assets_usd; flags on gross profit, CMT) · att 18170 · msg 46556 · msg 45746 · msg 66262 · msg 301180 · links: page 307 Mac Metal Sales, Inc., page 41 CMT Components acquisition, page 54 Dongkuk Q1 2027 Consignment Order
 
-## User (2026-10-13 10:34:51 EDT)
+## User (2026-10-13 10:35:15 EDT)
 
 What are the name of the clients
 
-## Claude (2026-10-13 10:34:51 EDT)
+## Claude (2026-10-13 10:35:15 EDT)
 
 The vault wiki has 253 customer pages, listed below. Several companies appear more than once under name variants (for example Longhorn, Longhorn Steel Structures and Longhorn Steel Structures, Inc.), so the true count of distinct customers is lower. Customer status here is the wiki’s classification, not the ERP’s customer master, which I did not query. I couldn’t identify a 3GM ERP connection among my tools. Check the ERP for who is an active buyer.
 
@@ -42,11 +42,11 @@ The largest by wiki coverage are EMB Metal Buildings, Premier Metals, Red Dot Pr
 
 Sources: vault wiki entity list (entity_class = customer, 253 of 253 returned, not truncated); page ids as listed, e.g. 164 Carolina Carports Inc., 180 EMB Metal Buildings, 257 Premier Metals, 516 Red Dot Products
 
-## User (2026-10-13 10:34:51 EDT)
+## User (2026-10-13 10:35:15 EDT)
 
 Who is Travis?
 
-## Claude (2026-10-13 10:34:51 EDT)
+## Claude (2026-10-13 10:35:15 EDT)
 
 Travis Lane is 3GM Steel’s Chief Commercial Officer. Corey McGlothlin, the CEO, announced his promotion on 2026-03-04, after Sales Manager Cole Wolford resigned to join Graber Post Frame.
 
@@ -59,11 +59,11 @@ The wiki page for him rests on one announcement message, and it doesn’t state 
 
 Sources: page 468 “Travis Lane” (facts title, employer, announced_by) · msg 70085 · msg 70057 · msg 70042 · att 10862 · page 409 Steel Tech Building Systems · find_people “Travis” (Travis Lane: 2,944 sent / 10,685 received)
 
-## User (2026-10-13 10:34:51 EDT)
+## User (2026-10-13 10:35:15 EDT)
 
 Who is Stefan?
 
-## Claude (2026-10-13 10:34:51 EDT)
+## Claude (2026-10-13 10:35:15 EDT)
 
 Stefan Brown is 3GM Steel’s CFO. He signs as “CFO” of 3GM Steel, Inc., Somerset, KY.
 
@@ -75,3 +75,98 @@ Other Stefans: The vault also has Stefan Brown at South Central Bank (one receiv
 The wiki page for him is tagged personal-data and related-party-financial.
 
 Sources: page 137 “Stefan Brown” (CFO signature, msg 48660) · find_people “Stefan” (2,963 sent / 9,429 received) · page 191 “3GM Steel, Inc.” (msg 46146, msg 66262, msg 69236, msg 46505) · page 41 CMT Components acquisition
+
+## Claude (2026-10-13 10:35:15 EDT)
+
+I can’t confirm that tiers are implemented or working, because I don’t know what “tiers” refers to in your project. Nothing I can see defines it, and I haven’t tested anything beyond the ERP.
+
+What I checked: the ERP has no field or column with “tier” in its name or label (0 rows in both the field registry and the column list). So there is no tier setting stored in the ERP, such as a customer tier or pricing tier. This check is on the EOXS Team Live database, which I haven’t confirmed is 3GM’s ERP.
+
+The closest structure I know of is the layered design in the 3GM navigator guide. I’m describing it as designed, not verified as working, because the Vault tools aren’t loaded here:
+
+Layer	Holds	Owns
+Curated wiki	Reviewed pages and facts, each with its own citation	Negotiation history, relationships, disputes, internal processes
+Raw mail and attachments	Two Outlook mailboxes (Travis, Stefan) from 2025-09-01, plus invoices, price sheets and workbooks	Evidence behind the wiki and the hard figures
+ERP (Odoo 13)	Live orders, coils, inventory, invoices, freight, credit, product master data	Current operational state
+
+Inside the wiki, each fact is also labelled by provenance: sourced, erp_owned, agent_judgement, explicit_unknown, extraction_gap or page_metadata.
+
+Which do you mean?
+
+Data layers: the table above. To verify, I need the Vault tools connected so I can run get_vault_stats and a few lookups.
+Customer or pricing tiers: the ERP shows none, so they would have to live in the Vault or elsewhere. Tell me where.
+Access tiers or model tiers in your own code: point me to the repo or folder and I’ll check it.
+
+Sources: ERP, EOXS Team Live — ir_model_fields and information_schema.columns searches for “tier” (0 rows each); 3gm-navigator guide for the layer design.
+
+## User (2026-10-13 10:35:15 EDT)
+
+its like accessing the data from three tier, means the public data can't access by the other tier, because total data is divided into three part
+
+## Claude (2026-10-13 10:35:15 EDT)
+
+Partly. A tier mechanism exists in the thread-wiki database, but only one tier is really in use, and I couldn’t test whether access is enforced.
+
+I counted rows only. I didn’t read any thread or page content.
+
+What exists: threads, wiki.pages and wiki_staging.pages each have an access_tier column, and a user_access_tiers table maps users to tiers. The schema says no row means no access, so reads and writes fail closed.
+
+Tier	Threads	Wiki pages	Staging drafts	Users
+tier1	358	95	188	1 (raj)
+tier2	0	1	0	0
+tier3	0	0	0	0
+No tier set (NULL)	1,580 (82%)	119 (55%)	286	25 other users have no row
+
+What this means:
+
+Not three tiers yet. tier1 is the only populated tier, tier2 has a single wiki page, and tier3 doesn’t exist.
+Most data is untiered. Every thread from the other 25 users (ron, aryan-bakshi, ai-interns1 and so on) has no tier. Whether untiered content counts as public or locked depends on how the access check treats NULL, which I couldn’t see.
+Only raj’s threads are tiered. All 358 of raj’s threads are tier1 and he is the only user with a tier row. Nobody has tier2 access, so that one page is readable by no one.
+Tier1 pages draw on untiered threads. Of 518 citations from tier1 pages, 319 point at untiered threads. That direction is usually fine. The risky direction, an untiered or lower page citing a tier1 thread, shows 0 cases.
+
+Not verified: Enforcement. I queried as the connector’s account, which can see all rows, so I can’t prove a tier1 user is blocked from tier2 data or the reverse. To test it I’d need either the access-check code or a connection under a low-tier account, for example one that tries to read the tier1 pages and expects zero rows.
+
+Other data stores: The Askcruz registry holds 8 client organisations in one place (3GM Steel, Sabre Alloys, PPC Metals and others), and I saw no tier column there. Separation between clients in that store is untested.
+
+If your three parts are something specific, such as public, internal and restricted, tell me the names and I’ll check which store implements them.
+
+Sources: Thread-wiki database — get_business_schema, threads, user_access_tiers, wiki.pages, wiki_staging.pages and wiki.page_threads count queries; Askcruz get_index and list_clients.
+
+## User (2026-10-13 10:35:15 EDT)
+
+does our architecture have three tier access, something like rbac for our database, checkout all the connectors and get me the information
+
+## Claude (2026-10-13 10:35:15 EDT)
+
+No. There is no single three-tier RBAC across your databases; there are separate access layers, and only some of them enforce anything. The one tier setting I found is a column the application is meant to check, not a database rule, and I couldn’t test that check.
+
+What I found, connector by connector
+
+Connector	Database account	Superuser / bypass RLS	Row-level security	Built-in roles and rules
+EOXS Team Live (ERP)	eoxs_live_ro	No / No	Not checked	Odoo: 101 groups, 1,097 table-access rules, 239 record rules, 141 users
+Read-only (askcruz DB)	askcruz_ro	No / No	Not checked	Odoo: 64 groups, 707 table-access rules, 172 record rules, 38 users
+Thread-wiki	deploy (SELECT only, 17 tables)	No / No	Off on all 21 tables, 0 policies	access_tier column plus user_access_tiers table
+Askcruz	No SQL, tool-based	n/a	n/a	Sees 8 clients
+Interns-mcp	No SQL, tool-based	n/a	n/a	Sees the same 8 clients
+
+Where the tiers actually show up
+
+Database level: Every connector uses a non-superuser account that can only read. That protects against writes, not against reading across clients or tiers.
+Odoo level: Odoo’s groups and record rules are enforced by the application, not by the database. A direct read-only SQL connection like these doesn’t pass through them, so they don’t limit what the connectors see.
+Tier column (Thread-wiki): As I reported earlier, only tier1 is really populated (358 of 1,938 threads, 95 of 215 pages), tier2 has one page, and only one user has a tier. Nothing in the database restricts the column’s values; I found no check constraint on it, so a typo like tier-1 would be accepted. Enforcement lives only in the server code.
+Per-connector scoping (Askcruz vs Interns-mcp): Both list the same 8 clients but return different volumes. Interns-mcp is a smaller view of the same data. This looks like a tier, but I don’t know the rule behind it.
+	Askcruz	Interns-mcp
+Wiki pages	2,133	1,117
+Email threads	34,116	26,909
+Calls (Fireflies + Fathom)	2,460	2,130
+Implementation tasks	828	777
+
+Gaps
+
+The tier check is not enforced by the database. If the server code has a bug, the data underneath is open to any connection.
+Thread-wiki has a mcp_tokens table (token hash, username, connector, active flag), so tokens map to a user and connector. That is probably where tier or scope is decided, but I haven’t looked into it.
+Askcruz holds data for 8 client companies in one store, and I saw no client-level isolation there.
+
+Not verified: Whether Interns-mcp is filtered by client, by date or by tier, and whether a restricted token is actually blocked from tier1 data. I can count tokens per connector (no hashes) to see how access is assigned. To test enforcement I’d need a restricted token, so tell me if you want me to look into the token table.
+
+Sources: Thread-wiki — pg_roles, pg_class, pg_policies, information_schema grants and columns, pg_constraint; EOXS Team Live and askcruz DBs — pg_roles, res_groups, ir_model_access, ir_rule, res_users; Askcruz and Interns-mcp get_index and list_clients.

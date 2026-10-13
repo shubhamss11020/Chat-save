@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "Testing AskCruz information retrieval - Claude"
 created_at: "2026-10-13 09:21:07 EDT"
-updated_at: "2026-10-13 09:21:38 EDT"
+updated_at: "2026-10-13 09:31:23 EDT"
 ---
 
 # Testing AskCruz information retrieval - Claude
 
-## User (2026-10-13 09:21:38 EDT)
+## User (2026-10-13 09:31:23 EDT)
 
 give me some ideas on which i can query claude about askcruz and perform some research to see whether its fetching information properly or not
 
-## Claude (2026-10-13 09:21:38 EDT)
+## Claude (2026-10-13 09:31:23 EDT)
 
 Here are test ideas for checking whether AskCruz fetches information correctly. They’re based on the AskCruz tools in this session: calls, emails, attachments, clients, contacts, implementation tasks, reference docs, repo docs, and the wiki.
 
@@ -54,3 +54,73 @@ Date handling, such as “last week” or calls near month boundaries.
 Long transcripts and attachments, to test truncation and whether attachment text is extracted.
 
 If you pick one or two of these, I can run them live against AskCruz and give you a side-by-side of what it returned and whether it checks out. A good first test is a client you know well, combined with a count check on one month of calls.
+
+## User (2026-10-13 09:31:23 EDT)
+
+give me more questions
+
+## Claude (2026-10-13 09:31:23 EDT)
+
+Here are more questions to try, grouped by what they test. Swap the bracketed parts for real clients, people, and dates.
+
+Client and contact lookups
+
+Who is the main contact at [client], and what’s their email?
+Which clients use the same Odoo instance or share a domain?
+Which clients have no contacts on file?
+What’s the history with [client] from the first call to now?
+Which clients haven’t had any call or email in the last 60 days?
+
+Calls and transcripts
+
+What action items came out of the most recent call with [client]?
+Who spoke the most in [call]? Who joined late or left early?
+Which calls mention [feature or module, e.g. inventory, manufacturing, toll processing]?
+Summarize the three most recent Fathom calls.
+What objections or concerns did [client] raise across all their calls?
+Did anyone commit to a deadline on a call, and was it met according to later emails?
+
+Emails and attachments
+
+What was the last email thread with [client] about?
+Find the email where [name] mentioned [topic], and show who replied.
+What’s in the attachment on the [subject] email? Pull the key numbers.
+Which email threads have attachments but no reply?
+Find every email mentioning an invoice, quote, or contract.
+
+Implementation tasks
+
+What tasks are blocked right now, and who owns them?
+Which tasks for [client] are high priority and still open?
+What does the task chatter say about [problem]? Does it match what was said on calls?
+Which tasks have no owner or no stage?
+
+Wiki, assets, and SOPs
+
+What does our SOP say about [process]? Quote the source document.
+What’s in the company overview and ICP documents? Does the wiki summary match them?
+Which wiki pages cover [client], and which sources back each claim?
+What’s our position on [pricing, onboarding, or support policy]?
+
+Trap questions (the right answer is “I don’t know”)
+
+What did [real client] say about [topic never discussed]?
+What’s the phone number for [real contact who has none on file]?
+What happened on the [date with no calls]?
+Compare [client A] and [fake client B].
+What did [client] agree to on the call? Ask this about a call where nothing was agreed, to see whether it invents a commitment.
+
+Reasoning across sources
+
+Does what [client] said on a call match what they wrote afterward in email?
+Build a timeline for [project] from calls, emails, and tasks. Are there gaps or contradictions?
+What risks do you see for [client] based on everything on file? Cite the evidence for each.
+What did we promise [client] that isn’t tracked as a task yet?
+
+Reproducibility
+
+Ask the same question twice, in different wording, and compare the answers.
+Ask for the same list sorted two ways. Do the counts match?
+Ask something, then ask “What sources did you use?” and check that each one exists and says what it claims.
+
+I can run any of these live and show you what AskCruz returns next to the underlying source. The trap questions and the “promised but not tracked” question tend to expose problems fastest.

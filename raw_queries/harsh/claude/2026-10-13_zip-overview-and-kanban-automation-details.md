@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 12:47:34 EDT"
+updated_at: "2026-10-13 12:52:33 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -597,3 +597,119 @@ docker compose restart odoo
 If you've already made the menu by hand, delete it first (Settings → Technical → Menu Items), or you'll see two "Scanner Reviews" entries.
 
 Choose the UI method if you just want to look around, and the XML method if the menu should stay. Want me to give you the full edit for Evidence and Signals menus too?
+
+## User (2026-10-13 12:48:08 EDT)
+
+<menuitem id="menu_sales_intelligence_reviews"
+          name="Scanner Reviews"
+          parent="contacts.menu_contacts"
+          action="action_sales_intelligence_account"
+          sequence="3"/> give this through powershell
+
+## Claude (2026-10-13 12:48:18 EDT)
+
+> *Thinking:*
+>
+
+Run this from the project folder. It adds the menu entry to the module's XML, upgrades the module and restarts Odoo.
+
+```powershell
+cd C:\dev\Sales-Specialist
+
+# 1. Add the menu item to the module's XML (skips if it's already there)
+$path = (Resolve-Path "odoo\addons\sales_intelligence\views\sales_intelligence_views.xml").Path
+$xml  = [System.IO.File]::ReadAllText($path)
+
+if ($xml -match 'menu_sales_intelligence_reviews') {
+    Write-Host "Menu item already present - nothing changed."
+} else {
+$menu = @'
+    <menuitem id="menu_sales_intelligence_reviews"
+              name="Scanner Reviews"
+              parent="contacts.menu_contacts"
+              action="action_sales_intelligence_account"
+              sequence="3"/>
+
+</odoo>
+'@
+    $idx = $xml.LastIndexOf('</odoo>')
+    $new = $xml.Substring(0, $idx).TrimEnd() + "`r`n`r`n" + $menu + "`r`n"
+    [System.IO.File]::WriteAllText($path, $new, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Menu item added."
+}
+
+# 2. Verify the edit
+Select-String -Path $path -Pattern "menu_sales_intelligence_reviews" -Context 0,4
+
+# 3. Upgrade the module, then restart Odoo
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+
+# 4. Open Odoo
+Start-Process "http://localhost:8070/web?db=sales_intelligence"
+```
+
+Before running it:
+- **Delete the menu you made by hand**, if you created one. Go to Settings → Technical → User Interface → Menu Items and delete "Scanner Reviews". Otherwise you'll see two entries.
+- The script writes the file without a byte-order mark, which keeps Odoo's XML parser happy.
+
+After the restart, press **F5**, open **Contacts**, and you should see **Scanner Reviews** in the top menu bar.
+
+If the upgrade prints an error such as `External ID not found`, paste the last 20 lines of its output. The most likely cause would be the `contacts.menu_contacts` parent ID, which I read from the module's `contact_views.xml` but haven't tested.
+
+## User (2026-10-13 12:51:14 EDT)
+
+So what is better in this one than the previous one
+
+## Claude (2026-10-13 12:51:18 EDT)
+
+I'm assuming you mean the PowerShell/XML menu versus the menu you'd make by hand in the UI. If you meant something else, tell me.
+
+| | **Hand-made in the UI** | **Added to the module's XML** |
+|---|---|---|
+| Survives `docker compose down -v` | No | Yes, because it's recreated on reinstall |
+| Works on a fresh install or another machine | No | Yes |
+| Teammates get it | No, each person has to make it | Yes, it ships with the module |
+| Kept in the code | No, it's only a row in your database | Yes, it's in the file and can go in git |
+| Matches how the rest of the module is built | No | Yes, the module already defines its views and actions in XML |
+| Effort | About 30 seconds of clicking | One script plus a module upgrade |
+
+The XML method is better for two reasons. The menu becomes part of the project, so it's reproducible, and it's not tied to your one local database. If you reset Docker or hand this to someone else, the menu is still there.
+
+The UI method is better for a quick look. If you only want to check how the kanban looks and don't plan to keep or share the setup, it's faster and carries no risk of breaking the module upgrade.
+
+I haven't run the XML version yet, so it carries the small risk I mentioned: if the parent menu ID is wrong, the upgrade will print an error and you'd fix it or fall back to the UI method.
+
+## User (2026-10-13 12:51:39 EDT)
+
+What is the reason for the scanner reviews
+
+## Claude (2026-10-13 12:51:45 EDT)
+
+> *Thinking:*
+>
+
+Scanner Reviews is the human checkpoint between what the scanner guesses and what the company treats as real sales data.
+
+## Why it exists
+
+The scanner searches saved Claude chats and wiki pages and produces a score, a stage guess, a risk level and a suggested next action for each company. Those are automated inferences, and the project's own documents say they shouldn't be trusted without a person checking:
+- The scan JSON is labelled `discovery_output_pending_human_review`.
+- The plan says Claude should separate facts from judgment and should not invent dates, contacts or commitments.
+- The Odoo bridge doc says to keep human approval for canonical updates and outbound sales messages.
+- The checklist says only reviewed and approved facts should be copied into company cards.
+- Ayan is named as the reviewer.
+
+I also saw in the data why this matters. The scanner labelled things like "AskCruz hiring" and "Odoo ERP ops" as "Likely active client". A review step catches mistakes like that before anyone acts on them.
+
+## What it does in practice
+
+Every imported account starts as **Pending Review**. On the review form, the reviewer can:
+1. Read the scanner's summary, risks and suggested next action.
+2. Check the supporting evidence (direct, cross-reference or weak) before trusting the conclusion.
+3. Mark it **Needs Context**, **Approved** or **Rejected**. Approving or rejecting records who decided and when.
+4. Optionally click **Update Contact Profile**, which writes the scanner summary into the contact's profile text.
+
+## What the code doesn't do
+
+Approving doesn't push anything further by itself. It only sets the state and records the reviewer. The profile update is a separate button, and nothing in the module sends emails or changes pipeline stages. The review state is a label for the team's process, not an automated trigger.

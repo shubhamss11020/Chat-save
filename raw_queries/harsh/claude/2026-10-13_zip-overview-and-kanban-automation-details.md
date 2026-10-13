@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 12:42:33 EDT"
+updated_at: "2026-10-13 12:47:34 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -481,3 +481,119 @@ It should print something like `Imported 9 account(s), updated 0 account(s).` On
 Paste the error. Odoo 13 is picky about some of the module's view syntax, and the install passed, so I don't expect problems. The most likely one is a path or mount issue.
 
 Once the data is in and you've looked around, tell me what you want to change. For example, I can add proper menu items so Scanner Reviews, Evidence and Signals show up in the Contacts menu, which is a small XML edit followed by the module upgrade command.
+
+## User (2026-10-13 12:44:05 EDT)
+
+Action Name	Scanner Reviews
+External ID	sales_intelligence.action_sales_intelligence_account
+Object	sales.intelligence.account
+  
+Action Usage	
+Action Type	ir.actions.act_window
+Target Window	Current Window
+ 
+General Settings
+Security
+Views
+View Mode	kanban,tree,form
+View Ref.	
+Search View Ref.	
+  
+Filters
+Domain Value	
+Context Value	{'search_default_pending_review': 1}
+Limit	80
+Filter	
+  
+Help
+Create a new document
+
+  
+Views
+ 
+ 
+ 
+ 
+ this is the thing that I got
+
+## Claude (2026-10-13 12:44:12 EDT)
+
+> *Thinking:*
+>
+
+That screen is the right action record, but it only shows its settings, so it won't open the kanban from there. There are two ways to open it.
+
+### Quick way: open it by URL
+
+```powershell
+Start-Process "http://localhost:8070/web#action=sales_intelligence.action_sales_intelligence_account&view_type=kanban"
+```
+
+This loads the Scanner Reviews kanban, grouped by review state. You'll see cards only if you've already run the import in step 2 of my last message. If the board is empty, run that import command first.
+
+### Permanent way: add a menu entry (30 seconds)
+
+1. Keep developer mode on (`?debug=1`).
+2. Go to **Settings → Technical → User Interface → Menu Items** and click **Create**.
+3. Fill in:
+   - **Menu:** `Scanner Reviews`
+   - **Parent Menu:** `Contacts`
+   - **Action:** `ir.actions.act_window,` followed by choosing **Scanner Reviews** from the dropdown
+   - **Sequence:** `3`
+4. Save, then press **F5**.
+
+"Scanner Reviews" will then appear in the top Contacts menu bar. This menu entry lives only in your local database, so it disappears if you reset the volumes, and the module upgrade won't recreate it.
+
+### What to expect
+
+- Cards are grouped into columns by review state (New, Pending Review, Needs Context, Approved, Rejected). All 9 should sit in **Pending Review**.
+- Each card shows the account name, a score badge, stage, risk, confidence and scan date.
+- Open a card to see the review form and its Approve and Reject buttons.
+- The default filter hides everything that isn't pending, which is fine for now. Remove the "Pending Review" facet in the search bar to see all of them.
+
+If the board is empty after you've run the import, or you get an error, paste the output of the import command and I'll look at it.
+
+## User (2026-10-13 12:46:14 EDT)
+
+“Scanner Reviews” will then appear in the top Contacts menu bar. This menu entry lives only in your local database, so it disappears if you reset the volumes, and the module upgrade won’t recreate it.
+explain
+
+## Claude (2026-10-13 12:46:21 EDT)
+
+> *Thinking:*
+>
+
+Odoo menus are just database records, so where a menu is created decides how long it lasts.
+
+**A menu made in the UI lives only in your database**
+
+When you create the menu through Settings → Technical → Menu Items, Odoo stores one row in the `ir_ui_menu` table of your local `sales_intelligence` database. That database sits in the Docker volume `pgdata`.
+
+- It stays through restarts, `docker compose stop`/`up`, and module upgrades (`-u sales_intelligence`). An upgrade only touches records the module's own XML files created, and this one wasn't.
+- It's lost if you run `docker compose down -v`, which deletes the volume. It's also not there in any new database, for example on another machine or after a fresh install.
+- Nobody else gets it. A teammate who installs the module from the zip would have to create the menu by hand.
+
+I worded the second half of my earlier sentence badly. An upgrade doesn't remove the menu. The point is that nothing in the module's code can recreate it, because the code doesn't define one.
+
+**A menu defined in the module's XML is part of the module**
+
+If the menu is declared in `views/sales_intelligence_views.xml`, Odoo recreates it on every fresh install, and everyone who installs the module gets it. To do that, add this before `</odoo>` at the end of the file:
+
+```xml
+<menuitem id="menu_sales_intelligence_reviews"
+          name="Scanner Reviews"
+          parent="contacts.menu_contacts"
+          action="action_sales_intelligence_account"
+          sequence="3"/>
+```
+
+Then upgrade the module:
+
+```powershell
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+```
+
+If you've already made the menu by hand, delete it first (Settings → Technical → Menu Items), or you'll see two "Scanner Reviews" entries.
+
+Choose the UI method if you just want to look around, and the XML method if the menu should stay. Want me to give you the full edit for Evidence and Signals menus too?

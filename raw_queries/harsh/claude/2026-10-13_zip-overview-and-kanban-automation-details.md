@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 13:47:35 EDT"
+updated_at: "2026-10-13 13:52:33 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1209,3 +1209,69 @@ Pick any you want next:
 - **Duplicate briefs.** Two briefs differ between the date folder and the top-level folder.
 
 Tell me which one, or say "all", and I'll do them the same way.
+
+## User (2026-10-13 13:50:50 EDT)
+
+now tell me that what are the things that i can ask to my leader regarding this demo we have been preparing and give me a simple and clear understanding of the work we have done till now because i have to discuss with Jaskeerat for the Overview
+
+## Claude (2026-10-13 13:51:05 EDT)
+
+> *Thinking:*
+>
+
+## Simple overview of what we've done
+
+**The project in one line:** a Sales Specialist prototype. A scanner reads saved Claude chats and wiki pages, scores companies, and an Odoo module shows those results as reviewable cards on a kanban board. A person approves or rejects each one before it's treated as real sales data.
+
+**1. Understood the zip**
+- Read the plan docs, the Odoo module code, all the scripts, the scan output, the company cards and the evidence files.
+- Decompressed and inspected the 50 MB database dump. It's Odoo 13 and contains HR and compensation tables.
+- Found there are **no automations**: no cron jobs or scheduled actions in the module, and the Automated Actions module isn't installed in the dump. Everything runs when a person clicks or runs a script.
+- Found there are **no banners**. The kanban only shows badges, and they're filled in after a manual sync.
+
+**2. Got it running locally** (Docker: Odoo 13 + Postgres 12)
+- My first setup assumed Odoo 16, which was wrong. After finding Odoo 13 in the dump, we rebuilt it.
+- Postgres first refused to start because of a leftover volume from the wrong version. We wiped it and reinstalled, and the install log shows all 20 modules loaded, including `sales_intelligence`.
+
+**3. Improved the Scanner Reviews board** (each change is a PowerShell script)
+- Added a Scanner Reviews menu entry in the module's XML, so it's part of the project.
+- Redesigned the cards: risk colours, evidence counts, linked contact, next action, and Approve/Needs Context/Reject buttons.
+- Added filters, activities, and pivot/graph views, and made every column show even when empty.
+- Fixed the drag-and-drop gap, so Reviewer and Reviewed date are filled in however a card moves.
+- Fixed re-imports resetting every approval back to Pending.
+
+**What's confirmed vs not**
+- Confirmed from your logs: Odoo and the module installed, and the first card redesign upgraded without errors.
+- Not yet confirmed: I haven't seen output from the menu script, the filters/pivot/columns script, the drag fix, or the re-import fix, and I haven't seen the data import run. Test each in the UI before presenting it as working.
+- I haven't tested any of the scripts myself.
+
+## Things to say to Jaskeerat up front
+
+- Odoo version is 13, not what the docs imply.
+- The zip has no scanner service, no `docker-compose.yml`, no `push-to-odoo-rpc.js`, and the contact export JSON is missing, so "Run live scan" doesn't work locally.
+- The git author is `ijassandhu` (`jaskeeratsingh219@gmail.com`), which may be Jaskeerat's account, so ask who owns the missing pieces.
+
+## Questions to ask your leader
+
+**Scope and ownership**
+1. Is this demo meant to show the review workflow only, or the full pipeline from scanner to report to draft emails?
+2. Who owns the scanner service and the missing files, and where can we get them?
+3. Is Ayan still the reviewer? The plan also asks whether it's spelled "Ayan" or "Ayaan".
+
+**Data and risk**
+4. The dump contains HR and compensation data. Are we allowed to restore it locally, and who can see it?
+5. Should this ever run against the live TeamAskCruz Odoo, or stay a local prototype?
+6. Is Odoo 13 the real production version? Our local setup matches it.
+
+**Behaviour decisions**
+7. Should approving an account trigger anything, such as updating the contact profile or creating an email draft, or only record the decision?
+8. When a re-import brings new evidence, should an approved account stay approved or go back for review?
+9. How should we treat scanner noise like "AskCruz hiring" labelled "Likely active client"? Hide it, filter it, or add an "Ignore" state?
+10. Who should be allowed to approve, edit or delete? Right now any internal user can do all three.
+
+**Next steps**
+11. What does "done" look like for the pilot? The plan says Ayan can review instead of rewriting from scratch.
+12. Should we fill the four empty company cards (Sabre, 3GM, Brannon, Greer) next, or fix the scanner noise first?
+13. Is the scan meant to run on a schedule? Today nothing triggers it.
+
+If it helps, I can turn this into a one-page summary for the meeting.

@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Finding askcruz client data"
 created_at: "2026-10-13 05:40:00 EDT"
-updated_at: "2026-10-13 05:40:24 EDT"
+updated_at: "2026-10-13 06:04:09 EDT"
 ---
 
 # Finding askcruz client data
 
-## User (2026-10-13 05:40:24 EDT)
+## User (2026-10-13 06:04:09 EDT)
 
 How can we find data related to askcruz clients
 
-## Claude (2026-10-13 05:40:24 EDT)
+## Claude (2026-10-13 06:04:09 EDT)
 
 I'll start by reading the relevant skill files.
 
@@ -38,3 +38,22 @@ On this connection, monetary amounts show as `[restricted]`. It has no access to
 I couldn't archive this conversation. The conversation-saving tool isn't connected in this session (only the read-only Threads-Wiki is), so nothing from this chat was saved.
 
 If you tell me which client you're interested in, I can pull its profile now.
+
+## User (2026-10-13 06:04:09 EDT)
+
+what is in the EOXS Teams Odoo database
+
+## Claude (2026-10-13 06:04:09 EDT)
+
+I can't look inside it from this session, so this is only what the AskCruz documentation says about it. The EOXS Teams Odoo database is where the operational records live that AskCruz doesn't carry:
+
+- Support tickets
+- Invoices and sales orders
+- CRM, pipeline and prospect data
+- The full EOXS Teams task boards (the AskCruz connector only has the per-client implementation tasks)
+
+Unlike AskCruz, the EOXS Teams SQL tool doesn't redact amounts, so broader-access identities see real invoice and deal figures there.
+
+I haven't verified the table list or schema, and I'd rather not guess at specific tables or columns. To see what's actually in it, someone needs to run the schema listing (`list_tables` / `get_business_schema`) from a session that has the EOXS Teams connector. This session is scoped to the AskCruz connector, so I'm not querying the Odoo databases from here.
+
+If you tell me what you're after, I can say whether AskCruz covers it (implementation tasks, emails, calls, wiki) or whether it needs the Odoo side.

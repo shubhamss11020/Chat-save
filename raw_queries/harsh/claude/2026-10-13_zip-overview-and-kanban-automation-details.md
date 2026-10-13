@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 12:37:33 EDT"
+updated_at: "2026-10-13 12:42:33 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -376,9 +376,6 @@ I couldn't run Docker or `pg_restore` here, so the commands are untested. The Od
 
 *(Attached: document)*
 
-**Attachments:**
-- 📎 **attachment** *(Attached in Claude conversation)*
-
 ## Claude (2026-10-13 12:33:30 EDT)
 
 > *Thinking:*
@@ -428,3 +425,59 @@ A few notes:
 - **Don't fix this on the Odoo side.** Odoo is just reporting that nothing answers at `db`. The `docker compose up -d odoo` and `restart` commands will keep failing until Postgres stays up.
 - **The Postgres 16 dump container** isn't involved, because it only starts with `--profile dump`.
 - **Docker Desktop on Windows** is another possibility. If the logs mention permissions or a mount error, tell me, since that points to a Docker setup problem rather than the compose file.
+
+## User (2026-10-13 12:38:15 EDT)
+
+now what
+
+**Attachments:**
+- 📎 **attachment** *(Attached in Claude conversation)*
+
+## Claude (2026-10-13 12:38:28 EDT)
+
+> *Thinking:*
+>
+
+The install worked. All 20 modules loaded, including `sales_intelligence`, and `docker compose up -d odoo` started the server. The two `Two fields ... have the same label: Job Position` warnings are harmless: the module's `job_position_id` field has the same label as Odoo's built-in `function` field.
+
+Two things to know first:
+- **There's no menu for Scanner Reviews.** The module defines the actions and views but no `menuitem`, so you won't see a "Scanner Reviews" entry in the UI. I found no menu entry for the Evidence, Signals or Import-wizard actions either.
+- You reach the Scanner tab from a contact, or open the Scanner Reviews list through developer mode (step 4 below).
+
+## Next steps
+
+**1. Check Odoo is running and log in**
+
+```powershell
+docker compose ps
+docker compose logs odoo --tail 20
+Start-Process "http://localhost:8070"
+```
+
+Log in with `admin` / `admin` and database `sales_intelligence`. If the login page shows no database selector, open `http://localhost:8070/web?db=sales_intelligence`.
+
+**2. Load the scan data**
+
+```powershell
+docker compose run --rm odoo python3 /mnt/extra-addons/sales_intelligence/scripts/import_scanner_json.py /mnt/sales-intelligence/discovered-sales-candidates-2026-09-23.json sales_intelligence
+```
+
+It should print something like `Imported 9 account(s), updated 0 account(s).` On a fresh database it also creates 9 new company contacts.
+
+**3. See the results in the UI**
+
+- Open **Contacts**. The list is sorted by scanner score, so Sabre Alloys (114) should be at the top.
+- In the Contacts kanban, the scanner badges appear on the 9 matched cards.
+- Open a contact and go to its **Scanner** tab. Use **Open Full Review** to get the review form with Approve, Reject and Needs Context buttons.
+
+**4. Open the Scanner Reviews kanban**
+
+1. Enable developer mode: `http://localhost:8070/web?debug=1`
+2. Go to **Settings → Technical → Actions → Window Actions**.
+3. Search for "Scanner Reviews" and open it. The kanban is grouped by review state, and all 9 start in Pending Review.
+
+**5. If the import fails**
+
+Paste the error. Odoo 13 is picky about some of the module's view syntax, and the install passed, so I don't expect problems. The most likely one is a path or mount issue.
+
+Once the data is in and you've looked around, tell me what you want to change. For example, I can add proper menu items so Scanner Reviews, Evidence and Signals show up in the Contacts menu, which is a small XML edit followed by the module upgrade command.

@@ -1,0 +1,67 @@
+Odoo Server Error
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/odoo/api.py", line 748, in get
+    value = self._data[field][record._ids[0]]
+KeyError: 188
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/odoo/fields.py", line 1038, in __get__
+    value = env.cache.get(record, self)
+  File "/usr/lib/python3/dist-packages/odoo/api.py", line 754, in get
+    raise CacheMiss(record, field)
+odoo.exceptions.CacheMiss: ('ir.actions.act_window(188,).search_view', None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 624, in _handle_exception
+    return super(JsonRequest, self)._handle_exception(exception)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 310, in _handle_exception
+    raise pycompat.reraise(type(exception), exception, sys.exc_info()[2])
+  File "/usr/lib/python3/dist-packages/odoo/tools/pycompat.py", line 14, in reraise
+    raise value
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 669, in dispatch
+    result = self._call_function(**self.params)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 350, in _call_function
+    return checked_call(self.db, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/service/model.py", line 94, in wrapper
+    return f(dbname, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 339, in checked_call
+    result = self.endpoint(*a, **kw)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 915, in __call__
+    return self.method(*args, **kw)
+  File "/usr/lib/python3/dist-packages/odoo/http.py", line 515, in response_wrap
+    response = f(*args, **kw)
+  File "/usr/lib/python3/dist-packages/odoo/addons/web/controllers/main.py", line 1669, in load
+    action = request.env[action_type].browse([action_id]).read()
+  File "/usr/lib/python3/dist-packages/odoo/addons/base/models/ir_actions.py", line 195, in read
+    result = super(IrActionsActWindow, self).read(fields, load=load)
+  File "/usr/lib/python3/dist-packages/odoo/models.py", line 2974, in read
+    vals[name] = convert(record[name], record, use_name_get)
+  File "/usr/lib/python3/dist-packages/odoo/models.py", line 5761, in __getitem__
+    return self._fields[key].__get__(self, type(self))
+  File "/usr/lib/python3/dist-packages/odoo/fields.py", line 1062, in __get__
+    self.compute_value(recs)
+  File "/usr/lib/python3/dist-packages/odoo/fields.py", line 1147, in compute_value
+    records._compute_field_value(self)
+  File "/usr/lib/python3/dist-packages/odoo/models.py", line 4018, in _compute_field_value
+    getattr(self, field.compute)()
+  File "/usr/lib/python3/dist-packages/odoo/addons/base/models/ir_actions.py", line 162, in _compute_search_view
+    fvg = self.env[act.res_model].fields_view_get(act.search_view_id.id, 'search')
+  File "/usr/lib/python3/dist-packages/odoo/addons/mail/models/mail_thread.py", line 411, in fields_view_get
+    res = super(MailThread, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+  File "/usr/lib/python3/dist-packages/odoo/addons/web/models/models.py", line 232, in fields_view_get
+    r = super().fields_view_get(view_id, view_type, toolbar, submenu)
+  File "/usr/lib/python3/dist-packages/odoo/models.py", line 1565, in fields_view_get
+    xarch, xfields = View.postprocess_and_fields(self._name, etree.fromstring(result['arch']), view_id)
+  File "/usr/lib/python3/dist-packages/odoo/addons/base/models/ir_ui_view.py", line 994, in postprocess_and_fields
+    self.raise_view_error(message, view_id)
+  File "/usr/lib/python3/dist-packages/odoo/addons/base/models/ir_ui_view.py", line 614, in raise_view_error
+    raise ValueError(message)
+ValueError: Field `vrm_lead_id` does not exist
+
+Error context:
+View `calendar.event.search`
+[view_id: 538, xml_id: calendar.view_calendar_event_search, model: calendar.event, parent_id: n/a]

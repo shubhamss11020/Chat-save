@@ -2,12 +2,12 @@
 conversation_id: d4fdcac2-c41a-41b9-8297-a9f17aee2e82
 platform: claude
 username: "harsh"
-title: "Claude co-work automation prompt setup"
+title: "Claude co-work automation prompt setup - Claude"
 created_at: "2026-10-13 14:23:58 EDT"
-updated_at: "2026-10-13 14:50:19 EDT"
+updated_at: "2026-10-13 14:50:48 EDT"
 ---
 
-# Claude co-work automation prompt setup
+# Claude co-work automation prompt setup - Claude
 
 ## User (2026-10-13 14:23:29 EDT)
 
@@ -542,3 +542,339 @@ Hook, problem, insight, differentiator, CTA, with timings.
 If the next run still doesn't deliver a video, the email will now name the failing step, so we'll know whether it's rendering or the Drive upload. If the Drive connector turns out to reject binary files, the fix is to have the video saved to your Cowork outputs folder instead. In that case tell me what error the run reports.
 
 Your transcript-saving tool still isn't connected in this session, so this chat wasn't archived.
+
+## Claude (2026-10-13 14:50:48 EDT)
+
+Fair on both. I asked for the Drive folder only to keep things tidy, and the framework file came from your call, where you said you’d provide one. Both are now gone. The prompt creates its own “AskCruz Content” folder in your Drive if needed, and it uses a default framework built into the prompt itself.
+
+# ASKCRUZ CONTENT FACTORY: TEST RUN (one call, one video)
+
+You are the Creative Director of AskCruz's content studio. Turn one real call
+into one short video and email me the Google Drive link. Work autonomously.
+Do not ask me questions. If something fails, use the fallbacks in Step 8.
+
+## SETTINGS
+- MY_EMAIL: [YOUR EMAIL]
+- TARGET_DATE: [YYYY-MM-DD, or leave blank for today]
+
+## DEFAULT CONTENT FRAMEWORK (use this for every video)
+- Format: vertical 9:16, 45 to 60 seconds, burned-in captions.
+- Hook (0-3s): one bold line that states a problem, a surprising claim or a
+  question the viewer instantly recognises. No intros, no logos first.
+- Problem (3-15s): the pain, in plain words a business owner would use.
+- Insight (15-40s): what was learned or decided, told as a short story with
+  one concrete example.
+- Differentiator (40-52s): how AskCruz approaches this differently.
+- CTA (last 5s): soft and conversational, e.g. "Follow for more" or
+  "Want this for your business? Talk to us."
+- Tone: confident, simple, human. No jargon, no hype, no filler.
+- One idea per video. Fast pacing, a new visual or text beat every 2-3 seconds.
+
+## STEP 1: FIND CALLS IN THE ASKCRUZ VAULT (by date)
+1. Do NOT use Google Calendar or Gmail to find calls. The AskCruz connector
+   is the only source.
+2. Use list_calls with source "fireflies" and month set to the month of
+   TARGET_DATE (YYYY-MM). From the results, keep only calls dated TARGET_DATE.
+   If TARGET_DATE is blank, use today's date.
+3. If no calls match that date, widen to the most recent date that has calls
+   (check the previous days in the same month, then the previous month).
+   Say which date you ended up using.
+4. Open each candidate with get_call (use the call's "id") and read the full
+   transcript.
+5. Pick ONE call that has an enriched transcript and enough substance for
+   content: a clear problem, insight, or a moment showing what makes AskCruz
+   different. Skip small talk, scheduling calls and very short calls.
+6. If no call is usable, email me one line saying so and stop.
+
+## STEP 2: ACT AS CREATIVE DIRECTOR
+Write a short assessment of the chosen call:
+- What was discussed?
+- The most interesting, surprising or quotable moment
+- What it shows about how AskCruz is different
+- What problem a viewer would instantly recognise
+
+## STEP 3: HOLD THE COUNCIL OF FOUR
+Run a written debate between four personas:
+1. The Strategist: does it strengthen AskCruz's positioning?
+2. The Storyteller: does it have a hook, tension and payoff?
+3. The Skeptical Buyer: would a real prospect care, or is it fluff?
+4. The Social Editor: would it stop the scroll in the first 2 seconds?
+Pick the single best idea. Give the one-line concept, the hook, and why the
+council chose it.
+
+## STEP 4: SHAPE THE IDEA WITH THE DEFAULT FRAMEWORK
+Map the chosen idea onto the structure in DEFAULT CONTENT FRAMEWORK above:
+hook, problem, insight, differentiator, CTA.
+
+## STEP 5: HIRE LIKE A FIVERR AGENT (research only)
+1. In the browser, go to fiverr.com and search for short-form video editors and
+   explainer video creators.
+2. Look at sellers rated 4.9+ with many reviews and Top Rated or Pro status.
+3. Read their gigs, portfolios and reviews. Note their pacing, hooks, captions,
+   structure and deliverables.
+4. Write "Hiring Notes": the 3 best candidates, their strengths, and which
+   techniques you will copy.
+5. Do not contact, message or pay anyone.
+
+## STEP 6: PRODUCE THE VIDEO AS THAT FREELANCER
+1. Write a script with timed scenes, on-screen text and a caption file.
+2. Build the video with tools on this computer (Python, ffmpeg or Remotion).
+   Output a real .mp4. Basic quality is fine for this test.
+3. Save the script and Hiring Notes next to the video.
+
+## STEP 7: UPLOAD AND EMAIL
+1. Upload the video, script and Hiring Notes to Google Drive. Use a folder
+   named "AskCruz Content" (create it if it does not exist), with a subfolder
+   for the call date used (YYYY-MM-DD).
+2. Make sure I can view the link.
+3. Email MY_EMAIL. Subject: "AskCruz content test: [date]". Body: the call date
+   and title used, the idea, why the council chose it, and the Drive link.
+   Keep it short and easy to read on a phone.
+
+## STEP 8: FALLBACKS
+- If you cannot create an .mp4: upload the script, scene plan and captions as a
+  Google Doc, and say in the email that the video was not rendered and why.
+- If you cannot send email: save it as a Gmail draft and tell me.
+- If Fiverr blocks you: say so in the Hiring Notes and rely on best practice.
+- If the AskCruz connector returns nothing, say exactly which call was
+  attempted and stop. Never invent a call.
+
+## RULES
+- Never include client names, company names, revenue figures or private details
+  from the call in any video, script or email. Anonymise everything
+  ("a mid-size manufacturer").
+- Never invent facts, numbers or quotes that are not in the transcript.
+- End with a 3-line summary: the call used, the idea chosen, the Drive link.
+
+Only two placeholders remain: your email, and the date (or leave the date blank to use today). Once you’ve seen the first video, you can tell me what you’d change about the style and I’ll fold it into the framework section.
+
+Your transcript-saving tool still isn’t connected in this session, so this chat wasn’t archived.
+
+## User (2026-10-13 14:50:48 EDT)
+
+this is giving me this file, not the video. I want it to make the video
+
+## Claude (2026-10-13 14:50:48 EDT)
+
+That file is the script package, not the video. The doc describes a finished 59.4-second render, so the video was probably built on your machine but never reached Drive. I can’t see the run, so that’s an inference. It would also explain why only a text file arrived.
+
+The cause is in my last prompt: Step 8 let the run settle for a script-only result, and nothing forced it to confirm that the .mp4 actually landed in Drive. This version makes the video the deliverable and treats a script-only result as a failure.
+
+The Fiverr research failed for a separate reason: that run had no browser. The prompt now tries the Chrome browser first and skips Fiverr quickly if it’s blocked, so it can’t hold up the video.
+
+# ASKCRUZ CONTENT FACTORY: TEST RUN (one call, one VIDEO)
+
+You are the Creative Director of AskCruz's content studio. Turn one real call
+into one finished short VIDEO FILE (.mp4) and email me the Google Drive link
+to that video. The video is the deliverable. A script, a doc or notes alone
+is NOT a successful run. Work autonomously. Do not ask me questions.
+
+## SETTINGS
+- MY_EMAIL: [YOUR EMAIL]
+- TARGET_DATE: [YYYY-MM-DD, or leave blank for today]
+
+## DEFAULT CONTENT FRAMEWORK
+- Format: vertical 9:16 (1080x1920), 45 to 60 seconds, burned-in captions.
+- Hook (0-3s): one bold line that states a problem, a surprising claim or a
+  question the viewer instantly recognises. No intros, no logos first.
+- Problem (3-15s): the pain, in plain words a business owner would use.
+- Insight (15-40s): what was learned or decided, with one concrete example.
+- Differentiator (40-52s): how AskCruz approaches this differently.
+- CTA (last 5s): soft, e.g. "Want this for your business? Talk to us."
+- Tone: confident, simple, human. No jargon, no hype.
+- One idea per video. A new visual or text beat every 2-3 seconds.
+
+## STEP 1: FIND THE CALL (AskCruz vault, by date)
+1. Do NOT use Google Calendar or Gmail to find calls. Use the AskCruz
+   connector only.
+2. list_calls with source "fireflies" and month = month of TARGET_DATE. Keep
+   calls dated TARGET_DATE (today if blank).
+3. If none match, use the most recent date that has calls, and say which.
+4. Read candidates in full with get_call (use "id").
+5. Pick ONE call with an enriched transcript and real substance: a clear
+   problem, insight, or what makes AskCruz different. Skip small talk and
+   scheduling calls. If the recording has an internal part and a prospect
+   part, use only the business-relevant part.
+6. If nothing is usable, email me one line saying so and stop.
+
+## STEP 2: CREATIVE DIRECTOR ASSESSMENT (keep it brief)
+What was discussed, the most quotable moment, what it shows about how
+AskCruz is different, and the problem a viewer would recognise.
+
+## STEP 3: COUNCIL OF FOUR (keep it brief)
+Strategist, Storyteller, Skeptical Buyer, Social Editor each give a short
+verdict. Pick the single best idea with a one-line concept and a hook.
+
+## STEP 4: MAP TO THE FRAMEWORK
+Hook, problem, insight, differentiator, CTA, with timings.
+
+## STEP 5: FIVERR RESEARCH (time-boxed, never blocks the video)
+1. Try the Chrome browser tool on fiverr.com: search short-form video
+   editors, look at sellers rated 4.9+ with many reviews and Top Rated or
+   Pro status, and note their pacing, hooks and caption style.
+2. If the browser is unavailable or Fiverr blocks you, do not retry. Write
+   one line in Hiring Notes saying so and continue using short-form best
+   practice. Never invent seller names.
+3. Do not contact, message or pay anyone.
+
+## STEP 6: BUILD THE VIDEO (THIS IS THE MAIN TASK)
+1. Write the timed script and on-screen text.
+2. Check the tools: run `ffmpeg -version` and `python3 --version`. If ffmpeg
+   is missing, install it (pip install imageio-ffmpeg, or the system
+   package). If Pillow is missing, pip install pillow.
+3. Render every scene as a 1080x1920 image (large bold text, high contrast,
+   branded colours, a progress bar, captions in the safe area), then stitch
+   them into an .mp4 with ffmpeg (H.264, yuv420p, 30 fps). Add simple
+   transitions or a subtle zoom so it is not static. Silent or with a
+   simple background music track is fine for now.
+4. Compress so the file is small enough to upload: target under 15 MB
+   (for example `-crf 28 -preset slow`, 1080x1920 is still fine).
+5. Verify the file with ffprobe: it must be a valid .mp4, about 45 to 60
+   seconds, 9:16. If it fails, fix it and re-render. Try at least 3
+   different approaches before giving up.
+6. Name it: askcruz_content_YYYY-MM-DD.mp4. Also save the script, the SRT
+   captions and the Hiring Notes as small text files next to it.
+
+## STEP 7: UPLOAD THE VIDEO AND CONFIRM IT LANDED
+1. In Google Drive, use a folder "AskCruz Content" (create it if needed) and
+   a subfolder named with the call date (YYYY-MM-DD).
+2. Upload the .mp4 FIRST, with the correct video/mp4 MIME type. Then upload
+   the script, captions and notes as secondary files.
+3. VERIFY the upload: read the file's metadata from Drive and confirm the
+   mime type is video/mp4 and the size matches the local file. If it does
+   not, re-upload. Try at least 3 times, and try a smaller compressed
+   version if size is the problem.
+4. Make sure I can view the video link.
+5. Email MY_EMAIL. Subject: "AskCruz content test: [date]".
+   Body, in this order: (1) the link to the VIDEO file itself, (2) the call
+   date and title used, (3) the one-line idea and why the council picked
+   it, (4) a link to the script folder. Keep it short, phone-friendly.
+
+## STEP 8: IF THE VIDEO STILL FAILS
+- The video is the goal. Do not end the run with only a script or a doc and
+  call it done.
+- If the video rendered but could not upload: keep it in the Cowork outputs
+  folder, tell me the exact file path, and say so in the email and in your
+  final message.
+- If the video could not be rendered: the email subject must start with
+  "FAILED: no video", the first line must explain exactly which step failed
+  and the error, and then include the script as a fallback.
+- If email sending is unavailable: save a Gmail draft and tell me.
+- If the AskCruz connector returns nothing: say which call you tried, and stop.
+
+## RULES
+- Never include client names, company names, revenue figures or private
+  details from the call anywhere. Anonymise everything.
+- Never invent facts, numbers or quotes that are not in the transcript.
+- End with a 3-line summary: call used, idea chosen, the video link (or the
+  exact reason there is no video).
+
+If the next run still doesn’t deliver a video, the email will now name the failing step, so we’ll know whether it’s rendering or the Drive upload. If the Drive connector turns out to reject binary files, the fix is to have the video saved to your Cowork outputs folder instead. In that case tell me what error the run reports.
+
+Your transcript-saving tool still isn’t connected in this session, so this chat wasn’t archived.
+
+
+## Generated Documents & Files
+
+### File: [`README.md`](claude-co-work-automation-prompt-setup---claude_files/README.md)
+
+```markdown
+# ASKCRUZ CONTENT FACTORY: TEST RUN (one call, one video)
+
+You are the Creative Director of AskCruz's content studio. Turn one real call
+into one short video and email me the Google Drive link. Work autonomously.
+Do not ask me questions. If something fails, use the fallbacks in Step 8.
+
+## SETTINGS
+- MY_EMAIL: [YOUR EMAIL]
+- TARGET_DATE: [YYYY-MM-DD, or leave blank for today]
+
+## DEFAULT CONTENT FRAMEWORK (use this for every video)
+- Format: vertical 9:16, 45 to 60 seconds, burned-in captions.
+- Hook (0-3s): one bold line that states a problem, a surprising claim or a
+  question the viewer instantly recognises. No intros, no logos first.
+- Problem (3-15s): the pain, in plain words a business owner would use.
+- Insight (15-40s): what was learned or decided, told as a short story with
+  one concrete example.
+- Differentiator (40-52s): how AskCruz approaches this differently.
+- CTA (last 5s): soft and conversational, e.g. "Follow for more" or
+  "Want this for your business? Talk to us."
+- Tone: confident, simple, human. No jargon, no hype, no filler.
+- One idea per video. Fast pacing, a new visual or text beat every 2-3 seconds.
+
+## STEP 1: FIND CALLS IN THE ASKCRUZ VAULT (by date)
+1. Do NOT use Google Calendar or Gmail to find calls. The AskCruz connector
+   is the only source.
+2. Use list_calls with source "fireflies" and month set to the month of
+   TARGET_DATE (YYYY-MM). From the results, keep only calls dated TARGET_DATE.
+   If TARGET_DATE is blank, use today's date.
+3. If no calls match that date, widen to the most recent date that has calls
+   (check the previous days in the same month, then the previous month).
+   Say which date you ended up using.
+4. Open each candidate with get_call (use the call's "id") and read the full
+   transcript.
+5. Pick ONE call that has an enriched transcript and enough substance for
+   content: a clear problem, insight, or a moment showing what makes AskCruz
+   different. Skip small talk, scheduling calls and very short calls.
+6. If no call is usable, email me one line saying so and stop.
+
+## STEP 2: ACT AS CREATIVE DIRECTOR
+Write a short assessment of the chosen call:
+- What was discussed?
+- The most interesting, surprising or quotable moment
+- What it shows about how AskCruz is different
+- What problem a viewer would instantly recognise
+
+## STEP 3: HOLD THE COUNCIL OF FOUR
+Run a written debate between four personas:
+1. The Strategist: does it strengthen AskCruz's positioning?
+2. The Storyteller: does it have a hook, tension and payoff?
+3. The Skeptical Buyer: would a real prospect care, or is it fluff?
+4. The Social Editor: would it stop the scroll in the first 2 seconds?
+Pick the single best idea. Give the one-line concept, the hook, and why the
+council chose it.
+
+## STEP 4: SHAPE THE IDEA WITH THE DEFAULT FRAMEWORK
+Map the chosen idea onto the structure in DEFAULT CONTENT FRAMEWORK above:
+hook, problem, insight, differentiator, CTA.
+
+## STEP 5: HIRE LIKE A FIVERR AGENT (research only)
+1. In the browser, go to fiverr.com and search for short-form video editors and
+   explainer video creators.
+2. Look at sellers rated 4.9+ with many reviews and Top Rated or Pro status.
+3. Read their gigs, portfolios and reviews. Note their pacing, hooks, captions,
+   structure and deliverables.
+4. Write "Hiring Notes": the 3 best candidates, their strengths, and which
+   techniques you will copy.
+5. Do not contact, message or pay anyone.
+
+## STEP 6: PRODUCE THE VIDEO AS THAT FREELANCER
+1. Write a script with timed scenes, on-screen text and a caption file.
+2. Build the video with tools on this computer (Python, ffmpeg or Remotion).
+   Output a real .mp4. Basic quality is fine for this test.
+3. Save the script and Hiring Notes next to the video.
+
+## STEP 7: UPLOAD AND EMAIL
+1. Upload the video, script and Hiring Notes to Google Drive. Use a folder
+   named "AskCruz Content" (create it if it does not exist), with a subfolder
+   for the call date used (YYYY-MM-DD).
+2. Make sure I can view the link.
+3. Email MY_EMAIL. Subject: "AskCruz content test: [date]". Body: the call date
+   and title used, the idea, why the council chose it, and the Drive link.
+   Keep it short and easy to read on a phone.
+
+## STEP 8: FALLBACKS
+- If you cannot create an .mp4: upload the script, scene plan and captions as a
+  Google Doc, and say in the email that the video was not rendered and why.
+- If you cannot send email: save it as a Gmail draft and tell me.
+- If Fiverr blocks you: say so in the Hiring Notes and rely on best practice.
+- If the AskCruz connector returns nothing, say exactly which call was
+  attempted and stop. Never invent a call.
+
+## RULES
+- Never include client names, company names, revenue figures or private details
+  from the call in any video, script or email. Anonymise everything
+  ("a mid-size manufacturer").
+- Never invent facts, numbers or quotes that are not in the transcript.
+- End with a 3-line summary: the call used, the idea chosen, the Drive link.
+```

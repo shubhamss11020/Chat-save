@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "Semantic search and database mapping"
 created_at: "2026-10-12 15:05:03 EDT"
-updated_at: "2026-10-12 16:20:04 EDT"
+updated_at: "2026-10-13 06:00:03 EDT"
 ---
 
 # Semantic search and database mapping
 
-## User (2026-10-12 16:20:04 EDT)
+## User (2026-10-13 06:00:03 EDT)
 
 Give me details about semantic search how it basically mapping with the db
 
-## Claude (2026-10-12 16:20:04 EDT)
+## Claude (2026-10-13 06:00:03 EDT)
 
 Semantic search finds records by meaning rather than exact keywords, and it maps back to your database by storing a vector for each piece of text next to the row it came from.
 

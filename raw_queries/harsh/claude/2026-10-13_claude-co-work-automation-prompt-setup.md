@@ -2,12 +2,12 @@
 conversation_id: d4fdcac2-c41a-41b9-8297-a9f17aee2e82
 platform: claude
 username: "harsh"
-title: "Claude co-work automation prompt setup - Claude"
+title: "Claude co-work automation prompt setup"
 created_at: "2026-10-13 14:23:58 EDT"
-updated_at: "2026-10-13 14:50:48 EDT"
+updated_at: "2026-10-13 15:06:23 EDT"
 ---
 
-# Claude co-work automation prompt setup - Claude
+# Claude co-work automation prompt setup
 
 ## User (2026-10-13 14:23:29 EDT)
 
@@ -543,7 +543,7 @@ If the next run still doesn't deliver a video, the email will now name the faili
 
 Your transcript-saving tool still isn't connected in this session, so this chat wasn't archived.
 
-## Claude (2026-10-13 14:50:48 EDT)
+## Claude (2026-10-13 15:06:23 EDT)
 
 Fair on both. I asked for the Drive folder only to keep things tidy, and the framework file came from your call, where you said you’d provide one. Both are now gone. The prompt creates its own “AskCruz Content” folder in your Drive if needed, and it uses a default framework built into the prompt itself.
 
@@ -650,11 +650,11 @@ Only two placeholders remain: your email, and the date (or leave the date blank 
 
 Your transcript-saving tool still isn’t connected in this session, so this chat wasn’t archived.
 
-## User (2026-10-13 14:50:48 EDT)
+## User (2026-10-13 15:06:23 EDT)
 
 this is giving me this file, not the video. I want it to make the video
 
-## Claude (2026-10-13 14:50:48 EDT)
+## Claude (2026-10-13 15:06:23 EDT)
 
 That file is the script package, not the video. The doc describes a finished 59.4-second render, so the video was probably built on your machine but never reached Drive. I can’t see the run, so that’s an inference. It would also explain why only a text file arrived.
 
@@ -773,10 +773,138 @@ If the next run still doesn’t deliver a video, the email will now name the fai
 
 Your transcript-saving tool still isn’t connected in this session, so this chat wasn’t archived.
 
+## User (2026-10-13 15:03:25 EDT)
+
+ok so it made the video but the drive link is not accessible by other id as it is not public, also we have a custom connector that makes videos with higgsfield, named Askcruz studio. Can u update the prompt to utilise that instead??
+
+## Claude (2026-10-13 15:04:03 EDT)
+
+I'll check how the Studio connector works so the prompt matches its tools.
+
+> *Thinking:*
+>
+
+Here's the updated prompt. It builds the video entirely through AskCruz Studio, so Drive is no longer involved. The Studio `publish` tool returns a browser-playable link, which replaces the private Drive link.
+
+```
+# ASKCRUZ CONTENT FACTORY: TEST RUN (one call, one video, via AskCruz Studio)
+
+You are the Creative Director of AskCruz's content studio. Turn one real call
+into one finished short video using the AskCruz Studio connector, publish it,
+and email me the link. Work autonomously. Do not ask me questions.
+A script or doc alone is NOT a successful run. The deliverable is a
+published video link.
+
+## SETTINGS
+- MY_EMAIL: [YOUR EMAIL]
+- TARGET_DATE: [YYYY-MM-DD, or leave blank for today]
+- CREDIT_BUDGET: 100 (maximum Higgsfield credits to spend on this video)
+
+## STEP 1: FIND THE CALL (AskCruz vault, by date)
+1. Do NOT use Google Calendar or Gmail to find calls. Use the AskCruz
+   connector only.
+2. list_calls with source "fireflies" and month = month of TARGET_DATE. Keep
+   calls dated TARGET_DATE (today if blank).
+3. If none match, use the most recent date that has calls, and say which.
+4. Read candidates in full with get_call (use "id").
+5. Pick ONE call with an enriched transcript and real substance: a clear
+   problem, an insight, or what makes AskCruz different. Skip small talk and
+   scheduling calls. If the recording has an internal part and a prospect
+   part, use only the business-relevant part.
+6. If nothing is usable, email me one line saying so and stop.
+
+## STEP 2: CREATIVE DIRECTOR ASSESSMENT (brief)
+What was discussed, the most quotable moment, what it shows about how
+AskCruz is different, and the problem a viewer would instantly recognise.
+
+## STEP 3: COUNCIL OF FOUR (brief)
+Strategist, Storyteller, Skeptical Buyer and Social Editor each give a short
+verdict. Pick the single best idea: a one-line concept and a hook (7 words
+or fewer, readable in one second on a phone).
+
+## STEP 4: FIVERR RESEARCH (time-boxed, never blocks the video)
+Try the browser on fiverr.com for top-rated (4.9+, many reviews, Top Rated
+or Pro) short-form video editors. Note their pacing, hooks and caption style.
+If you cannot access it, write one line saying so and move on. Never invent
+seller names. Do not contact, message or pay anyone.
+
+## STEP 5: BUILD THE VIDEO IN ASKCRUZ STUDIO
+Follow the Studio's own rules exactly. They come from real team rejections.
+1. Call studio_guide first and follow it. Then call taste_references to see
+   what the team approves and rejects.
+2. Call creative_brief with the topic, audience (small businesses in any
+   vertical), length 30 to 45 seconds and aspect 9:16. Choose the strongest
+   direction for this idea. Pass its concept_id to create_project.
+3. create_project with brand "askcruz". Use ONLY claims from the brand kit's
+   facts, plus facts that are in the transcript.
+4. Do a quick web search for the audience's real pain in their own words and
+   include 3 to 5 specific, true details in the script. No generic lines.
+5. Plan every shot. Use stock first (search_stock, then import_media), and
+   AI (ai_generate) only for what stock cannot show. Never put text or logos
+   in AI prompts. Stay within CREDIT_BUDGET (check ai_cost and ai_balance;
+   a 10-second Seedance clip costs about 70 credits, so use it sparingly,
+   if at all). Prefer stills and screen or laptop visuals built in HTML.
+6. Voiceover: use text2speech_v2 with the house narrator, then verify the
+   lines with analyze_audio. Choose music with find_music (default mood
+   "subtle-modern", never cinematic or overdramatic). Fade the music and
+   voice out at the end.
+7. Assemble with render_html and edit_video, add word-synced auto_captions,
+   mix_audio, then export_video. Look at frames with preview after every
+   render and fix problems. Fix every error export_video's qa reports.
+8. Style rules: 9:16 headlines 90px or larger and body 44px or larger, at
+   most about 7 words on screen, a new shot every 0.5 to 3 seconds, fill the
+   frame, pain-first and human tone, light or natural colours. No end CTA
+   ("book a call"): brand and logo last.
+9. Run taste_review and submit_review honestly (average 4 or higher, nothing
+   below 3). If it fails, fix the video and try again.
+
+## STEP 6: PUBLISH AND EMAIL
+1. publish the final exported video. Use the returned link. Open it to
+   confirm it plays in the browser.
+2. If the video cannot pass the quality gates after 3 honest attempts,
+   publish with draft=true and clearly label it as a DRAFT in the email.
+3. Email MY_EMAIL. Subject: "AskCruz content test: [date]". Body in this
+   order: (1) the video link, (2) the call date and title used, (3) the
+   one-line idea and why the council picked it, (4) the credits spent,
+   (5) anything risky (claims, names). Keep it short and phone-friendly.
+4. If you cannot send email, save a Gmail draft and tell me.
+
+## STEP 7: IF THINGS GO WRONG
+- Read each tool error, fix the call, then retry. Do not give up on the
+  first error.
+- If an ai_* tool says TEMPORARY, continue with non-AI parts and retry after
+  2 to 3 minutes, up to 3 times.
+- If no video can be produced, the email subject must start with
+  "FAILED: no video" and the first line must name the step that failed and
+  the error.
+- If the AskCruz vault returns nothing, say which call you tried and stop.
+  Never invent a call.
+
+## RULES
+- Never use real client, contact or company names, figures or private
+  details from the call anywhere. Use clearly fictional names if a name is
+  needed.
+- Never invent facts, numbers or quotes that are not in the transcript or
+  the brand kit.
+- Use licensed media only, and keep SOURCES.md up to date.
+- End with a 3-line summary: call used, idea chosen, video link (or the
+  exact reason there is no video).
+```
+
+Four things to check before you run it:
+- **Link access:** Studio links are a studio.askcruz.com address. I couldn't confirm whether they open for people outside your team, so open the link in a private window or from another account on the first run.
+- **Credit cap:** I set `CREDIT_BUDGET` to 100 as a starting guess. The shared Higgsfield account is billed per clip, so change it to whatever you're comfortable with.
+- **CTA removed:** my earlier default ended with "Talk to us". The Studio's rules forbid an end CTA unless you ask for one, so I dropped it. Tell me if you want it back.
+- **Tools enabled:** the Cowork task needs both the AskCruz and AskCruz Studio connectors switched on.
+
+After the first video, tell me how you'd rate it. The Studio stores your feedback and uses it on later videos.
+
+Your transcript-saving tool still isn't connected in this session, so this chat wasn't archived.
+
 
 ## Generated Documents & Files
 
-### File: [`README.md`](claude-co-work-automation-prompt-setup---claude_files/README.md)
+### File: [`README.md`](claude-co-work-automation-prompt-setup_files/README.md)
 
 ```markdown
 # ASKCRUZ CONTENT FACTORY: TEST RUN (one call, one video)

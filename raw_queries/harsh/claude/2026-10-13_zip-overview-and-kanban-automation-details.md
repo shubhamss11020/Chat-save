@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 12:57:34 EDT"
+updated_at: "2026-10-13 13:17:34 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -755,3 +755,42 @@ It does have real weaknesses:
 - **It's separate from approval.** You can write a summary into a contact from a review you haven't approved or have rejected.
 
 Two sensible changes would be to remove the duplicates, and to make the button show a confirmation message or open the contact after it runs. Do you want those edits?
+
+## User (2026-10-13 13:16:19 EDT)
+
+that was not the button I was talking about let it be now tell me that what can we do about the board more
+
+## Claude (2026-10-13 13:16:31 EDT)
+
+> *Thinking:*
+>
+
+Here are the improvements I'd consider for the Scanner Reviews board, based on what the code does today. I haven't tested any of them.
+
+## Problems with the board now
+
+- **Drag-and-drop skips the review fields.** The board is grouped by review state, and in Odoo dragging a card between columns just rewrites that field. That would bypass `action_mark_approved` and `action_mark_rejected`, so Reviewer and Reviewed date would stay empty. I haven't tried dragging in your instance, so test it before relying on it.
+- **Empty columns probably don't show.** Odoo normally hides groups with no cards, so you'd have no Approved or Rejected column to drop a card into until one exists there.
+- **The cards show little.** They carry name, score, stage, risk, confidence and scan date. They don't show the suggested next action, the evidence strength (direct or weak counts), or the linked contact.
+- **Risk isn't visible at a glance.** The list view colours Medium-risk rows, but the kanban has no colour or highlight for risk.
+- **Pending is the only default filter.** The default context hides everything that isn't pending review.
+
+## Improvements, simplest first
+
+1. **Richer cards.** Add the suggested next action, the direct/cross-reference/weak evidence counts, and the linked contact name. This is a small XML edit.
+2. **Risk colours.** Colour the card or badge by risk level, so risky accounts stand out.
+3. **Quick action buttons on the card.** Approve, Reject and Needs Context buttons that call the existing methods, so the reviewer fields get filled correctly.
+4. **Lock drag-and-drop.** Add `records_draggable="false"` so people use the buttons and the audit fields stay accurate.
+5. **Always show all columns.** Make every review state appear, including empty ones.
+6. **Search filters.** Add filters for risk level, "no linked contact", "has direct evidence" and "stage unclear".
+7. **A reviewer view.** Add "my reviews" and "reviewed this week" filters, since reviewer and date are already stored.
+8. **Activities.** The model already has activity tracking, so reviewers could schedule follow-ups from a card.
+9. **A summary view.** A pivot or graph view showing counts by stage, risk and state, for the 3-minute executive view the plan asks for.
+
+If I had to choose, I'd do 1, 2, 3 and 4 together. That would make the board readable at a glance and let it be used for decisions without leaving it.
+
+Tell me which items you want, or just say "do 1 to 4", and I'll give you the PowerShell to apply them the same way as the menu edit.
+
+## User (2026-10-13 13:17:25 EDT)
+
+let's go with simplest first ones and we will do all at a single time

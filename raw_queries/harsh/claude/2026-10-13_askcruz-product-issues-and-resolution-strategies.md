@@ -2,12 +2,12 @@
 conversation_id: 6a35bf47-17a5-4e47-8078-3db438f2e085
 platform: claude
 username: "harsh"
-title: "Askcruz product issues and resolution strategies - Claude"
+title: "Askcruz product issues and resolution strategies"
 created_at: "2026-10-13 09:08:18 EDT"
-updated_at: "2026-10-13 09:24:47 EDT"
+updated_at: "2026-10-13 09:37:34 EDT"
 ---
 
-# Askcruz product issues and resolution strategies - Claude
+# Askcruz product issues and resolution strategies
 
 ## User (2026-10-13 09:08:18 EDT)
 
@@ -149,3 +149,73 @@ For a few hours on Aug 25, the documents disagreed. The wiki, which is generated
 - **I haven't checked other places** like sales decks, the website and outreach emails. They could still use the older steel-only wording.
 
 I can check the other two documents and recent marketing emails to see whether any steel-only wording remains.
+
+## User (2026-10-13 09:34:43 EDT)
+
+Now tell me somethings that I can say to CEO or manager that these are the problems that we are having that we can fix in this amount of time and keep in mind they are people of non-tech background and has only vague understanding of the technical terms. So, explain them in simple words that can be understood by nayone
+
+## Claude (2026-10-13 09:35:04 EDT)
+
+> *Thinking:*
+>
+
+Here is a version you can use almost as written. The time estimates are my own rough guesses, not figures from company records, so check them with whoever would do the work before promising anything.
+
+## A short opening to say out loud
+
+"AskCruz is working and we have our first customer. We found several weak spots that could slow growth or embarrass us in front of customers. Most are small and fixable within weeks. I'd like to walk you through them."
+
+## The problems, in plain words
+
+**1. The AI sometimes refuses to answer**
+- **What's happening:** Some questions trigger an error and the AI gives no answer. The team traced it to a known bug in the AI model we use, caused by the way certain prompts are worded.
+- **Why it matters:** If a customer's employee hits this error, it looks like our product is broken.
+- **Fix:** Reword the prompts that trigger it (a working fix already exists) and add a check that catches risky wording before customers see it. We also need to confirm whether customers can hit this problem.
+- **Time:** About 1–2 weeks.
+
+**2. We depend on a single AI provider with no backup**
+- **What's happening:** We tested another AI as an alternative, but it took over 14 minutes per answer, which is too slow. So if our main AI has a problem, everything stops.
+- **Why it matters:** One outside bug can freeze the whole product, and we can't control when the provider fixes things.
+- **Fix:** Test one or two backup options on our real questions and keep the best one ready.
+- **Time:** About 3–4 weeks.
+
+**3. We can't yet prove how often it's right**
+- **What's happening:** We don't have a regular test showing how many answers are correct. Today we mostly rely on stories and impressions.
+- **Why it matters:** Customers will ask for proof, and we can't say "it's right 9 times out of 10" with evidence.
+- **Fix:** Write 50–100 real questions with correct answers, run them every week, and report the score.
+- **Time:** About 2–3 weeks to set up, then ongoing.
+
+**4. Several people share one login**
+- **What's happening:** The team moved to a shared account to control costs. We believe this makes it harder to see who asked what and to keep each person's access limited to what they should see.
+- **Why it matters:** Customers will ask who can see their data. "Everyone shares a login" isn't a good answer.
+- **Fix:** Give each person their own login, starting with anything customer-facing.
+- **Time:** About 2–4 weeks. This depends on cost, so it may need your decision.
+
+**5. Our task tracking is messy**
+- **What's happening:** As of an early-September check, open tasks had no deadlines, some had been untouched for 10 days, and the board had two stage names ("Complete" and "Completed") that mean the same thing. That made finished tasks look unfinished.
+- **Why it matters:** Work can quietly stall and reports can mislead.
+- **Fix:** Merge the two stage names, add deadlines to important tasks, and hold a 15-minute weekly review. This snapshot is old, so we should recheck it first.
+- **Time:** A day or two, then 15 minutes a week.
+
+**4. Too much depends on a few people**
+- **What's happening:** Ron appears in customer problems, task tracking and sales. One person is documented as the owner of the chat screen customers use. If either is unavailable, things slow down.
+- **Fix:** Name a backup for each critical area and write short how-to guides.
+- **Time:** About 4–6 weeks.
+
+**6. Our own notes are slightly out of date**
+- **What's happening:** One internal wiki page still says our product descriptions disagree on whether AskCruz is only for steel. That was fixed in August, but the page wasn't updated.
+- **Why it matters:** Staff or the AI could repeat the old, confusing message to customers.
+- **Fix:** Refresh the page and check sales materials and the website for steel-only wording.
+- **Time:** A few days.
+
+## Things to keep on your radar (longer-term, not quick fixes)
+
+- **Smarter search:** Today the system finds things by exact words, so it can miss a good answer phrased differently. A smarter search was described to Sabre as a possible addition, but it isn't built yet. Realistically this is a one- to two-month project.
+- **Proof the product works for customers:** So far 3GM is our only confirmed customer, and we don't yet have data on renewals, usage or savings. Collecting these should start now.
+- **Sabre Alloys deal:** The contract was sent on Oct 12. As far as I can see, it hasn't been signed yet, and they raised data-privacy concerns. Our contract already says their data stays theirs and isn't used to train AI. A follow-up call this week would help.
+
+## A simple closing line
+
+"Nothing here is a crisis. Most items can be handled within a month, and a few need a decision from you, mainly on separate logins and the backup AI. I'd suggest we fix the quick ones first and report back in two weeks."
+
+I can turn this into a one-page email or a short slide for the meeting. Tell me which format you'd prefer.

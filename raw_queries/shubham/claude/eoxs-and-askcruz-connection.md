@@ -4,16 +4,16 @@ platform: claude
 username: "shubham"
 title: "EOXS and AskCruz connection"
 created_at: "2026-10-12 15:16:08 EDT"
-updated_at: "2026-10-12 16:23:36 EDT"
+updated_at: "2026-10-13 05:59:55 EDT"
 ---
 
 # EOXS and AskCruz connection
 
-## User (2026-10-12 16:23:36 EDT)
+## User (2026-10-13 05:59:55 EDT)
 
 what about eoxs and askcruz how they are linked
 
-## Claude (2026-10-12 16:23:36 EDT)
+## Claude (2026-10-13 05:59:55 EDT)
 
 I'll start by reading the two skill files.
 

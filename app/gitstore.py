@@ -610,13 +610,22 @@ def list_transcripts(user: str = "") -> str:
         return f"Total saved transcripts: {len(files)}\n\n" + "\n".join(lines)
 
 
+def _safe_transcript_path(file_path: str) -> Path | None:
+    """Resolve a caller-supplied path, accepting only files inside GIT_DIR (no traversal)."""
+    root = GIT_DIR.resolve()
+    candidates = [REPO_DIR / file_path, GIT_DIR / file_path]
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved.is_relative_to(root) and resolved.is_file():
+            return resolved
+    return None
+
+
 def get_transcript(file_path: str) -> str:
     """Read a transcript by relative path."""
     with _lock:
         prepare()
-        p = REPO_DIR / file_path if not file_path.startswith(str(REPO_DIR)) else Path(file_path)
-        if not p.exists():
-            p = GIT_DIR / file_path
-        if not p.exists():
+        p = _safe_transcript_path(file_path)
+        if p is None:
             return f"File not found: {file_path}"
         return p.read_text(encoding="utf-8")

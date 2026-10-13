@@ -431,7 +431,8 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
     - Queues an outbox event for Git archival only if content actually changed.
     - Updates client heartbeat metrics with last sync receipt.
     """
-    user = payload.user_id or effective_user or USERNAME or "shubham"
+    # Identity comes from the authenticated caller first; the body's user_id is only a fallback.
+    user = effective_user or payload.user_id or USERNAME or "shubham"
     now_str = datetime.now().isoformat()
     
     # 1. Sanitize incoming messages: strictly filter out empty messages

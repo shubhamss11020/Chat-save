@@ -2,6 +2,19 @@
  * Options Script for Chat-Save Extension
  */
 
+/**
+ * Build a table cell from untrusted text. Uses textContent so conversation titles
+ * and server error bodies can never be interpreted as HTML.
+ */
+function cell(text, { code = false, color = "" } = {}) {
+  const td = document.createElement("td");
+  const el = code ? document.createElement("code") : td;
+  el.textContent = text;
+  if (code) td.appendChild(el);
+  if (color) td.style.color = color;
+  return td;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const serverUrlInput = document.getElementById("serverUrl");
   const authTokenInput = document.getElementById("authToken");
@@ -190,15 +203,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     queueTbody.innerHTML = "";
     queue.forEach(item => {
-      const tr = document.createElement("tr");
-      const title = item.payload.title || item.payload.conversation_id;
+      const title = item.payload.title || item.payload.conversation_id || "";
       const nextIn = Math.max(0, Math.round((item.nextAttemptAt - Date.now()) / 1000));
-      tr.innerHTML = `
-        <td><code>${title.slice(0, 24)}...</code></td>
-        <td>${item.attempts}</td>
-        <td>${nextIn}s</td>
-        <td style="color:#f87171;">${item.lastError ? item.lastError.slice(0, 45) + "..." : "None"}</td>
-      `;
+      const tr = document.createElement("tr");
+      tr.appendChild(cell(`${title.slice(0, 24)}...`, { code: true }));
+      tr.appendChild(cell(String(item.attempts)));
+      tr.appendChild(cell(`${nextIn}s`));
+      tr.appendChild(cell(item.lastError ? `${item.lastError.slice(0, 45)}...` : "None", { color: "#f87171" }));
       queueTbody.appendChild(tr);
     });
   }
@@ -255,13 +266,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     dlqTbody.innerHTML = "";
     dlq.forEach(item => {
+      const title = item.payload.title || item.payload.conversation_id || "";
       const tr = document.createElement("tr");
-      const title = item.payload.title || item.payload.conversation_id;
-      tr.innerHTML = `
-        <td><code>${title.slice(0, 24)}...</code></td>
-        <td>${item.attempts}</td>
-        <td style="color:#f87171;">${item.failureReason ? item.failureReason.slice(0, 50) + "..." : "Exceeded retries"}</td>
-      `;
+      tr.appendChild(cell(`${title.slice(0, 24)}...`, { code: true }));
+      tr.appendChild(cell(String(item.attempts)));
+      tr.appendChild(cell(item.failureReason ? `${item.failureReason.slice(0, 50)}...` : "Exceeded retries", { color: "#f87171" }));
       dlqTbody.appendChild(tr);
     });
   }

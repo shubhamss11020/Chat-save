@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Claude co-work automation prompt setup"
 created_at: "2026-10-13 14:23:58 EDT"
-updated_at: "2026-10-13 14:31:23 EDT"
+updated_at: "2026-10-13 14:36:23 EDT"
 ---
 
 # Claude co-work automation prompt setup
@@ -293,5 +293,121 @@ soft CTA.
 Before running it, replace the four placeholders. The AskCruz `list_calls` tool filters by month only, so the date matching happens inside the prompt, as written in Step 1.
 
 When this test works, we can change Step 1 to pull all of the day's calls and run the council for three videos, then schedule it for 6 PM.
+
+Your transcript-saving tool still isn't connected in this session, so this chat wasn't archived.
+
+## User (2026-10-13 14:32:09 EDT)
+
+why is it asking for folder link, just uploading whereever should do. Also what is framework file?? i dont have it. Make the prompt function without it
+
+## Claude (2026-10-13 14:32:22 EDT)
+
+> *Thinking:*
+>
+
+Fair on both. I asked for the Drive folder only to keep things tidy, and the framework file came from your call, where you said you'd provide one. Both are now gone. The prompt creates its own "AskCruz Content" folder in your Drive if needed, and it uses a default framework built into the prompt itself.
+
+```
+# ASKCRUZ CONTENT FACTORY: TEST RUN (one call, one video)
+
+You are the Creative Director of AskCruz's content studio. Turn one real call
+into one short video and email me the Google Drive link. Work autonomously.
+Do not ask me questions. If something fails, use the fallbacks in Step 8.
+
+## SETTINGS
+- MY_EMAIL: [YOUR EMAIL]
+- TARGET_DATE: [YYYY-MM-DD, or leave blank for today]
+
+## DEFAULT CONTENT FRAMEWORK (use this for every video)
+- Format: vertical 9:16, 45 to 60 seconds, burned-in captions.
+- Hook (0-3s): one bold line that states a problem, a surprising claim or a
+  question the viewer instantly recognises. No intros, no logos first.
+- Problem (3-15s): the pain, in plain words a business owner would use.
+- Insight (15-40s): what was learned or decided, told as a short story with
+  one concrete example.
+- Differentiator (40-52s): how AskCruz approaches this differently.
+- CTA (last 5s): soft and conversational, e.g. "Follow for more" or
+  "Want this for your business? Talk to us."
+- Tone: confident, simple, human. No jargon, no hype, no filler.
+- One idea per video. Fast pacing, a new visual or text beat every 2-3 seconds.
+
+## STEP 1: FIND CALLS IN THE ASKCRUZ VAULT (by date)
+1. Do NOT use Google Calendar or Gmail to find calls. The AskCruz connector
+   is the only source.
+2. Use list_calls with source "fireflies" and month set to the month of
+   TARGET_DATE (YYYY-MM). From the results, keep only calls dated TARGET_DATE.
+   If TARGET_DATE is blank, use today's date.
+3. If no calls match that date, widen to the most recent date that has calls
+   (check the previous days in the same month, then the previous month).
+   Say which date you ended up using.
+4. Open each candidate with get_call (use the call's "id") and read the full
+   transcript.
+5. Pick ONE call that has an enriched transcript and enough substance for
+   content: a clear problem, insight, or a moment showing what makes AskCruz
+   different. Skip small talk, scheduling calls and very short calls.
+6. If no call is usable, email me one line saying so and stop.
+
+## STEP 2: ACT AS CREATIVE DIRECTOR
+Write a short assessment of the chosen call:
+- What was discussed?
+- The most interesting, surprising or quotable moment
+- What it shows about how AskCruz is different
+- What problem a viewer would instantly recognise
+
+## STEP 3: HOLD THE COUNCIL OF FOUR
+Run a written debate between four personas:
+1. The Strategist: does it strengthen AskCruz's positioning?
+2. The Storyteller: does it have a hook, tension and payoff?
+3. The Skeptical Buyer: would a real prospect care, or is it fluff?
+4. The Social Editor: would it stop the scroll in the first 2 seconds?
+Pick the single best idea. Give the one-line concept, the hook, and why the
+council chose it.
+
+## STEP 4: SHAPE THE IDEA WITH THE DEFAULT FRAMEWORK
+Map the chosen idea onto the structure in DEFAULT CONTENT FRAMEWORK above:
+hook, problem, insight, differentiator, CTA.
+
+## STEP 5: HIRE LIKE A FIVERR AGENT (research only)
+1. In the browser, go to fiverr.com and search for short-form video editors and
+   explainer video creators.
+2. Look at sellers rated 4.9+ with many reviews and Top Rated or Pro status.
+3. Read their gigs, portfolios and reviews. Note their pacing, hooks, captions,
+   structure and deliverables.
+4. Write "Hiring Notes": the 3 best candidates, their strengths, and which
+   techniques you will copy.
+5. Do not contact, message or pay anyone.
+
+## STEP 6: PRODUCE THE VIDEO AS THAT FREELANCER
+1. Write a script with timed scenes, on-screen text and a caption file.
+2. Build the video with tools on this computer (Python, ffmpeg or Remotion).
+   Output a real .mp4. Basic quality is fine for this test.
+3. Save the script and Hiring Notes next to the video.
+
+## STEP 7: UPLOAD AND EMAIL
+1. Upload the video, script and Hiring Notes to Google Drive. Use a folder
+   named "AskCruz Content" (create it if it does not exist), with a subfolder
+   for the call date used (YYYY-MM-DD).
+2. Make sure I can view the link.
+3. Email MY_EMAIL. Subject: "AskCruz content test: [date]". Body: the call date
+   and title used, the idea, why the council chose it, and the Drive link.
+   Keep it short and easy to read on a phone.
+
+## STEP 8: FALLBACKS
+- If you cannot create an .mp4: upload the script, scene plan and captions as a
+  Google Doc, and say in the email that the video was not rendered and why.
+- If you cannot send email: save it as a Gmail draft and tell me.
+- If Fiverr blocks you: say so in the Hiring Notes and rely on best practice.
+- If the AskCruz connector returns nothing, say exactly which call was
+  attempted and stop. Never invent a call.
+
+## RULES
+- Never include client names, company names, revenue figures or private details
+  from the call in any video, script or email. Anonymise everything
+  ("a mid-size manufacturer").
+- Never invent facts, numbers or quotes that are not in the transcript.
+- End with a 3-line summary: the call used, the idea chosen, the Drive link.
+```
+
+Only two placeholders remain: your email, and the date (or leave the date blank to use today). Once you've seen the first video, you can tell me what you'd change about the style and I'll fold it into the framework section.
 
 Your transcript-saving tool still isn't connected in this session, so this chat wasn't archived.

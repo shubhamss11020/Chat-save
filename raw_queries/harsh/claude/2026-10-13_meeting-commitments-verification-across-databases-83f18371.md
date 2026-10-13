@@ -2,12 +2,12 @@
 conversation_id: 83f18371-3212-48a5-803e-051d90994480
 platform: claude
 username: "harsh"
-title: "Meeting commitments verification across databases"
+title: "Meeting commitments verification across databases - Claude"
 created_at: "2026-10-13 13:00:50 EDT"
-updated_at: "2026-10-13 13:06:23 EDT"
+updated_at: "2026-10-13 13:29:19 EDT"
 ---
 
-# Meeting commitments verification across databases
+# Meeting commitments verification across databases - Claude
 
 ## User (2026-10-13 13:00:50 EDT)
 

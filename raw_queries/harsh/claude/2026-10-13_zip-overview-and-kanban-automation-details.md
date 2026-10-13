@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 14:32:35 EDT"
+updated_at: "2026-10-13 14:39:45 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1409,3 +1409,42 @@ Date: 13 October 2026
 - Open items for discussion with Jaskeerat and the team lead include the missing scanner files and wide-open permissions. Also scanner noise such as "AskCruz hiring" labelled "Likely active client", and the four company cards still being empty templates.
   - Any internal user can currently create, edit and delete reviews.
   - Next step to confirm: fix the scanner noise first, or fill the company cards first.
+
+## User (2026-10-13 14:39:19 EDT)
+
+make it look small its too big and add next step about to create a workflow using n8n
+
+## Claude (2026-10-13 14:39:23 EDT)
+
+**Log Note: Sales Specialist Review and Local Setup**
+Date: 13 October 2026
+
+- Reviewed the full Sales-Specialist.zip (plan documents, Odoo module, scripts, Sept 23 scanner output and four pilot company cards).
+  - Scanner output covers 9 companies; all four company cards are still empty templates.
+
+- Confirmed there are no automations or scheduled jobs, and no banners on the kanban, only badges that fill in after a manual sync.
+  - Every step (sync, import, scripts) needs a person to start it.
+
+- Inspected the AskCruz database dump (about 50 MB, 514 tables).
+  - It contains HR and compensation data, so it stays on a local machine only.
+
+- Set up the local Docker environment; `sales_intelligence` installed with all 20 modules loaded.
+  - The first attempt failed on a leftover Postgres volume, fixed by wiping the volumes.
+
+- Identified missing files: the scanner service, `docker-compose.yml`, `push-to-odoo-rpc.js` and the contact export JSON.
+  - "Run live scan" does not work locally; only the saved scan file can be imported.
+
+- Redesigned the Scanner Reviews kanban cards with risk colours, evidence counts, linked contact, next action and Approve / Needs Context / Reject buttons.
+  - The upgrade ran without view errors.
+
+- Prepared further board changes: menu entry, extra filters, pivot and graph views, all columns shown, and a fix so Reviewer and Reviewed date fill in however a card moves.
+  - Each still needs checking in the UI.
+
+- Fixed re-imports so existing review decisions are no longer reset to Pending Review.
+  - To verify: approve a card, re-run the import, and confirm it stays Approved.
+
+- Open items for the team lead: missing scanner files, wide-open permissions, scanner noise such as "AskCruz hiring" and the empty company cards.
+
+**Next step:** Build an n8n workflow to automate the pipeline.
+  - Schedule the scan and import so they run without anyone clicking.
+  - Notify the reviewer (Ayan) when new accounts reach Pending Review.

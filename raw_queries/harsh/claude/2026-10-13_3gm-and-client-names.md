@@ -2,18 +2,18 @@
 conversation_id: 977842d3-e5d9-4b68-ad7a-6f8bc0fbd427
 platform: claude
 username: "harsh"
-title: "3gm and client names"
+title: "3gm and client names - Claude"
 created_at: "2026-10-13 10:34:50 EDT"
-updated_at: "2026-10-13 11:20:07 EDT"
+updated_at: "2026-10-13 11:20:40 EDT"
 ---
 
-# 3gm and client names
+# 3gm and client names - Claude
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 What is 3gm?
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 I’ll search the mail for customer complaints, then check each affected customer’s wiki page for a matching entry.
 
@@ -36,7 +36,7 @@ I can read the Gideon, Carport Company of Florida and Water-damage threads next,
 
 Sources: msg 48716, 48694, 47931 (Pine View) · msg 205510 (Midwest Metal) · msg 45804, 45763, 250041, 250068 (Real Steel) · msg 64334 (Gideon) · page 792 Real Steel Coil Claim · page 217 fact complaint_defect_raw · page 413 facts yield_complaint_raw, quality_complaint_raw · page 110 Porta Grace Coil Claim · page 62 Five Star Metal Buildings Claim · search_raw “customer complaint” (51 msgs / 19 threads), “damaged coils” (87 / 17), “customer claim” (77 / 12)
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 I'll check the 3GM navigator guide first, then look this up in the vault.
 
@@ -53,15 +53,11 @@ The vault flags two of 3GM's own documents as disagreeing on Jan–Aug 2026 gros
 
 Sources: page 191 "3GM Steel, Inc." (facts sales_ytd_usd, total_assets_usd; flags on gross profit, CMT) · att 18170 · msg 46556 · msg 45746 · msg 66262 · msg 301180 · links: page 307 Mac Metal Sales, Inc., page 41 CMT Components acquisition, page 54 Dongkuk Q1 2027 Consignment Order
 
-## User (2026-10-13 11:20:07 EDT)
-
-What are the name of the clients
-
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 What are the new emails in Travis's inbox
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 The vault wiki has 253 customer pages, listed below. Several companies appear more than once under name variants (for example Longhorn, Longhorn Steel Structures and Longhorn Steel Structures, Inc.), so the true count of distinct customers is lower. Customer status here is the wiki's classification, not the ERP's customer master, which I did not query. I couldn't identify a 3GM ERP connection among my tools. Check the ERP for who is an active buyer.
 
@@ -71,7 +67,7 @@ The largest by wiki coverage are EMB Metal Buildings, Premier Metals, Red Dot Pr
 
 Sources: vault wiki entity list (entity_class = customer, 253 of 253 returned, not truncated); page ids as listed, e.g. 164 Carolina Carports Inc., 180 EMB Metal Buildings, 257 Premier Metals, 516 Red Dot Products
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 > *Thinking:*
 >
@@ -84,28 +80,11 @@ The largest by wiki coverage are EMB Metal Buildings, Premier Metals, Red Dot Pr
 
 Sources: vault wiki entity list (entity_class = customer, 253 of 253 returned, not truncated); page ids as listed, e.g. 164 Carolina Carports Inc., 180 EMB Metal Buildings, 257 Premier Metals, 516 Red Dot Products
 
-## User (2026-10-13 11:20:07 EDT)
-
-Who is Travis?
-
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 New mails in Stefan's inbox?
 
-## Claude (2026-10-13 11:20:07 EDT)
-
-Travis Lane is 3GM Steel's Chief Commercial Officer. Corey McGlothlin, the CEO, announced his promotion on 2026-03-04, after Sales Manager Cole Wolford resigned to join Graber Post Frame.
-
-- **Role:** Travis leads the sales team. He described his job as clearing obstacles, sharpening commercial strategy and helping reps grow their books. Corey also asked that he get full access to finances for planning, order planning and margin tracking.
-- **Mailbox:** He owns one of the two Outlook mailboxes in the vault, `travis@3gmsteel.com`, which also shows a personal Gmail address. It has about 2,944 sent and 10,685 received messages, and he was last active 2026-10-13 09:25 ET.
-- **Work visible in his mail:** He sets up new customer accounts, for example Steel Tech Building Systems. He also handles customer and pricing threads, and he wrote the mid-year sales rep reviews (Jan–Jul 2026).
-- **Other Travises:** The vault also has Travis L. Rogers, Travis Kottenbrock and Travis Rowe, all outside contacts with only a few messages. I took "Travis" to mean Travis Lane, as the 3GM executive.
-
-The wiki page for him rests on one announcement message, and it doesn't state his title before the promotion.
-
-Sources: page 468 "Travis Lane" (facts title, employer, announced_by) · msg 70085 · msg 70057 · msg 70042 · att 10862 · page 409 Steel Tech Building Systems · find_people "Travis" (Travis Lane: 2,944 sent / 10,685 received)
-
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 Stefan’s inbox has 16 emails since midnight Eastern today (2026-10-13), the newest at 10:45 ET. The vault has no read/unread flag, so “new” means received today.
 
@@ -127,28 +106,15 @@ The Secret CFO and Morning Brew newsletters.
 
 Sources: msg 301628, 301627, 301625, 301620, 301618, 301615, 301613, 301610, 301608, 301603, 301602, 301596, 301592, 301590, 301589, 301587
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 What are the recent mails which we sent by Travis
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 Who is Stefan?
 
-## Claude (2026-10-13 11:20:07 EDT)
-
-Stefan Brown is 3GM Steel's CFO. He signs as "CFO" of 3GM Steel, Inc., Somerset, KY.
-
-- **Finance and reporting:** He circulates the monthly budget-vs-actual packs. On 2026-08-06 he sent the July pack to Corey McGlothlin, Josh McGlothlin and Travis Lane. He also sends financial statements to banks (Traditional Bank, Citizens National Bank), the outside CPA firm Evans, Harville, Atwell & Company, and supplier credit departments such as SeAH. He circulates the monthly receivables ageing and handles the QuickBooks reports and bank statements.
-- **Other duties:** His mail also covers payables, including a 2026-09-03 note that 3GM owes Next Level $1.1mm. He works on the CMT Components acquisition financing and applies for credit lines with suppliers.
-- **Mailbox:** He owns the other of the two Outlook mailboxes in the vault, `stefan@3gmsteel.com`. It has about 2,963 sent and 9,429 received messages, and he was last active 2026-10-13 09:37 ET. The vault links three other addresses to him, including one at Tann Electric. I haven't looked into those.
-- **Other Stefans:** The vault also has Stefan Brown at South Central Bank (one received message), plus Jameson Brown and Stefani Dopson, who are different people. I took "Stefan" to mean the CFO.
-
-The wiki page for him is tagged personal-data and related-party-financial.
-
-Sources: page 137 "Stefan Brown" (CFO signature, msg 48660) · find_people "Stefan" (2,963 sent / 9,429 received) · page 191 "3GM Steel, Inc." (msg 46146, msg 66262, msg 69236, msg 46505) · page 41 CMT Components acquisition
-
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 Travis sent 10 emails over the last two days, newest first (times Eastern). Travis’s Sent Items hold 2,936 messages, and I read only the newest 10.
 
@@ -170,11 +136,11 @@ Yesterday (2026-10-12)
 
 Sources: msg 301628, 301625, 301624, 301622, 301571, 301569, 301568, 301563, 301554, 301552
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 What was the last email for travis?
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 Stefan’s inbox has 16 emails since midnight Eastern today (2026-10-13), the newest at 10:45 ET. The vault has no read/unread flag, so “new” means received today.
 
@@ -196,7 +162,7 @@ The Secret CFO and Morning Brew newsletters.
 
 Sources: msg 301628, 301627, 301625, 301620, 301618, 301615, 301613, 301610, 301608, 301603, 301602, 301596, 301592, 301590, 301589, 301587
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 The newest email in Travis's inbox is a promotional mailer from Goldin Metals, received 2026-10-13 at 10:39 ET. The subject is "🏆Maximize Your $AVINGS🏆", from Brandy Stiles, pitching painted, Galvalume and "rainbow" coils. It is bulk mail, not a conversation.
 
@@ -207,11 +173,11 @@ Travis's inbox holds 13,377 messages, and I read only the newest three. Vault ma
 
 Sources: msg 301623 · msg 301620 · msg 301619 · msg 301625
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 its like accessing the data from three tier, means the public data can't access by the other tier, because total data is divided into three part
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 Partly. A tier mechanism exists in the thread-wiki database, but only one tier is really in use, and I couldn’t test whether access is enforced.
 
@@ -240,11 +206,11 @@ If your three parts are something specific, such as public, internal and restric
 
 Sources: Thread-wiki database — get_business_schema, threads, user_access_tiers, wiki.pages, wiki_staging.pages and wiki.page_threads count queries; Askcruz get_index and list_clients.
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 What was the last email for Stefan?
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 The last email delivered to Stefan is "RE: Call and KY Visit", from Travis Lane, received 2026-10-13 at 10:40 ET. It went to Tadd Sapone and Stefan. Travis asks what the visitor would want to talk about, and says he assumes KG is "knocked out of US business" unless they also offer trading services and represent other mills. This is the same message I gave as Travis's last sent email.
 
@@ -256,50 +222,15 @@ Stefan's inbox holds 9,702 messages, and I read only the newest three.
 
 Sources: msg 301625 · msg 301620 · msg 301618 · msg 301617
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 does our architecture have three tier access, something like rbac for our database, checkout all the connectors and get me the information
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 Which customer complaints appear in the email but have no entry on the customer's wiki page?
 
-## Claude (2026-10-13 11:20:07 EDT)
-
-No. There is no single three-tier RBAC across your databases; there are separate access layers, and only some of them enforce anything. The one tier setting I found is a column the application is meant to check, not a database rule, and I couldn’t test that check.
-
-What I found, connector by connector
-
-Connector	Database account	Superuser / bypass RLS	Row-level security	Built-in roles and rules
-EOXS Team Live (ERP)	eoxs_live_ro	No / No	Not checked	Odoo: 101 groups, 1,097 table-access rules, 239 record rules, 141 users
-Read-only (askcruz DB)	askcruz_ro	No / No	Not checked	Odoo: 64 groups, 707 table-access rules, 172 record rules, 38 users
-Thread-wiki	deploy (SELECT only, 17 tables)	No / No	Off on all 21 tables, 0 policies	access_tier column plus user_access_tiers table
-Askcruz	No SQL, tool-based	n/a	n/a	Sees 8 clients
-Interns-mcp	No SQL, tool-based	n/a	n/a	Sees the same 8 clients
-
-Where the tiers actually show up
-
-Database level: Every connector uses a non-superuser account that can only read. That protects against writes, not against reading across clients or tiers.
-Odoo level: Odoo’s groups and record rules are enforced by the application, not by the database. A direct read-only SQL connection like these doesn’t pass through them, so they don’t limit what the connectors see.
-Tier column (Thread-wiki): As I reported earlier, only tier1 is really populated (358 of 1,938 threads, 95 of 215 pages), tier2 has one page, and only one user has a tier. Nothing in the database restricts the column’s values; I found no check constraint on it, so a typo like tier-1 would be accepted. Enforcement lives only in the server code.
-Per-connector scoping (Askcruz vs Interns-mcp): Both list the same 8 clients but return different volumes. Interns-mcp is a smaller view of the same data. This looks like a tier, but I don’t know the rule behind it.
-	Askcruz	Interns-mcp
-Wiki pages	2,133	1,117
-Email threads	34,116	26,909
-Calls (Fireflies + Fathom)	2,460	2,130
-Implementation tasks	828	777
-
-Gaps
-
-The tier check is not enforced by the database. If the server code has a bug, the data underneath is open to any connection.
-Thread-wiki has a mcp_tokens table (token hash, username, connector, active flag), so tokens map to a user and connector. That is probably where tier or scope is decided, but I haven’t looked into it.
-Askcruz holds data for 8 client companies in one store, and I saw no client-level isolation there.
-
-Not verified: Whether Interns-mcp is filtered by client, by date or by tier, and whether a restricted token is actually blocked from tier1 data. I can count tokens per connector (no hashes) to see how access is assigned. To test enforcement I’d need a restricted token, so tell me if you want me to look into the token table.
-
-Sources: Thread-wiki — pg_roles, pg_class, pg_policies, information_schema grants and columns, pg_constraint; EOXS Team Live and askcruz DBs — pg_roles, res_groups, ir_model_access, ir_rule, res_users; Askcruz and Interns-mcp get_index and list_clients.
-
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 I'll search the mail for customer complaints, then check each affected customer's wiki page for a matching entry.
 
@@ -320,11 +251,11 @@ I can read the Gideon, Carport Company of Florida and Water-damage threads next,
 
 Sources: msg 48716, 48694, 47931 (Pine View) · msg 205510 (Midwest Metal) · msg 45804, 45763, 250041, 250068 (Real Steel) · msg 64334 (Gideon) · page 792 Real Steel Coil Claim · page 217 fact complaint_defect_raw · page 413 facts yield_complaint_raw, quality_complaint_raw · page 110 Porta Grace Coil Claim · page 62 Five Star Metal Buildings Claim · search_raw "customer complaint" (51 msgs / 19 threads), "damaged coils" (87 / 17), "customer claim" (77 / 12)
 
-## User (2026-10-13 11:20:07 EDT)
+## User (2026-10-13 11:20:40 EDT)
 
 Which supplier has the longest average lead time and is it confirmed in both systems?
 
-## Claude (2026-10-13 11:20:07 EDT)
+## Claude (2026-10-13 11:20:40 EDT)
 
 I’ll check the vault for supplier lead times and look for the ERP connection to cross-check.
 

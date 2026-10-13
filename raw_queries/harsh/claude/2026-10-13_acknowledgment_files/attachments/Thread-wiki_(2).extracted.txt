@@ -1,0 +1,306 @@
+---
+name: thread-wiki
+description: ALWAYS activate whenever the user asks about what ANY user or team member worked on in Claude, conversation summaries, chat history, prompt history, transcripts, or Claude activity for any user, month, or date (e.g. "What did [user] work on in Claude in [month]?", "summarize threads by [user]"). Unified reference for conversation archiving. Two incompatible systems (Threads OV, file-based, and Thread Wiki, database-backed) run in parallel. Includes a decision tree to determine which to use, full documentation for both, and comparison tables. Start with Part 0 (routing) to determine your system, then read the relevant section (Part 1 for Threads OV, Part 2 for Thread Wiki).
+metadata:
+  aliases: [Thread Wiki, Threads OV, conversation archiving, transcript vault, routing guide]
+---
+
+# Thread Wiki: Conversation Archiving Skill
+
+This skill covers two connectors with different jobs:
+
+- **Threads-Ov**: writes. Saves every conversation transcript and cross-links findings into OV2.
+- **Thread-wiki**: reads. Read-only SQL over saved threads (`public`), published wiki pages (`wiki`) and drafts (`wiki_staging`).
+
+Start with Part 0.
+
+---
+
+# Tool Availability Check (before any call)
+
+Tool names here describe capabilities, not guaranteed tools.
+
+1. Check the tool is in your tool list or loadable via tool search.
+2. If present, use it as described.
+3. If absent, don't retry, don't substitute a same-named tool from another connector, and don't invent a call. Tell the user in one line: "[tool] isn't connected in this session; [what that means for the answer]."
+4. If a connector drops mid-task, stop using it, finish with what you have, and say what's missing.
+
+Never block an answer on a missing archive tool. Saving is best-effort; answering is not.
+
+---
+
+# Thread Question Gate (check first)
+
+Before loading any tool, decide whether the question is thread-shaped. These always go to Thread-wiki:
+
+- "What did [user] work on in Claude?" (any employee or team member)
+- "List [user]'s conversations / transcripts / chat history"
+- "Titles of [user]'s Claude work"
+- "What Claude conversations mention [topic]?"
+- "What did we discuss in Claude about X?"
+- "What did [user] prompt or ask in Claude on [date] / [month]?"
+- "Show me [user]'s saved transcripts"
+- Any question about Claude conversations, chat threads, saved work, or transcript inventory
+
+Load the Thread-wiki tools (`query`, `get_full_text`, `get_business_schema`). If none are found, tell the user Thread-wiki isn't connected and stop. Do not answer thread questions from any other connector's `query` or wiki tools.
+
+Questions that are not about Claude conversations (emails, calls, tickets, company policy, CRM) are outside this skill.
+
+## Name collisions
+
+Thread-wiki's `query`, `list_tables`, `describe_table` and `get_business_schema` share names with tools on other database connectors. Identify a tool by its connector prefix (`mcp__Thread-wiki__query`), not its bare name: same name does not mean same data. Finish a lookup on the connector you started it on. If Thread-wiki returns nothing for a thread it listed a moment ago, report it as a bug; don't retry the lookup elsewhere.
+
+---
+
+# Part 0: Which Connector?
+
+| Task | Connector |
+|---|---|
+| Save this conversation (every turn) | Threads-Ov |
+| Cross-link a finding into OV2 | Threads-Ov |
+| Save a finished analysis (with approval) | Threads-Ov |
+| Find, list or read past conversations | Thread-wiki |
+| Search synthesized wiki pages | Thread-wiki |
+| Check synthesis pipeline status | Thread-wiki |
+
+Threads-Ov cannot read or search the archive. Thread-wiki cannot write anything.
+
+---
+
+# Part 1: Threads-Ov
+
+## Overview
+
+Git-tracked transcript archive. Saves conversations, saves approved analyses, and cross-links findings into OV2's wiki. Synthesis is manual.
+
+## 1.1 Mandatory auto-save: full overwrite
+
+**`save_chat_transcript(thread_name, content)`**: call at the end of every response. It overwrites the whole file each time.
+
+- `thread_name`: stable identifier for the conversation, chosen on the first turn and never changed (e.g. `askcruz-pricing-q4-2024`).
+- `content`: the full verbatim transcript so far, not just the latest exchange.
+
+File: `raw/claude-chat-queries/<user>_<created-date>_<thread_name>.md` (committed and pushed). `<user>` is resolved server-side; never put it in `thread_name`.
+
+Every turn, including the first:
+
+```
+checkpoint(thread_name="<stable-name>")
+save_chat_transcript(thread_name="<stable-name>", content="<FULL verbatim conversation text>")
+```
+
+If `checkpoint` is absent, call `save_chat_transcript` alone. If `save_chat_transcript` is absent, skip saving and mention it once per conversation.
+
+`content` must be verbatim:
+- **Wrong:** `[Asked options; queried CRM; found invoice.]`
+- **Right:** the complete conversation word for word, including tables and analysis.
+
+Failure modes:
+- (a) Saving once and treating it as covering later turns. Every turn overwrites with the new full transcript.
+- (b) Changing `thread_name` when the topic shifts. That creates a second file.
+- (c) Passing a summary instead of verbatim text. That thread was never captured.
+
+## 1.2 Tools (5)
+
+- **`save_chat_transcript(thread_name: str, content: str)`**: overwrites the transcript file, commits and pushes. Mandatory after every response.
+- **`checkpoint(thread_name: str)`**: lightweight no-op that triggers the save reminder. Call at the end of every turn, before `save_chat_transcript`.
+- **`save_analysis(title: str, content: str)`**: saves a finished write-up to `wiki/analyses/`. Ask for explicit approval first; never auto-save.
+- **`propose_ov2_xref(ov2_page_path: str, pointer_line: str, chat_summary_title: str)`**: stages a 1–2 line cross-reference to an OV2 page in `.ov2-xref-staging/`. Nothing reaches OV2 yet.
+  - `ov2_page_path`: e.g. `"wiki/HR/Compensation_Policy.md"`
+  - `pointer_line`: exact 1–2 line text, no bullets or headers
+  - `chat_summary_title`: exact Threads OV page title
+- **`apply_ov2_xref(staged_id: str)`**: applies a staged cross-reference to OV2's repo. Only after the user approves that item. Requires `OV2_GITHUB_TOKEN`.
+
+## 1.3 Workflow: CROSS-LINK (verify → propose → approve → apply)
+
+1. **Verify** the OV2 page exists, covers the same topic, and the chat summary adds something genuinely new.
+2. **Draft** one citation-style pointer line (two at most), e.g. "Related discussion in Threads OV: 'Q4 Compensation Review: Retention Strategy'." No raw content, no dates.
+3. **Stage** it:
+   ```
+   propose_ov2_xref(
+     ov2_page_path="wiki/company-operations/HR/Compensation.md",
+     pointer_line="Related discussion in Threads OV: 'Q4 Compensation Review: Retention Strategy'.",
+     chat_summary_title="Q4 Compensation Review: Retention Strategy"
+   )
+   ```
+4. **Present** staged items and ask which to apply. Silence is not approval.
+5. **Apply** approved items only, one at a time, reporting each result:
+   ```
+   apply_ov2_xref(staged_id="7")
+   ```
+
+## 1.4 Quality standards
+
+- **Specificity:** concrete claims with dates and sources
+- **Citation:** every chat summary needs `## Sources`
+- **Tribal knowledge:** capture undocumented rules, informal terms, workarounds
+- **Compression:** summaries distil; they are not transcripts
+- **Approval:** only `save_chat_transcript` is automatic; `save_analysis` and `apply_ov2_xref` need explicit approval
+
+## 1.5 Guardrails
+
+- Pointer lines to OV2: 1–2 sentences max
+- Never call `apply_ov2_xref` speculatively; staging is free, applying is real
+- `GITHUB_TOKEN` pushes here; `OV2_GITHUB_TOKEN` (separate) pushes to OV2
+- Never trust a model-supplied user value; the server resolves identity
+- Claude conversations only
+
+---
+
+# Part 2: Thread-wiki
+
+## Overview
+
+Read-only SQL access to `eoxs_frontend_threads`: Claude conversation transcripts and the wiki synthesized from them. The account holds SELECT only.
+
+## 2.1 Tools (5)
+
+- **`get_business_schema()`**: how `public` (raw threads), `wiki` (published pages) and `wiki_staging` (drafts) relate, plus working starter queries. Call first, once per session.
+- **`list_tables()`**: readable tables with row counts.
+- **`describe_table(table: str)`**: columns, types, constraints. Use before assuming a column exists.
+- **`query(sql: str)`**: read-only SELECT (or WITH ... SELECT). **Every cell is capped at 160 characters**, which silently cuts off message text and page bodies.
+- **`get_full_text(sql: str)`**: runs a SELECT returning exactly one row and one column, untruncated (up to 200,000 characters). Use it whenever you need a field's complete content.
+
+Pattern: find rows with `query`, then read the full text of one field with `get_full_text`.
+
+## 2.2 Key tables
+
+- **`public.threads`**: `id, username, thread_name, created_at, access_tier`
+- **`public.thread_messages`**: `id, thread_id, username, content, created_at, role` (user/assistant)
+- **`wiki.pages`**: `id, title, body, body_tsv` (full-text), `created_at, updated_at`
+- **`wiki.page_threads`**: `page_id, thread_id` (links pages to source threads)
+- **`wiki_staging.pages`**: drafts, with `status` (draft/reviewed/promoted/rejected)
+
+Confirm with `describe_table` before relying on a column.
+
+## 2.3 Recipes
+
+List a user's threads in a month:
+```sql
+SELECT t.id, t.username, t.thread_name, t.created_at::date AS d
+FROM threads t
+WHERE t.username ILIKE '%<username>%' AND t.created_at::text LIKE 'YYYY-MM%'
+ORDER BY t.created_at DESC
+LIMIT 50;
+```
+
+Find threads by content:
+```sql
+SELECT DISTINCT t.id, t.username, t.thread_name, t.created_at::date AS d
+FROM threads t
+JOIN thread_messages m ON m.thread_id = t.id
+WHERE m.content ILIKE '%toll processing%'
+ORDER BY d DESC
+LIMIT 10;
+```
+
+Read a full conversation (`get_full_text`, not `query`):
+```sql
+SELECT string_agg(content, E'\n' ORDER BY created_at, id)
+FROM thread_messages
+WHERE thread_id = 42;
+```
+
+Search published wiki pages:
+```sql
+SELECT id, title, ts_rank(body_tsv, q) AS rank
+FROM wiki.pages, websearch_to_tsquery('english', 'sabre compensation') q
+WHERE body_tsv @@ q
+ORDER BY rank DESC;
+```
+If that returns nothing, retry with `to_tsquery('english', 'sabre | compensation | strategy')`.
+
+Read one page in full (`get_full_text`):
+```sql
+SELECT body FROM wiki.pages WHERE id = 14;
+```
+
+Find the threads behind a page:
+```sql
+SELECT t.thread_name, t.username, t.created_at
+FROM wiki.page_threads pt JOIN threads t ON t.id = pt.thread_id
+WHERE pt.page_id = 14;
+```
+
+## 2.4 Access and confidentiality
+
+- Threads carry an `access_tier`: `tier1` (personal) or `tier2` / `tier2_confidential` (departmental).
+- **Raw SQL here is not filtered by `access_tier`.** Treat what you read as internal, answer only the question asked, and don't volunteer unrelated content you happened to see.
+- Amounts and monitoring data are stripped upstream.
+
+## 2.5 Synthesis pipeline
+
+A scheduled process clusters unsynthesized threads by topic, drafts pages into `wiki_staging.pages`, and a second agent reviews them. Approved pages become `promoted` and appear in `wiki.pages`. Rejected pages stay `rejected` in staging. **Never quote a rejected page.**
+
+Check status:
+```sql
+-- Drafts by status
+SELECT status, count(*) FROM wiki_staging.pages GROUP BY status;
+
+-- Threads not yet cited by any page
+SELECT count(*) FROM threads t
+LEFT JOIN (
+  SELECT DISTINCT thread_id FROM wiki_staging.page_threads pt
+  JOIN wiki_staging.pages p ON p.id = pt.page_id
+  WHERE p.status IN ('promoted', 'draft', 'reviewed')
+) d ON d.thread_id = t.id
+WHERE d.thread_id IS NULL;
+```
+
+Expect about a 15-minute lag between a save and its appearance in the database.
+
+## 2.6 Guardrails
+
+- Read-only: no INSERT/UPDATE/DELETE
+- Claude conversations only
+- Use `get_full_text` for complete content; never present a 160-character `query` cell as the full text
+- Only quote `promoted` pages
+
+---
+
+# Part 3: Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| Saved but not in Thread-wiki yet | ~15-minute sync lag. Don't re-save; wait and retry. |
+| Thread text or page body ends abruptly | `query` truncates cells at 160 characters. Re-read that field with `get_full_text`. |
+| `get_full_text` errors | The SELECT must return exactly one row and one column. Narrow the WHERE clause. |
+| Query returns zero rows | Broaden the WHERE clause; check spelling of `username`/`thread_name`; confirm columns with `describe_table`. |
+| Prior messages missing from the saved file | `save_chat_transcript` got only the latest exchange. Send the full transcript every time. |
+| Two files for one conversation | `thread_name` changed mid-conversation. Keep it stable. |
+| Cross-link fails with an auth error | `OV2_GITHUB_TOKEN` missing or invalid. Configuration gap; don't work around it. |
+| Need to edit or delete a saved message | No tool for it. Clarify in the next message. |
+| Page has status `rejected` | Don't quote it. |
+| Thread question answered from a non-thread source | Re-run on Thread-wiki using its prefixed tools. |
+
+## Session start checklist
+
+1. Run the Thread Question Gate.
+2. Pick the connector (Part 0).
+3. Start saving with Threads-Ov from the first turn. Don't narrate setup.
+
+---
+
+# Part 4: Standing Instruction: Threads First
+
+For questions about customers, products, projects or other entities, check the archive before answering:
+
+1. **Threads.** Use Thread-wiki to find conversations that mention the entity: what was said, when, by whom.
+2. **Wiki.** Search published wiki pages for prior analysis, strategy notes and known issues.
+3. **Merge and cite.** Combine findings, cite which thread or page supports each claim, and flag any conflicts.
+
+If Thread-wiki isn't connected, say so and answer from what is available.
+
+Applies to questions like:
+- "What should we tell [CUSTOMER]?"
+- "Is [PRODUCT] pricing competitive?"
+- "What's [CUSTOMER]'s pain point?"
+- "Should we pursue [PROJECT]?"
+- "What did [CUSTOMER] say about Claude?"
+
+Does not apply to technical questions, code reviews, or general explanations.
+
+---
+
+**Last updated:** October 9, 2026
+**Scope:** Threads-Ov (5 tools) and Thread-wiki (5 tools)

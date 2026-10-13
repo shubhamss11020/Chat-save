@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 13:42:34 EDT"
+updated_at: "2026-10-13 13:47:35 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1145,3 +1145,67 @@ Each state change also appears in the card's chatter, because `review_state` alr
 Re-importing a scan resets every account to Pending Review, because the import code writes `review_state` on every update. If someone approves an account and the scan is imported again, the approval is undone, although the reviewer fields stay. This is an existing behaviour of the module and I haven't changed it. Want me to fix it so re-imports keep decisions that have already been made?
 
 If the upgrade fails, paste the last 15 lines. To roll back, copy the `.bak3` files over the originals and run the upgrade again.
+
+## User (2026-10-13 13:46:39 EDT)
+
+now the next problems too
+
+## Claude (2026-10-13 13:46:54 EDT)
+
+> *Thinking:*
+>
+
+The other items on my original board list are already covered by the earlier scripts: all five columns, richer cards, risk colours, the button actions, and the removal of the Pending-only default filter. The remaining board problem is the one I flagged last time: **re-importing a scan resets every account to Pending Review**, so someone's approval gets silently undone. This script fixes it. I haven't run it.
+
+```powershell
+cd C:\dev\Sales-Specialist
+
+$py   = (Resolve-Path "odoo\addons\sales_intelligence\models\sales_intelligence.py").Path
+$code = [System.IO.File]::ReadAllText($py)
+
+if ($code -match 'KEEP_REVIEW_STATE') {
+    Write-Host "Already updated - skipped."
+} else {
+    Copy-Item $py "$py.bak4" -Force
+
+    # In upsert_from_payload: for an EXISTING account, don't overwrite review_state
+    $rx = [regex]'(?m)^(?<i>[ \t]+)if account:\r?\n(?<j>[ \t]+)account\.write\(vals\)'
+    if (-not $rx.IsMatch($code)) { throw "upsert block not found - file not changed." }
+    $code = $rx.Replace($code, {
+        param($m)
+        $i = $m.Groups['i'].Value; $j = $m.Groups['j'].Value
+        "${i}if account:`n${j}vals.pop(`"review_state`", None)  # KEEP_REVIEW_STATE: re-import must not reset decisions`n${j}account.write(vals)"
+    }, 1)
+
+    [System.IO.File]::WriteAllText($py, $code, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Python updated."
+}
+
+Select-String -Path $py -Pattern "KEEP_REVIEW_STATE" -Context 1,2
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+```
+
+## How to test
+
+1. On the board, drag one card to **Approved**.
+2. Re-run the import:
+   ```powershell
+   docker compose run --rm odoo python3 /mnt/extra-addons/sales_intelligence/scripts/import_scanner_json.py /mnt/sales-intelligence/discovered-sales-candidates-2026-09-23.json sales_intelligence
+   ```
+   It should print `Imported 0 account(s), updated 9 account(s).`
+3. Press **F5** on the board. The card should still be in **Approved**, and new accounts would still start as Pending Review.
+
+## What this doesn't solve
+
+A re-import still replaces the evidence and signals under an approved account, so the approval could now be sitting on newer evidence than the reviewer actually saw. If you want, I can make a re-import move an approved account back to **Needs Context** only when its evidence actually changed. That's riskier to get right, so I'd treat it as a separate step.
+
+## Other problems I found that aren't on the board
+
+Pick any you want next:
+- **Wide-open permissions.** Every internal user can create, edit and delete reviews, evidence and signals.
+- **Scanner noise.** Entries like "AskCruz hiring" or "Odoo ERP ops" are labelled "Likely active client". A filter or an "Ignore" state could keep them off the board.
+- **Empty company cards.** All four are still "Unknown" placeholders, and could be filled from the evidence files.
+- **Duplicate briefs.** Two briefs differ between the date folder and the top-level folder.
+
+Tell me which one, or say "all", and I'll do them the same way.

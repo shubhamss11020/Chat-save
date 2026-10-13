@@ -2,12 +2,12 @@
 conversation_id: f5c1e905-08eb-4888-b502-456abc87369a
 platform: claude
 username: "harsh"
-title: "EOXS details and overview"
+title: "EOXS details and overview - Claude"
 created_at: "2026-10-13 08:48:17 EDT"
-updated_at: "2026-10-13 08:49:17 EDT"
+updated_at: "2026-10-13 08:51:56 EDT"
 ---
 
-# EOXS details and overview
+# EOXS details and overview - Claude
 
 ## User (2026-10-13 08:47:32 EDT)
 

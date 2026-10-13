@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 13:17:34 EDT"
+updated_at: "2026-10-13 13:22:34 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -430,9 +430,6 @@ A few notes:
 
 now what
 
-**Attachments:**
-- 📎 **attachment** *(Attached in Claude conversation)*
-
 ## Claude (2026-10-13 12:38:28 EDT)
 
 > *Thinking:*
@@ -794,3 +791,277 @@ Tell me which items you want, or just say "do 1 to 4", and I'll give you the Pow
 ## User (2026-10-13 13:17:25 EDT)
 
 let's go with simplest first ones and we will do all at a single time
+
+## Claude (2026-10-13 13:18:07 EDT)
+
+> *Thinking:*
+>
+
+I've taken "the simplest ones" to mean items 1 to 4 from my list: richer cards, risk colours, Approve/Needs Context/Reject buttons on the card, and locked drag-and-drop. Everything goes into one edit to the existing kanban view. I haven't run any of this, so test it as described below.
+
+```powershell
+cd C:\dev\Sales-Specialist
+
+$path = (Resolve-Path "odoo\addons\sales_intelligence\views\sales_intelligence_views.xml").Path
+$xml  = [System.IO.File]::ReadAllText($path)
+
+if ($xml -match 'records_draggable') {
+    Write-Host "Kanban already updated - nothing changed."
+} else {
+    Copy-Item $path "$path.bak" -Force      # backup before editing
+
+$newKanban = @'
+<record id="view_sales_intelligence_account_kanban" model="ir.ui.view">
+        <field name="name">sales.intelligence.account.kanban</field>
+        <field name="model">sales.intelligence.account</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="review_state" records_draggable="false" quick_create="false" group_create="false" group_delete="false" group_edit="false">
+                <field name="name"/>
+                <field name="score"/>
+                <field name="inferred_stage"/>
+                <field name="risk_level"/>
+                <field name="confidence"/>
+                <field name="last_scan_date"/>
+                <field name="review_state"/>
+                <field name="partner_id"/>
+                <field name="suggested_next_action"/>
+                <field name="direct_evidence_count"/>
+                <field name="cross_reference_count"/>
+                <field name="weak_evidence_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <strong><field name="name"/></strong>
+                                <span class="badge badge-primary"><field name="score"/></span>
+                            </div>
+                            <div class="mt-1">
+                                <field name="inferred_stage"/>
+                            </div>
+                            <div class="mt-1">
+                                <span t-attf-class="badge #{record.risk_level.raw_value == 'High' ? 'badge-danger' : (record.risk_level.raw_value == 'Medium' ? 'badge-warning' : (record.risk_level.raw_value == 'Low-medium' || record.risk_level.raw_value == 'Low' ? 'badge-success' : 'badge-secondary'))}">
+                                    Risk: <field name="risk_level"/>
+                                </span>
+                                <span class="text-muted ml-1">Confidence: <field name="confidence"/></span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                Evidence: <field name="direct_evidence_count"/> direct | <field name="cross_reference_count"/> cross-ref | <field name="weak_evidence_count"/> weak
+                            </div>
+                            <div t-if="record.partner_id.raw_value" class="small mt-1">
+                                Contact: <field name="partner_id"/>
+                            </div>
+                            <div t-if="record.suggested_next_action.raw_value" class="small mt-1">
+                                <strong>Next:</strong> <t t-esc="(record.suggested_next_action.value || '').substring(0, 120)"/>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                Scan: <field name="last_scan_date"/>
+                            </div>
+                            <div class="mt-2">
+                                <button t-if="record.review_state.raw_value != 'approved'" type="object" name="action_mark_approved" class="btn btn-sm btn-success">Approve</button>
+                                <button t-if="record.review_state.raw_value != 'needs_context'" type="object" name="action_mark_needs_context" class="btn btn-sm btn-warning">Needs Context</button>
+                                <button t-if="record.review_state.raw_value != 'rejected'" type="object" name="action_mark_rejected" class="btn btn-sm btn-secondary">Reject</button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+'@
+
+    $pattern = '(?s)<record id="view_sales_intelligence_account_kanban".*?</record>'
+    if (-not [regex]::IsMatch($xml, $pattern)) { throw "Kanban record not found - file not changed." }
+    $updated = [regex]::Replace($xml, $pattern, { param($m) $newKanban })
+    [System.IO.File]::WriteAllText($path, $updated, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Kanban view updated."
+}
+
+# Verify, upgrade, restart
+Select-String -Path $path -Pattern "records_draggable"
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+Start-Process "http://localhost:8070/web#action=sales_intelligence.action_sales_intelligence_account&view_type=kanban"
+```
+
+## What you should see
+
+After the restart, press **F5** on the board and check these:
+- Each card shows a coloured risk badge, an evidence line, the linked contact and the next action (cut off at 120 characters).
+- The three buttons appear at the bottom of each card.
+- Dragging a card does nothing. I'm not certain Odoo 13 honours `records_draggable`, so if cards still drag, tell me.
+- Clicking **Approve** moves the card to the Approved column and fills in the reviewer and date on the form.
+
+## Two things to know
+
+- The board still has the default **Pending Review** filter. After you click Approve, the card will disappear from the board. Remove the filter facet in the search bar to see all columns together.
+- Empty columns still won't show. That's item 5, and it comes later.
+
+If the upgrade fails with a view-validation error, paste the last 15 lines of the output. To undo everything, run `Copy-Item "$path.bak" $path -Force` and run the upgrade again.
+
+## User (2026-10-13 13:20:32 EDT)
+
+next ones now
+
+**Attachments:**
+- 📎 **attachment** *(Attached in Claude conversation)*
+
+## Claude (2026-10-13 13:21:33 EDT)
+
+> *Thinking:*
+>
+
+The last upgrade ran with no view errors, so the new card layout loaded. You can run the next group now: items 5 to 9 from my list. That's all columns showing, more search filters, reviewer filters, activities, and a summary (pivot and graph) view. It's one script, and I haven't run it.
+
+```powershell
+cd C:\dev\Sales-Specialist
+
+# ---------- A. Python: always show every review-state column ----------
+$py   = (Resolve-Path "odoo\addons\sales_intelligence\models\sales_intelligence.py").Path
+$code = [System.IO.File]::ReadAllText($py)
+
+if ($code -match 'group_expand') {
+    Write-Host "Python already updated - skipped."
+} else {
+    Copy-Item $py "$py.bak" -Force
+
+    $rx = [regex]'(default="pending_review",\s*tracking=True,\s*required=True,)'
+    if (-not $rx.IsMatch($code)) { throw "review_state field not found - Python not changed." }
+    $code = $rx.Replace($code, { param($m) $m.Groups[1].Value + "`n        group_expand=`"_expand_review_states`"," }, 1)
+
+    $method = @'
+    @api.model
+    def _expand_review_states(self, states, domain, order):
+        return [key for key, _label in self._fields["review_state"].selection]
+
+'@
+    $marker = '    _sql_constraints = ['
+    $i = $code.IndexOf($marker)
+    if ($i -lt 0) { throw "_sql_constraints marker not found - Python not changed." }
+    $code = $code.Insert($i, $method)
+
+    [System.IO.File]::WriteAllText($py, $code, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "Python updated."
+}
+
+# ---------- B. XML: filters, activities, pivot, graph, action ----------
+$path = (Resolve-Path "odoo\addons\sales_intelligence\views\sales_intelligence_views.xml").Path
+$xml  = [System.IO.File]::ReadAllText($path)
+
+if ($xml -match 'view_sales_intelligence_account_pivot') {
+    Write-Host "XML already updated - skipped."
+} else {
+    Copy-Item $path "$path.bak2" -Force
+
+    # B1. Search filters (items 6 and 7)
+    $anchor = "<filter name=`"medium_risk`" string=`"Medium Risk`" domain=`"[('risk_level','=','Medium')]`"/>"
+    if (-not $xml.Contains($anchor)) { throw "medium_risk filter not found - XML not changed." }
+    $filters = @'
+
+                <separator/>
+                <filter name="unreviewed" string="Unreviewed" domain="[('reviewer_id','=',False)]"/>
+                <filter name="my_reviews" string="My Reviews" domain="[('reviewer_id','=',uid)]"/>
+                <filter name="reviewed_week" string="Reviewed Last 7 Days" domain="[('reviewed_date','&gt;=',(context_today()-datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="no_contact" string="No Linked Contact" domain="[('partner_id','=',False)]"/>
+                <filter name="has_direct_evidence" string="Has Direct Evidence" domain="[('evidence_ids.source_relevance','=','direct')]"/>
+                <filter name="stage_unclear" string="Stage Unclear" domain="[('inferred_stage','ilike','unclear')]"/>
+'@
+    $xml = $xml.Replace($anchor, $anchor + $filters)
+
+    # B2. Activity widget on the kanban card (item 8)
+    $kRx = [regex]'(?s)<record id="view_sales_intelligence_account_kanban".*?</record>'
+    $km  = $kRx.Match($xml)
+    if (-not $km.Success) { throw "Kanban record not found - XML not changed." }
+    $k = $km.Value
+    $k = $k.Replace('<templates>', "<field name=`"activity_ids`"/>`n                <field name=`"activity_state`"/>`n                <templates>")
+    $k = $k.Replace('Reject</button>', "Reject</button>`n                                <div class=`"float-right`"><field name=`"activity_ids`" widget=`"kanban_activity`"/></div>")
+    $xml = $xml.Substring(0, $km.Index) + $k + $xml.Substring($km.Index + $km.Length)
+
+    # B3. New views + action (items 5, 8, 9)
+    $actionBlock = @'
+<record id="view_sales_intelligence_account_pivot" model="ir.ui.view">
+        <field name="name">sales.intelligence.account.pivot</field>
+        <field name="model">sales.intelligence.account</field>
+        <field name="arch" type="xml">
+            <pivot string="Scanner Summary">
+                <field name="inferred_stage" type="row"/>
+                <field name="risk_level" type="col"/>
+                <field name="score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_sales_intelligence_account_graph" model="ir.ui.view">
+        <field name="name">sales.intelligence.account.graph</field>
+        <field name="model">sales.intelligence.account</field>
+        <field name="arch" type="xml">
+            <graph string="Scanner Summary" type="bar">
+                <field name="inferred_stage" type="row"/>
+                <field name="score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_sales_intelligence_account_activity" model="ir.ui.view">
+        <field name="name">sales.intelligence.account.activity</field>
+        <field name="model">sales.intelligence.account</field>
+        <field name="arch" type="xml">
+            <activity string="Scanner Reviews">
+                <field name="name"/>
+                <templates>
+                    <div t-name="activity-box">
+                        <div>
+                            <strong><field name="name"/></strong>
+                            <div class="text-muted"><field name="inferred_stage"/></div>
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <record id="action_sales_intelligence_account" model="ir.actions.act_window">
+        <field name="name">Scanner Reviews</field>
+        <field name="res_model">sales.intelligence.account</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph,activity</field>
+        <field name="context">{}</field>
+    </record>
+'@
+    $aRx = [regex]'(?s)<record id="action_sales_intelligence_account" model="ir.actions.act_window">.*?</record>'
+    if (-not $aRx.IsMatch($xml)) { throw "Action record not found - XML not changed." }
+    $xml = $aRx.Replace($xml, { param($m) $actionBlock }, 1)
+
+    [System.IO.File]::WriteAllText($path, $xml, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "XML updated."
+}
+
+# ---------- C. Verify, upgrade, restart ----------
+Select-String -Path $py   -Pattern "group_expand|_expand_review_states"
+Select-String -Path $path -Pattern "view_sales_intelligence_account_pivot|kanban_activity|reviewed_week"
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+Start-Process "http://localhost:8070/web#action=sales_intelligence.action_sales_intelligence_account&view_type=kanban"
+```
+
+## What you should see after F5
+
+- **All five columns** (New, Pending Review, Needs Context, Approved, Rejected), including empty ones. I also removed the default "Pending Review" filter so every column is visible, and that is why clicking Approve now moves a card across instead of making it vanish.
+- **New filters** in the search bar: Unreviewed, My Reviews, Reviewed Last 7 Days, No Linked Contact, Has Direct Evidence, Stage Unclear.
+- **Extra view buttons** in the top-right switcher: pivot, graph and activity.
+- A **clock icon** on each card for scheduling follow-ups.
+
+## Things I'm unsure about
+
+- Showing empty columns depends on `group_expand` working on a selection field in Odoo 13. I believe it does, but if the empty columns still don't show, tell me.
+- The "Reviewed Last 7 Days" filter uses date logic in the filter's domain, and it's the likeliest place for a view error.
+
+## If something breaks
+
+Paste the last 15 lines of the upgrade output. To roll back everything:
+
+```powershell
+Copy-Item "$py.bak" $py -Force
+Copy-Item "$path.bak2" $path -Force
+docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+docker compose restart odoo
+```

@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 13:57:33 EDT"
+updated_at: "2026-10-13 14:27:35 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1319,3 +1319,26 @@ Sales knowledge is scattered across many Claude conversations and wiki pages. No
 We got the Odoo part running on your computer, loaded the scan, and improved the review board so it's easier and safer to use.
 
 If you want, I can write a 3-sentence version of this for your conversation with Jaskeerat.
+
+## User (2026-10-13 14:25:05 EDT)
+
+Now create a log note for the work we have done till today for this task and its related task and then give me the log note in a very professional manner but it should look like it is  written by an intern and give me 9 bullets for this
+
+## Claude (2026-10-13 14:25:12 EDT)
+
+**Log Note: Sales Specialist (Sales-Specialist.zip) Review and Local Setup**
+Date: 13 October 2026
+
+- Reviewed the full Sales-Specialist.zip: the plan and checklist documents, the Odoo `sales_intelligence` module, the scripts, the 2026-09-23 scanner output (9 companies, 25 briefs) and the four pilot company cards with their evidence files.
+- Confirmed from the code and the database dump that the module has **no automations or scheduled jobs**, and that the kanban views have **no banners**, only badges that fill in after a manual scan sync.
+- Inspected the AskCruz database dump (about 50 MB, 514 tables). It is **Odoo 13**, so my earlier Odoo 16 assumption was wrong, and the setup was rebuilt for Odoo 13 with Postgres 12. The dump also contains HR and compensation tables, so it should be handled only locally.
+- Set up the local Docker environment. The first attempt failed because of a leftover Postgres 15 volume. After wiping the volumes, `sales_intelligence` installed cleanly with all 20 modules loaded.
+- Identified gaps in the zip that block parts of the workflow: the scanner service, `docker-compose.yml`, `push-to-odoo-rpc.js` and the contact export JSON are missing. "Run live scan" therefore cannot work locally, and only the saved scan file can be imported.
+- Redesigned the Scanner Reviews kanban cards (risk colours, evidence counts, linked contact, suggested next action, and Approve / Needs Context / Reject buttons). The upgrade for this change ran without view errors.
+- Prepared and ran further board changes: a Scanner Reviews menu entry in the module XML, extra search filters, activities, pivot and graph views, all review-state columns shown, and a fix so Reviewer and Reviewed date are filled however a card moves. **Output for these scripts has not yet been checked, so each still needs to be verified in the UI.**
+- Fixed the logic so re-importing a scan no longer resets existing review decisions to Pending Review. This is also **pending verification**, using the re-import test (expected output: 0 created, 9 updated).
+- Open items for discussion with Jaskeerat and the team lead:
+  - the missing scanner files
+  - permissions, since any internal user can currently edit or delete reviews
+  - scanner noise, such as "AskCruz hiring" labelled "Likely active client"
+  - the four company cards, which are still empty templates

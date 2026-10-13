@@ -15,7 +15,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Optional
 
-from .config import GIT_DIR, STATE_DB, STORAGE, USERNAME
+from .config import GIT_DIR, STATE_DB, STORAGE, UNKNOWN_USER, USERNAME
 from .models import Conversation, ExtensionIngestPayload, Message
 
 SCHEMA = """
@@ -150,7 +150,7 @@ def save_conversation_atomic(conv: Conversation) -> bool:
     COMMIT
     """
     conv_hash = compute_conversation_hash(conv)
-    uname = conv.user_id or conv.username or USERNAME or "shubham"
+    uname = conv.user_id or conv.username or USERNAME or UNKNOWN_USER
 
     with conn() as c:
         # Check if identical snapshot was already queued/completed
@@ -432,7 +432,7 @@ def ingest_extension(payload: ExtensionIngestPayload, effective_user: str) -> di
     - Updates client heartbeat metrics with last sync receipt.
     """
     # Identity comes from the authenticated caller first; the body's user_id is only a fallback.
-    user = effective_user or payload.user_id or USERNAME or "shubham"
+    user = effective_user or payload.user_id or USERNAME or UNKNOWN_USER
     now_str = datetime.now().isoformat()
     
     # 1. Sanitize incoming messages: strictly filter out empty messages
@@ -556,7 +556,7 @@ def get_committed_conversations(user_id: str = "") -> dict[str, str]:
             result[r["id"]] = r["updated_at"] or "committed"
 
     # Also scan Git markdown files
-    uname = (user_id or USERNAME or "shubham").strip().lower()
+    uname = (user_id or USERNAME or UNKNOWN_USER).strip().lower()
     conv_dir = GIT_DIR / uname / "claude"
     if conv_dir.exists():
         for f in conv_dir.glob("*.md"):

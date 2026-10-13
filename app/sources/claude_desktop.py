@@ -6,7 +6,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ..config import CLAUDE_PROJECTS, USERNAME
+from ..config import CLAUDE_PROJECTS, UNKNOWN_USER, USERNAME
 from ..models import Conversation, Message
 
 _INJECTED = re.compile(r"<(ide_[a-z_]+|system-reminder|pasted_content)\b[^>]*>.*?</\1[^>]*>", re.S)
@@ -122,8 +122,8 @@ class ClaudeDesktopSource:
                     id=thread_id,
                     external_conversation_id=thread_id,
                     platform="claude",
-                    user_id=USERNAME or "shubham",
-                    username=USERNAME or "shubham",
+                    user_id=USERNAME or UNKNOWN_USER,
+                    username=USERNAME or UNKNOWN_USER,
                     title=title,
                     created_at=msgs[0].timestamp or mtime,
                     updated_at=mtime,

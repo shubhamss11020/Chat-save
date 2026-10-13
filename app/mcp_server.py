@@ -6,6 +6,7 @@ from mcp.server.transport_security import TransportSecuritySettings
 
 from . import gitstore
 from .auth import current_user
+from .config import ADMIN_USERS
 from .models import Conversation, Message
 
 mcp = FastMCP(
@@ -87,22 +88,50 @@ async def checkpoint(thread_name: str = "conversation") -> str:
     return f"Checkpoint noted for thread '{thread_name}'."
 
 
+DENIED = "Not allowed: you can only access your own transcripts."
+
+
+def _scope(requested: str) -> tuple[bool, str]:
+    """Decide which user's archive a read may touch. Returns (allowed, user_filter).
+
+    - Open server (no auth configured) or an admin: any user, "" means everyone.
+    - Anyone else: only their own archive, whatever `requested` says.
+    """
+    caller = gitstore._user_folder(current_user.get())
+    requested = gitstore._user_folder(requested)
+    if not caller or caller in ADMIN_USERS:
+        return True, requested
+    if requested and requested != caller:
+        return False, caller
+    return True, caller
+
+
 @mcp.tool()
 async def search_chat_transcripts(query: str, user: str = "") -> str:
     """Search saved Claude chat transcripts by topic, keyword, or content."""
-    return await asyncio.to_thread(gitstore.search_transcripts, query, user)
+    allowed, scope = _scope(user)
+    if not allowed:
+        return DENIED
+    return await asyncio.to_thread(gitstore.search_transcripts, query, scope)
 
 
 @mcp.tool()
 async def list_chat_transcripts(user: str = "") -> str:
     """List all saved chat transcripts, newest first."""
-    return await asyncio.to_thread(gitstore.list_transcripts, user)
+    allowed, scope = _scope(user)
+    if not allowed:
+        return DENIED
+    return await asyncio.to_thread(gitstore.list_transcripts, scope)
 
 
 @mcp.tool()
 async def get_chat_transcript(file_path: str) -> str:
     """Read the full content of a saved chat transcript."""
-    return await asyncio.to_thread(gitstore.get_transcript, file_path)
+    allowed, scope = _scope("")
+    if not allowed:
+        return DENIED
+    owner = scope or None  # None = admin/open server: any folder
+    return await asyncio.to_thread(gitstore.get_transcript, file_path, owner)
 
 
 

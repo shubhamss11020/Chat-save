@@ -17,8 +17,8 @@ class Conversation(BaseModel):
     id: str
     platform: Literal["chatgpt", "claude"] = "claude"
     external_conversation_id: Optional[str] = None
-    user_id: Optional[str] = "shubham"
-    username: Optional[str] = "shubham"
+    user_id: Optional[str] = None
+    username: Optional[str] = None
     title: str = "Untitled conversation"
     created_at: Optional[str] = ""
     updated_at: Optional[str] = ""

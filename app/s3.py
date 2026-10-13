@@ -2,11 +2,15 @@
 Supports AWS S3, Cloudflare R2, MinIO, and S3-compatible object storage.
 """
 import base64
+import ipaddress
 import logging
 import mimetypes
 import re
+import socket
 import time
+import urllib.request
 from typing import Optional
+from urllib.parse import urlsplit
 
 from .config import (
     S3_ACCESS_KEY_ID,
@@ -22,6 +26,40 @@ from .config import (
 logger = logging.getLogger(__name__)
 
 _s3_client = None
+
+MAX_REMOTE_ATTACHMENT_BYTES = 25 * 1024 * 1024
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse redirects: a public URL must not bounce the server to an internal address."""
+
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
+def is_safe_remote_url(url: str) -> bool:
+    """Only https URLs whose host resolves exclusively to public addresses.
+
+    Stops the server from being used to probe internal networks (SSRF) when an
+    attachment URL in a captured payload points at localhost, a LAN address or a
+    cloud metadata endpoint.
+    """
+    parts = urlsplit(url)
+    if parts.scheme != "https" or not parts.hostname:
+        return False
+    try:
+        infos = socket.getaddrinfo(parts.hostname, parts.port or 443, proto=socket.IPPROTO_TCP)
+    except OSError:
+        return False
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        if (ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
+                or ip.is_multicast or ip.is_unspecified):
+            return False
+    return True
 
 
 def is_s3_configured() -> bool:
@@ -294,14 +332,19 @@ def upload_attachment_data(
 
         # Case C: Remote HTTP URL - fetch actual bytes instead of saving URL string
         elif content_str.startswith("http://") or content_str.startswith("https://"):
+            if not is_safe_remote_url(content_str):
+                logger.warning("Refusing to fetch attachment URL %s (not https or not a public host)", content_str)
+                return None
             try:
-                import urllib.request
                 req = urllib.request.Request(content_str, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=10) as resp:
-                    raw_bytes = resp.read()
+                with _NO_REDIRECT_OPENER.open(req, timeout=10) as resp:
+                    raw_bytes = resp.read(MAX_REMOTE_ATTACHMENT_BYTES + 1)
                     remote_ct = resp.headers.get_content_type()
                     if remote_ct and "/" in remote_ct:
                         detected_mime = remote_ct
+                if len(raw_bytes) > MAX_REMOTE_ATTACHMENT_BYTES:
+                    logger.warning("Attachment %s exceeds %d bytes, skipping", content_str, MAX_REMOTE_ATTACHMENT_BYTES)
+                    return None
             except Exception as e:
                 logger.warning("Could not fetch remote attachment URL %s: %s", content_str, e)
                 return None

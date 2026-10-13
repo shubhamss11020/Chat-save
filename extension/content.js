@@ -770,7 +770,6 @@
       title: getConversationTitle(),
       platform: "claude",
       url: window.location.href,
-      user_id: detectedUser || undefined,
       messages: messages,
       files: files,
       is_final: !checkIsStreaming(),
@@ -1447,7 +1446,6 @@
               title: convMeta.name || "Untitled conversation",
               platform: "claude",
               url: `https://claude.ai/chat/${convMeta.uuid}`,
-              user_id: detectedUser || undefined,
               messages: messages,
               files: files,
               is_final: true,
@@ -1502,19 +1500,8 @@
       updateSidebarDots();
     }, 2500);
 
-    // Auto-detect Claude user from active session
-    resolveClaudeUser().then(user => {
-      if (user && isExtensionValid()) {
-        console.log("[Chat-Save] Auto-detected Claude session user:", user);
-        safeStorageGet("chatsave_config").then(d => {
-          const cfg = d.chatsave_config || {};
-          if (!cfg.userId || cfg.userId === "user" || cfg.userId === "unknown" || cfg.userId === "shubham") {
-            cfg.userId = user;
-            safeStorageSet({ chatsave_config: cfg });
-          }
-        });
-      }
-    });
+    // Identity is set by the server from the person's token (Options > Test Connection),
+    // so the page no longer guesses a username from the Claude session.
 
     // Start MutationObserver on chat body
     domObserver = new MutationObserver(onDomMutated);

@@ -18,7 +18,7 @@ function cell(text, { code = false, color = "" } = {}) {
 document.addEventListener("DOMContentLoaded", async () => {
   const serverUrlInput = document.getElementById("serverUrl");
   const authTokenInput = document.getElementById("authToken");
-  const userIdInput = document.getElementById("userId");
+  const identityEl = document.getElementById("identityValue");
   const autoSyncCheckbox = document.getElementById("autoSync");
   const btnToggleToken = document.getElementById("btnToggleToken");
   const btnSave = document.getElementById("btnSave");
@@ -45,14 +45,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   serverUrlInput.value = managed.serverUrl || localConfig.serverUrl || "http://localhost:8000";
   authTokenInput.value = managed.authToken || localConfig.authToken || "";
-  userIdInput.value = managed.userId || localConfig.userId || "shubham";
   autoSyncCheckbox.checked = managed.autoSync !== undefined ? managed.autoSync : (localConfig.autoSync !== undefined ? localConfig.autoSync : true);
+  showIdentity(localConfig.identity);
 
-  if (managed.serverUrl || managed.authToken || managed.userId) {
+  if (managed.serverUrl || managed.authToken) {
     managedBanner.style.display = "block";
     if (managed.serverUrl) serverUrlInput.disabled = true;
     if (managed.authToken) authTokenInput.disabled = true;
-    if (managed.userId) userIdInput.disabled = true;
   }
 
   // 2. Toggle password visibility
@@ -66,50 +65,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // 2b. Auto-detect user identity from active Claude session
-  const btnAutoDetect = document.getElementById("btnAutoDetect");
-  if (btnAutoDetect) {
-    btnAutoDetect.addEventListener("click", async () => {
-      btnAutoDetect.disabled = true;
-      btnAutoDetect.textContent = "Detecting...";
-
-      // Step 1: Check storage cache from content script
-      try {
-        const stored = await chrome.storage.local.get(["chatsave_detected_user", "chatsave_config"]);
-        if (stored.chatsave_detected_user) {
-          userIdInput.value = stored.chatsave_detected_user;
-          showAlert(`✓ Detected Claude session user: ${stored.chatsave_detected_user}`, "success");
-          btnAutoDetect.disabled = false;
-          btnAutoDetect.textContent = "Auto-Detect";
-          return;
-        }
-      } catch (e) {}
-
-      // Step 2: Ask background service worker to query active Claude tab
-      chrome.runtime.sendMessage({ type: "DETECT_USER" }, async (res) => {
-        btnAutoDetect.disabled = false;
-        btnAutoDetect.textContent = "Auto-Detect";
-
-        if (chrome.runtime.lastError) {
-          showAlert("Extension error: " + chrome.runtime.lastError.message, "error");
-          return;
-        }
-
-        if (res && res.success && res.user) {
-          userIdInput.value = res.user;
-          showAlert(`✓ Detected Claude session user: ${res.user}`, "success");
-          const cur = await chrome.storage.local.get("chatsave_config");
-          const cfg = cur.chatsave_config || {};
-          cfg.userId = res.user;
-          await chrome.storage.local.set({ chatsave_config: cfg, chatsave_detected_user: res.user });
-        } else {
-          const errMsg = res?.error || "Could not auto-detect Claude user. Please ensure claude.ai is open in Chrome and refresh the tab (F5).";
-          showAlert(errMsg, "error");
-        }
-      });
-    });
-  }
-
   // 3. Save Settings
   btnSave.addEventListener("click", async () => {
     const sUrl = serverUrlInput.value.trim().replace(/\/+$/, "");
@@ -118,11 +73,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // Host access is optional: ask for the backend's origin (must run inside this click, before any await).
+    let origin;
+    try {
+      origin = new URL(sUrl).origin + "/*";
+    } catch (e) {
+      showAlert("✕ Error: Server URL is not a valid address.", "error");
+      return;
+    }
+    const granted = await chrome.permissions.request({ origins: [origin] }).catch(() => false);
+    if (!granted) {
+      showAlert(`✕ Chrome did not grant access to ${origin}, so settings were not saved.`, "error");
+      return;
+    }
+
+    // Keep the identity last confirmed by the server; it is not editable here.
+    const previous = (await chrome.storage.local.get("chatsave_config")).chatsave_config || {};
+    const newToken = authTokenInput.value.trim();
+    const unchanged = previous.serverUrl === sUrl && previous.authToken === newToken;
     const configToSave = {
       serverUrl: sUrl,
-      authToken: authTokenInput.value.trim(),
-      userId: userIdInput.value.trim() || "user",
-      autoSync: autoSyncCheckbox.checked
+      authToken: newToken,
+      autoSync: autoSyncCheckbox.checked,
+      identity: unchanged ? (previous.identity || null) : null  // stale after a token/server change
     };
 
     await chrome.storage.local.set({ chatsave_config: configToSave });
@@ -156,14 +129,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
 
-      const data = await res.json();
-      showAlert(`✓ Connection successful! Server reported: ${JSON.stringify(data)}`, "success");
+      await res.json();
+      // Ask the server who this token belongs to. The name comes from the server, not the page.
+      const who = await fetch(`${url}/api/whoami`, { headers });
+      if (who.status === 401) {
+        throw new Error("the server rejected this token. Check it with your Chat-Save admin.");
+      }
+      if (!who.ok) throw new Error(`whoami failed: HTTP ${who.status}`);
+      const identity = await who.json();
+      showIdentity(identity.user, identity.token_bound);
+      await chrome.storage.local.set({
+        chatsave_config: {
+          serverUrl: url,
+          authToken: token,
+          autoSync: autoSyncCheckbox.checked,
+          identity: { user: identity.user, tokenBound: identity.token_bound }
+        }
+      });
+      showAlert(`✓ Connected as ${identity.user}${identity.token_bound ? "" : " (shared owner token)"}.`, "success");
     } catch (err) {
       showAlert(`✕ Connection failed: ${err.message}`, "error");
     } finally {
       btnTest.disabled = false;
     }
   });
+
+  /** Show who the server says this token belongs to. Text only, never HTML. */
+  function showIdentity(identity, tokenBound) {
+    identityEl.replaceChildren();
+    if (!identity || !identity.user) {
+      const s = document.createElement("strong");
+      s.textContent = "Not connected yet";
+      identityEl.append(s, document.createTextNode(" — click Test Connection."));
+      return;
+    }
+    const name = typeof identity === "string" ? identity : identity.user;
+    const bound = typeof identity === "string" ? tokenBound : identity.tokenBound;
+    const s = document.createElement("strong");
+    s.textContent = name;
+    identityEl.append(document.createTextNode("Signed in as "), s,
+      document.createTextNode(bound ? "" : " (shared owner token)"));
+  }
 
   function showAlert(msg, type) {
     alertBox.style.display = "block";

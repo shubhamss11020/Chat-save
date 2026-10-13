@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 from typing import Optional
 
 from . import s3
-from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, USERNAME
+from .config import GIT_BRANCH, GIT_DIR, GIT_EMAIL, GIT_NAME, GIT_REMOTE_URL, REPO_DIR, ROOT, UNKNOWN_USER, USERNAME
 from .models import Conversation, Message
 
 EASTERN = ZoneInfo("America/New_York")
@@ -43,18 +43,22 @@ def _format_to_edt(val: Optional[str]) -> str:
         return val_clean
 
 
-def _normalize_username(uname: Optional[str]) -> str:
-    """Normalize username into canonical lowercase folder name.
-    Strips email domains (e.g. shubham@company.com -> shubham) and cleans special characters.
-    """
-    if not uname:
-        return USERNAME or "shubham"
-    u = uname.strip().lower()
+def _user_folder(uname: Optional[str]) -> str:
+    """Canonical folder name for a user, with no fallback: domain dropped, unsafe chars -> '-'.
+    Use this to compare identities. Use _normalize_username to decide where to write."""
+    u = (uname or "").strip().lower()
     if "@" in u:
         u = u.split("@")[0]
-    u = re.sub(r"[^a-z0-9_-]+", "-", u).strip("-")
+    return re.sub(r"[^a-z0-9_-]+", "-", u).strip("-")
+
+
+def _normalize_username(uname: Optional[str]) -> str:
+    """Folder to write to. Missing or placeholder identities go to the owner, or 'unknown'."""
+    if not uname:
+        return USERNAME or UNKNOWN_USER
+    u = _user_folder(uname)
     if u in ("user", "unknown", "none", "null", ""):
-        return USERNAME or "shubham"
+        return USERNAME or UNKNOWN_USER
     return u
 
 
@@ -621,11 +625,15 @@ def _safe_transcript_path(file_path: str) -> Path | None:
     return None
 
 
-def get_transcript(file_path: str) -> str:
-    """Read a transcript by relative path."""
+def get_transcript(file_path: str, owner: str | None = None) -> str:
+    """Read a transcript by relative path. If `owner` is given, only that user's folder is readable."""
     with _lock:
         prepare()
         p = _safe_transcript_path(file_path)
         if p is None:
             return f"File not found: {file_path}"
+        if owner is not None:
+            first = p.relative_to(GIT_DIR.resolve()).parts[0]
+            if first != _user_folder(owner):
+                return f"File not found: {file_path}"
         return p.read_text(encoding="utf-8")

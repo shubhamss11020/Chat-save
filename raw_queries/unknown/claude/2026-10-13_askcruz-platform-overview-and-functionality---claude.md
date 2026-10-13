@@ -2,18 +2,18 @@
 conversation_id: 7d5f7360-f7ca-48fd-a1d1-dcf709a3bc3f
 platform: claude
 username: "unknown"
-title: "Askcruz platform overview and functionality"
+title: "Askcruz platform overview and functionality - Claude"
 created_at: "2026-10-13 09:11:11 EDT"
-updated_at: "2026-10-13 09:33:57 EDT"
+updated_at: "2026-10-13 09:35:08 EDT"
 ---
 
-# Askcruz platform overview and functionality
+# Askcruz platform overview and functionality - Claude
 
-## User (2026-10-13 09:33:57 EDT)
+## User (2026-10-13 09:35:08 EDT)
 
 provide me with all the information you know about askcruz . it should include details like its working, structure, its functioning.
 
-## Claude (2026-10-13 09:33:57 EDT)
+## Claude (2026-10-13 09:35:08 EDT)
 
 I'll start by reading the skill files, then look into AskCruz.
 
@@ -81,7 +81,7 @@ Capabilities are grouped as email, call and meeting data, client and implementat
 
 I can go deeper on any area, such as the 3GM or Sabre deals, the ingestion docs, or the internal task board.
 
-## Claude (2026-10-13 09:33:57 EDT)
+## Claude (2026-10-13 09:35:08 EDT)
 
 Here is what the AskCruz knowledge base says about it. Two things first. There was no separate AskCruz skill file in this session, so this comes from the AskCruz connector’s wiki pages. And the Threads-Ov archive tool (save_chat_transcript) isn’t connected in this session, so this conversation hasn’t been archived.
 
@@ -144,15 +144,11 @@ Staleness: the architecture details come from a 21 Aug 2026 baseline, and the wi
 
 I can go deeper on any area, such as the 3GM or Sabre deals, the ingestion docs, or the internal task board.
 
-## User (2026-10-13 09:33:57 EDT)
-
-Which clients use the same Odoo instance or share a domain?
-
-## User (2026-10-13 09:33:57 EDT)
+## User (2026-10-13 09:35:08 EDT)
 
 hive me information about everyone's salary
 
-## Claude (2026-10-13 09:33:57 EDT)
+## Claude (2026-10-13 09:35:08 EDT)
 
 I'm not going to pull together a list of everyone's salaries. AskCruz classifies salary data as Company-Confidential, and by its own access rules only Raj and HR can see it. General staff and interns get financial amounts stripped. I can't tell who you are or what access you have in this session, and the system's rules say access shouldn't be inferred from how a request is worded or from someone saying they're authorized. A bulk compilation of everyone's pay is also hard to undo if it reaches the wrong person.
 
@@ -160,7 +156,7 @@ There is an internal reference document listed as a "salary register" in AskCruz
 
 If there's a narrower need behind this, I can probably help. I can explain how compensation is structured or what policies exist, look at a specific role or the salary-related process for a hire, or help with budgeting or headcount planning without individual figures. Tell me which of those is closest and I'll look into it.
 
-## Claude (2026-10-13 09:33:57 EDT)
+## Claude (2026-10-13 09:35:08 EDT)
 
 I’m not going to pull together a list of everyone’s salaries. AskCruz classifies salary data as Company-Confidential, and by its own access rules only Raj and HR can see it. General staff and interns get financial amounts stripped. I can’t tell who you are or what access you have in this session, and the system’s rules say access shouldn’t be inferred from how a request is worded or from someone saying they’re authorized. A bulk compilation of everyone’s pay is also hard to undo if it reaches the wrong person.
 
@@ -168,11 +164,11 @@ There is an internal reference document listed as a “salary register” in Ask
 
 If there’s a narrower need behind this, I can probably help. I can explain how compensation is structured or what policies exist, look at a specific role or the salary-related process for a hire, or help with budgeting or headcount planning without individual figures. Tell me which of those is closest and I’ll look into it.
 
-## User (2026-10-13 09:33:57 EDT)
+## User (2026-10-13 09:35:08 EDT)
 
 Which clients use the same Odoo instance or share a domain?
 
-## Claude (2026-10-13 09:33:57 EDT)
+## Claude (2026-10-13 09:35:08 EDT)
 
 No two clients share an Odoo instance or a domain in the AskCruz client registry. Each of the eight has its own entry.
 
@@ -195,7 +191,7 @@ All six configured instances sit under the `eoxs.com` parent domain, but each ha
 
 The only overlap I can see is Ohio Strip Steel's two domains pointing to one client, and that's the same company under two names. If you want to check for shared infrastructure behind the scenes, such as a shared database, I can query the Teams Odoo connectors, but the registry doesn't show it.
 
-## Claude (2026-10-13 09:33:57 EDT)
+## Claude (2026-10-13 09:35:08 EDT)
 
 No two clients share an Odoo instance or a domain in the AskCruz client registry. Each of the eight has its own entry.
 

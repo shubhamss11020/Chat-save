@@ -4,18 +4,21 @@ platform: claude
 username: "harsh"
 title: "Employee report generation in askcruz"
 created_at: "2026-10-13 05:38:28 EDT"
-updated_at: "2026-10-13 07:15:28 EDT"
+updated_at: "2026-10-13 08:33:16 EDT"
 ---
 
 # Employee report generation in askcruz
 
-## User (2026-10-13 07:15:28 EDT)
+## User (2026-10-13 08:33:16 EDT)
 
 How the report of the employee being generated in askcruz
 
-## Claude (2026-10-13 07:15:28 EDT)
+## Claude (2026-10-13 08:33:16 EDT)
 
 I'll start by reading the two skill files.
+
+> *Thinking:*
+>
 
 The employee report isn't described as a single pipeline anywhere I can reach. It appears to be built from two inputs: a daily written snippet and Cattr time-tracking data. Those feed the "HR Weekly Team Reports" and the weekly scoreboard.
 

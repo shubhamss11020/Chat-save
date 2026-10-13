@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-13 12:04:21 EDT"
-updated_at: "2026-10-13 13:52:33 EDT"
+updated_at: "2026-10-13 13:57:33 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1275,3 +1275,47 @@ now tell me that what are the things that i can ask to my leader regarding this 
 13. Is the scan meant to run on a schedule? Today nothing triggers it.
 
 If it helps, I can turn this into a one-page summary for the meeting.
+
+## User (2026-10-13 13:52:53 EDT)
+
+No just tell me that what was this file for and help me understand it again
+
+## Claude (2026-10-13 13:53:01 EDT)
+
+## What the zip is for
+
+**In one sentence:** it's a prototype that helps the sales team keep track of which companies are real clients or prospects, using information already buried in your saved Claude chats and wiki notes.
+
+## The problem it tries to solve
+
+Sales knowledge is scattered across many Claude conversations and wiki pages. Nobody can quickly see which company is active, what the risks are, or what to do next. The plan was to build a Claude "sales associate" that gathers all of that in one place. The sales team could then check it, with Ayan as reviewer.
+
+## How it works, step by step
+
+1. **A scanner reads the chats and wiki.** It looks for company names, then gives each one a score, a guess at its stage (client or prospect), a risk level and a suggested next action. This result is saved as a JSON file, and the zip holds the one from Sept 23, covering 9 companies.
+2. **That file is loaded into Odoo.** Each company becomes a contact card, and a scanner review is attached to it.
+3. **The review shows up on the Scanner Reviews board.** Every company starts as "Pending Review".
+4. **A person checks it.** They read the evidence, then mark it Approved, Rejected or Needs Context.
+5. **Only approved facts should reach the official company cards.** That's the rule in the review checklist, so the scanner never becomes the source of truth on its own.
+
+## What's in the zip
+
+| Part | Plain meaning |
+|---|---|
+| Plan and checklist documents | The idea and the rules: draft-only emails, humans approve everything. |
+| `sales-intelligence/` | The scanner's output: the 9-company file and its supporting briefs. |
+| `company-cards/` and `thread-evidence/` | The pilot for 4 companies, with raw evidence collected. The cards themselves are still empty templates. |
+| `odoo/addons/sales_intelligence/` | The Odoo code that creates the review board and imports the scan. |
+| The `.dump.zst` file | A full copy of the real AskCruz Odoo database, which includes HR data. |
+
+## What we found
+
+- It's a **pilot**. The cards are empty and the scan has some bad matches, like "AskCruz hiring" labelled as a client.
+- **Nothing runs automatically.** A person has to start every step.
+- Key pieces aren't in the zip, such as the scanner itself, so we can only load the saved scan file, not run a new scan.
+
+## What we did with it
+
+We got the Odoo part running on your computer, loaded the scan, and improved the review board so it's easier and safer to use.
+
+If you want, I can write a 3-sentence version of this for your conversation with Jaskeerat.

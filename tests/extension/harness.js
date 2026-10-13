@@ -53,6 +53,8 @@ function makeSandbox(fetchImpl) {
   vm.runInContext(fs.readFileSync(path.join(EXT_DIR, "background.js"), "utf8"), ctx);
 
   store.chatsave_config = { serverUrl: "http://server.test", authToken: "", autoSync: true };
+  // Most tests are about saving, so they start with consent given. Consent tests remove it.
+  store.chatsave_consent = { accepted: true, version: 1, at: "2026-10-13T10:00:00Z" };
   return { ctx, store, listeners };
 }
 

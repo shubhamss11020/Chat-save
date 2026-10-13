@@ -10,6 +10,7 @@
   let observerThrottle = null;
   let lastCapturedHash = "";
   let hudElement = null;
+  let savingLabel = "Chat-Save";
   let hudStatus = "idle";
   let lastReceipt = null;
   let pendingCount = 0;
@@ -770,7 +771,7 @@
     root.innerHTML = `
       <div class="chatsave-badge" id="chatsave-badge">
         <span class="chatsave-dot"></span>
-        <span class="chatsave-label">Chat-Save</span>
+        <span class="chatsave-label" id="chatsave-saving-label">Chat-Save</span>
       </div>
       <div class="chatsave-popover" id="chatsave-popover" style="display: none;">
         <div class="chatsave-header">
@@ -794,9 +795,14 @@
             <span>Waiting to save:</span>
             <strong id="chatsave-pop-queue">0</strong>
           </div>
+          <div class="chatsave-row" id="chatsave-failed-row" style="display:none;">
+            <span>Could not save:</span>
+            <strong id="chatsave-pop-failed">0</strong>
+          </div>
         </div>
         <div class="chatsave-footer" style="display: flex; gap: 6px;">
           <button id="chatsave-btn-sync" class="chatsave-btn" style="flex: 1;">Sync Thread</button>
+          <button id="chatsave-btn-retry" class="chatsave-btn" style="flex: 1;">Try again</button>
         </div>
       </div>
     `;
@@ -808,6 +814,18 @@
     const popover = root.querySelector("#chatsave-popover");
     const closeBtn = root.querySelector("#chatsave-popover-close");
     const syncBtn = root.querySelector("#chatsave-btn-sync");
+    const retryBtn = root.querySelector("#chatsave-btn-retry");
+    retryBtn.addEventListener("click", () => {
+      retryBtn.disabled = true;
+      retryBtn.textContent = "Trying...";
+      safeSendMessage({ type: "RETRY_DEAD_LETTER" }, () => {
+        setTimeout(() => {
+          retryBtn.disabled = false;
+          retryBtn.textContent = "Try again";
+          fetchQueueStateAndUpdateSidebar();
+        }, 800);
+      });
+    });
 
     badge.addEventListener("click", () => {
       popover.style.display = popover.style.display === "none" ? "block" : "none";
@@ -856,7 +874,7 @@
       dot.style.background = "#10b981";
       setTimeout(() => {
         if (hudStatus === "synced") {
-          label.textContent = "Chat-Save";
+          label.textContent = savingLabel;
         }
       }, 4000);
     } else if (status === "offline") {
@@ -867,7 +885,7 @@
       label.textContent = "Could not save";
       dot.style.background = "#ef4444";
     } else {
-      label.textContent = "Chat-Save";
+      label.textContent = savingLabel;
       dot.style.background = "#10b981";
     }
 
@@ -906,6 +924,12 @@
     } else {
       pendingRow.style.display = "none";
     }
+
+    const failedRow = hudElement.querySelector("#chatsave-failed-row");
+    const popFailed = hudElement.querySelector("#chatsave-pop-failed");
+    const failedCount = currentDlqIds.size;
+    failedRow.style.display = failedCount > 0 ? "flex" : "none";
+    popFailed.textContent = `${failedCount} conversation(s)`;
   }
 
   // 11b. Claude Sidebar Queue & Sync Status Indicators
@@ -1011,6 +1035,7 @@
             currentDlqIds = new Set(msg.dlqIds);
           }
           updateSidebarDots();
+          updatePopoverData();  // keeps the waiting and failed counts current
 
           if (pendingCount > 0 && hudStatus !== "syncing") {
             updateHud("offline", { pendingCount });
@@ -1026,6 +1051,10 @@
   function init() {
     if (!isExtensionValid()) return;
     createHud();
+    refreshSavingLabel();
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local" && (changes.chatsave_consent || changes.chatsave_config)) refreshSavingLabel();
+    });
 
     // Fetch initial queue state and draw sidebar dots
     fetchQueueStateAndUpdateSidebar();
@@ -1034,7 +1063,21 @@
       updateSidebarDots();
     }, 2500);
 
-    // Identity is set by the server from the person's token (Options > Test Connection),
+    // Show plainly whether saving is on, so the person always knows.
+  async function refreshSavingLabel() {
+    const [c, cfg] = await Promise.all([
+      safeStorageGet("chatsave_consent"),
+      safeStorageGet("chatsave_config"),
+    ]);
+    const consent = c.chatsave_consent;
+    const on = Boolean(consent && consent.accepted && consent.version === 1) &&
+               (cfg.chatsave_config?.autoSync !== false);
+    savingLabel = on ? "Saving is on" : "Saving is off";
+    const label = hudElement && hudElement.querySelector(".chatsave-label");
+    if (label && hudStatus === "idle") label.textContent = savingLabel;
+  }
+
+  // Identity is set by the server from the person's token (Options > Test Connection),
     // so the page no longer guesses a username from the Claude session.
 
     // Start MutationObserver on chat body

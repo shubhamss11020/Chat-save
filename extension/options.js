@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   authTokenInput.value = managed.authToken || localConfig.authToken || "";
   autoSyncCheckbox.checked = managed.autoSync !== undefined ? managed.autoSync : (localConfig.autoSync !== undefined ? localConfig.autoSync : true);
   showIdentity(localConfig.identity);
+  loadConsentStatus();
 
   if (managed.serverUrl || managed.authToken) {
     managedBanner.style.display = "block";
@@ -152,6 +153,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     } finally {
       btnTest.disabled = false;
     }
+  });
+
+  /** Show whether the person agreed to saving, and let them withdraw that agreement. */
+  async function loadConsentStatus() {
+    const { chatsave_consent: c } = await chrome.storage.local.get("chatsave_consent");
+    const status = document.getElementById("consentStatus");
+    status.textContent = c && c.accepted
+      ? `You agreed to saving on ${new Date(c.at).toLocaleString()}.`
+      : "Saving is not turned on. Open the welcome page to agree.";
+  }
+
+  document.getElementById("btnWithdraw").addEventListener("click", async () => {
+    if (!confirm("Stop saving your chats? Nothing new will be saved until you agree again.")) return;
+    await chrome.storage.local.remove("chatsave_consent");
+    const cur = (await chrome.storage.local.get("chatsave_config")).chatsave_config || {};
+    await chrome.storage.local.set({ chatsave_config: { ...cur, autoSync: false } });
+    autoSyncCheckbox.checked = false;
+    loadConsentStatus();
+    showAlert("Saving is stopped. You can turn it on again from the welcome page.", "success");
   });
 
   /** Show who the server says this token belongs to. Text only, never HTML. */

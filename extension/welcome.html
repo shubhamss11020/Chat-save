@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Chat-Save</title>
+  <style>
+    :root {
+      --bg: #f4f6f8; --surface: #ffffff; --border: #dde3ea; --text: #1f2a37; --text-muted: #5f6b7a;
+      --accent: #2f5d8a; --accent-hover: #264d74; --ok: #2e7d5b;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #101418; --surface: #171c22; --border: #2a323c; --text: #e6e9ee; --text-muted: #9aa5b1;
+        --accent: #6c93bf; --accent-hover: #86a9d1; --ok: #5fb392;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 40px 20px; font-size: 15px; line-height: 1.55; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 28px 30px; max-width: 620px; width: 100%; }
+    h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    h2 { font-size: 15px; font-weight: 600; margin: 20px 0 6px; }
+    p, li { color: var(--text); }
+    ul { padding-left: 20px; }
+    .muted { color: var(--text-muted); font-size: 13px; }
+    .consent { margin-top: 22px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; }
+    .consent input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--accent); }
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn { padding: 10px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; border: 1px solid transparent; cursor: pointer; }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-secondary { background: transparent; color: var(--text); border-color: var(--border); }
+    .done { display: none; margin-top: 20px; color: var(--ok); font-weight: 600; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Chat-Save will save your Claude chats</h1>
+    <p class="muted">Please read this before you continue.</p>
+
+    <h2>What is saved</h2>
+    <ul>
+      <li>Every conversation you have on claude.ai, including messages and files you attach.</li>
+      <li>Chats from the Claude web, desktop and phone apps on your account.</li>
+    </ul>
+
+    <h2>Where it goes</h2>
+    <ul>
+      <li>Sent over an encrypted connection to the Chat-Save server.</li>
+      <li>Stored there in a private database and private file storage.</li>
+      <li>Only the administrator can see every chat. You can see only your own.</li>
+    </ul>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>Nothing is saved until you press <strong>Start saving</strong> below.</li>
+      <li>You can pause saving at any time in the Chat-Save settings.</li>
+      <li>A label on claude.ai shows whether saving is on.</li>
+    </ul>
+
+    <p class="muted" style="margin-top: 14px;">
+      Full details: <a id="policyLink" href="#" target="_blank" rel="noopener">privacy policy</a>.
+    </p>
+
+    <label class="consent">
+      <input type="checkbox" id="agree">
+      <span>I understand my Claude chats will be saved to the Chat-Save archive, and I agree.</span>
+    </label>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="start" disabled>Start saving</button>
+      <button class="btn btn-secondary" id="notNow">Not now</button>
+    </div>
+
+    <p class="done" id="done">Saving is on. You can close this tab.</p>
+  </main>
+  <script src="welcome.js"></script>
+</body>
+</html>

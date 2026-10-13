@@ -17,6 +17,9 @@ let isProcessingQueue = false;
 // 1. Initialize client identity and alarms on install/startup
 chrome.runtime.onInstalled.addListener(async () => {
   await getClientId();
+  if (!(await hasConsent())) {
+    chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+  }
   chrome.alarms.create("chatsave_queue_worker", { periodInMinutes: 1 });
   chrome.alarms.create("chatsave_heartbeat", { periodInMinutes: 5 });
   chrome.alarms.create("chatsave_reconcile_worker", { periodInMinutes: RECONCILE_EVERY_MINUTES });
@@ -59,6 +62,16 @@ async function getClientId() {
  * Resolves configuration:
  * Managed policy (enterprise IT) > Sync storage > Local storage > Defaults
  */
+// Saving only happens after the person has agreed on the welcome page. Bump CONSENT_VERSION
+// when the privacy policy changes, so people are asked again.
+const CONSENT_VERSION = 1;
+
+async function hasConsent() {
+  const data = await chrome.storage.local.get("chatsave_consent");
+  const c = data.chatsave_consent;
+  return Boolean(c && c.accepted && c.version === CONSENT_VERSION);
+}
+
 async function getConfig() {
   let managed = {};
   try {
@@ -571,6 +584,10 @@ function broadcastToTabs(message) {
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   if (req.type === "INGEST_CONVERSATION") {
     getConfig().then(async (config) => {
+      if (!(await hasConsent())) {
+        sendResponse({ queued: false, reason: "no_consent" });
+        return;
+      }
       if (!config.autoSync && !req.force) {
         sendResponse({ queued: false, reason: "auto_sync_disabled" });
         return;

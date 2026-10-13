@@ -147,6 +147,9 @@ function buildCloudPayload(meta, detail) {
  * A conversation counts as saved only after the server accepts it (see processQueue).
  */
 async function reconcileFromCloud(maxDays = 2) {
+  if (!(await hasConsent())) {
+    return { success: false, error: "Saving is not turned on. Open the Chat-Save welcome page to start." };
+  }
   if (reconcileRunning) return { success: false, reason: "already running" };
   if (Date.now() - lastReconcileStarted < RECONCILE_MIN_GAP_MS) {
     return { success: true, enqueued: 0, reason: "ran recently" };

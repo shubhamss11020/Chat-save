@@ -4,18 +4,21 @@ platform: claude
 username: "harsh"
 title: "EOXS and AskCruz connection"
 created_at: "2026-10-12 16:25:22 EDT"
-updated_at: "2026-10-13 07:15:31 EDT"
+updated_at: "2026-10-13 08:33:33 EDT"
 ---
 
 # EOXS and AskCruz connection
 
-## User (2026-10-13 07:15:31 EDT)
+## User (2026-10-13 08:33:33 EDT)
 
 what about eoxs and askcruz how they are linked to each other on what aspects
 
-## Claude (2026-10-13 07:15:31 EDT)
+## Claude (2026-10-13 08:33:33 EDT)
 
 I'll start by reading the two skill files, then look into how EOXS and AskCruz relate.
+
+> *Thinking:*
+>
 
 EOXS is the steel ERP company, and AskCruz is the AI knowledge product that grew out of it. They share the same people, customers and sales motion, but AskCruz is now being aimed beyond steel.
 
@@ -37,11 +40,11 @@ I can go deeper on any one angle, such as the 3GM deal or the vertical rollout.
 
 Sources: EOXS Company Overview (asset); wiki pages "3GM Steel — Invoice History", "3GM Steel — AskCruz (Company Brain) Proposal Call", "Collier Metals", "Three D Metals", "Sabre Alloys — Invoice History", "AskCruz Marketing — Ron's Priorities Through Oct 12, 2026"; "AskCruz Mailbox Rollout — August 2026 Intern Cohort".
 
-## User (2026-10-13 07:15:31 EDT)
+## User (2026-10-13 08:33:33 EDT)
 
 ok give me detail about brannon steel
 
-## Claude (2026-10-13 07:15:31 EDT)
+## Claude (2026-10-13 08:33:33 EDT)
 
 Brannon Steel is EOXS's first Canadian client and its first standalone AI-only engagement (MTR AI, not the full ERP). The deal was won on January 20, 2026, and the account is still active with a new add-on signed in September.
 
@@ -80,11 +83,14 @@ All dollar amounts are hidden in this session. No implementation tasks appear fo
 
 Sources: client profile (brannon-steel); wiki pages "Brannon Steel — CRM Record", "MTR AI: Algoma Join Report & Pre-Purchase MTR–Spec Verification" (email 215), "MTR Inventory Module: Escalation vs. Ticket Status Conflict" (email 79), "MTR AI Implementation Huddles Mar–Jun 2026 (Call Log)", and the Ohio Strip Steel page.
 
-## User (2026-10-13 07:15:31 EDT)
+## User (2026-10-13 08:33:33 EDT)
 
 give for 3gm
 
-## Claude (2026-10-13 07:15:31 EDT)
+## Claude (2026-10-13 08:33:33 EDT)
+
+> *Thinking:*
+>
 
 3GM Steel has been an EOXS ERP client since 2022, and in 2026 it also became an AskCruz (Company Brain) customer at a reduced scope. Its ERP support load is currently heavy, mostly recurring invoice and inventory bugs.
 

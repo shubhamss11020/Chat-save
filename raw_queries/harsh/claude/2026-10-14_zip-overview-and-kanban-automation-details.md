@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-14 08:34:00 EDT"
-updated_at: "2026-10-14 08:44:21 EDT"
+updated_at: "2026-10-14 08:49:20 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -2210,3 +2210,257 @@ I built the wiki on PGlite, a Postgres engine that runs inside Node. It's good f
 If you mean "put more data in it", the loading is done with the folder-import snippet from earlier. Point it at a folder of your real notes, and it loads every `.md` and `.txt` file as a page.
 
 Which of these did you mean? If it's the third, how many pages and what kind of content?
+
+## User (2026-10-14 08:46:24 EDT)
+
+increase the no. of pages in the wiki  and then give me the codes for that again from the start
+
+## Claude (2026-10-14 08:47:31 EDT)
+
+> *Thinking:*
+>
+
+I'm expanding the sample data to 12 accounts and testing it with the real scanner before giving you the full code.
+
+Done. The seed now creates 12 accounts (5 clients and 7 prospects), each with a wiki page and a thread of 2 messages. That makes 12 pages, 12 threads and 24 messages in total. I ran the zip's real scanner against this exact server, and it found all 12 accounts and split them into 5 likely clients and 7 likely prospects.
+
+This script starts from scratch. It removes the old wiki container and its data volume, so any pages you added earlier, like the Sabre test page, are deleted. All the sample content is marked `[SAMPLE]`.
+
+```powershell
+cd C:\dev\Sales-Specialist
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$root = (Get-Location).Path
+New-Item -ItemType Directory -Force personal-wiki | Out-Null
+
+# 0. Clean start (removes any older wiki container + its data)
+docker rm -f personal-wiki 2>$null | Out-Null
+docker volume rm personal_wiki_data 2>$null | Out-Null
+
+# 1. package.json
+$pkg = @'
+{
+  "name": "personal-wiki-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@electric-sql/pglite": "0.2.17"
+  }
+}
+'@
+[IO.File]::WriteAllText("$root\personal-wiki\package.json", $pkg, $utf8)
+
+# 2. server.js
+$server = @'
+import http from "node:http";
+import { PGlite } from "@electric-sql/pglite";
+
+const PORT = Number(process.env.PORT || 3100);
+const TOKEN = process.env.PERSONAL_WIKI_TOKEN || "local-wiki-token";
+const DATA_DIR = process.env.DATA_DIR || "./data";
+const SEED = String(process.env.SEED_SAMPLE ?? "true") === "true";
+
+const db = new PGlite(DATA_DIR);
+await db.waitReady;
+
+await db.exec(`
+  CREATE SCHEMA IF NOT EXISTS wiki;
+  DO $$ BEGIN
+    CREATE TYPE wiki.page_type AS ENUM ('client','prospect','note','topic');
+  EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+  CREATE TABLE IF NOT EXISTS wiki.pages (
+    id serial PRIMARY KEY, title text NOT NULL,
+    page_type wiki.page_type NOT NULL DEFAULT 'note',
+    entity_class text, entity_name text, body text NOT NULL DEFAULT '',
+    created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS public.threads (
+    id serial PRIMARY KEY, username text, thread_name text,
+    created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS public.thread_messages (
+    id serial PRIMARY KEY, thread_id int REFERENCES public.threads(id) ON DELETE CASCADE,
+    role text DEFAULT 'user', content text NOT NULL, created_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS wiki.entity_refs (
+    id serial PRIMARY KEY, entity_name text, entity_class text,
+    page_id int REFERENCES wiki.pages(id) ON DELETE CASCADE,
+    thread_id int REFERENCES public.threads(id) ON DELETE CASCADE);
+`);
+
+async function addPage({ title, body = "", page_type = "note", entity_class = null, entity_name = null }) {
+  const r = await db.query(
+    "INSERT INTO wiki.pages (title, body, page_type, entity_class, entity_name) VALUES ($1,$2,$3::wiki.page_type,$4,$5) RETURNING id",
+    [title, body, page_type, entity_class, entity_name],
+  );
+  const id = r.rows[0].id;
+  if (entity_name) {
+    await db.query("INSERT INTO wiki.entity_refs (entity_name, entity_class, page_id) VALUES ($1,$2,$3)", [entity_name, entity_class, id]);
+  }
+  return id;
+}
+
+async function addThread({ username = "me", thread_name, messages = [], entity_name = null, entity_class = "client" }) {
+  const t = await db.query("INSERT INTO public.threads (username, thread_name) VALUES ($1,$2) RETURNING id", [username, thread_name]);
+  const id = t.rows[0].id;
+  for (const m of messages) {
+    await db.query("INSERT INTO public.thread_messages (thread_id, role, content) VALUES ($1,$2,$3)", [id, m.role || "user", m.content ?? String(m)]);
+  }
+  if (entity_name) {
+    await db.query("INSERT INTO wiki.entity_refs (entity_name, entity_class, thread_id) VALUES ($1,$2,$3)", [entity_name, entity_class, id]);
+  }
+  return id;
+}
+
+async function seedSample() {
+  const n = await db.query("SELECT count(*)::int AS n FROM wiki.pages");
+  if (n.rows[0].n > 0) return;
+  const demo = [
+    ["Northwind Steel", "client", "Northwind Steel is an active client. Contract signed and implementation kickoff completed. Contact: Dana Reyes (COO), dana@northwindsteel.example. Onboarding is live for the sales team. Risk: inventory sync is delayed and the client is waiting on a fix. Next step: schedule a follow up call about the delayed sync."],
+    ["Globex Alloys", "client", "Globex Alloys is a paying customer and went live in the spring. Contact: Hank Moore (CFO). Invoicing is on schedule and the team is happy with the reports. Risk: one user reported a pricing error that is still open. Next step: confirm the fix and plan a renewal conversation."],
+    ["Initech Forgings", "client", "Initech Forgings signed the contract last month. Implementation kickoff is scheduled and the onboarding checklist was shared. Contact: Peter Gibbons (Operations Lead). Risk: key data migration is blocked until their ERP export arrives. Next step: follow up on the export."],
+    ["Umbrella Steel Supply", "client", "Umbrella Steel Supply is an active client with a live deployment. Contact: Alice Marsh (Plant Manager). Training sessions are completed. No open issues, but usage is low in the warehouse team. Next step: schedule a check-in call about adoption."],
+    ["Stark Industrial Supply", "client", "Stark Industrial Supply is a customer using the quoting module. Contact: Tony Reed (VP Sales). The contract renews in January. Risk: they asked about a competitor and the discount they were offered. Next step: prepare a renewal proposal."],
+    ["Wayne Metals", "prospect", "Wayne Metals is a prospect in the pipeline. A demo was held and the team liked the dashboards. Contact: Bruce Lane (Purchasing Manager). A proposal is being prepared. Next step: send the quote and follow up on Friday."],
+    ["Contoso Metals", "prospect", "Contoso Metals is a prospect in the pipeline. A demo was held and a proposal was sent for review. Contact: Lee Park (Plant Manager). Budget approval is blocked until next quarter. Next step: send a quote and follow up after the budget meeting."],
+    ["Fabrikam Pipe", "prospect", "Fabrikam Pipe asked for a pilot of the ERP. Outreach started with a cold call; the owner wants pricing before a demo. No decision yet and the contact has not replied to the last email."],
+    ["Wonka Manufacturing", "prospect", "Wonka Manufacturing is an opportunity from a referral. First call went well and they want a pilot for one production line. Contact: Violet Beau (IT Director). Risk: they are also talking to another vendor. Next step: book a demo this week."],
+    ["Acme Steel", "prospect", "Acme Steel replied to our outreach and asked for a proposal. Contact: Wile Coyote (Owner). Their current system is old and they are open to a pilot. No pricing has been shared yet. Next step: send the proposal and a case study."],
+    ["Hooli Materials", "prospect", "Hooli Materials attended a webinar and requested a demo. Contact: Gavin Bell (Operations). Decision maker is not confirmed. Risk: unclear budget and no timeline. Next step: qualify the lead with a discovery call."],
+    ["Vandelay Industries", "prospect", "Vandelay Industries is a long cold lead. Two follow up emails went unanswered and the contact may have left the company. Next step: find a new contact before more outreach."],
+  ];
+  for (const [name, cls, text] of demo) {
+    await addPage({ title: `${name} - account notes [SAMPLE]`, body: `[SAMPLE DATA] ${text}`, page_type: cls, entity_class: cls, entity_name: name });
+    await addThread({
+      username: "me", thread_name: `${name} follow up call prep [SAMPLE]`, entity_name: name, entity_class: cls,
+      messages: [
+        { content: `[SAMPLE DATA] Prep notes for ${name}: confirm next steps, owner, and the proposal status. They are a ${cls} account and the last meeting went well.` },
+        { role: "assistant", content: `[SAMPLE DATA] Suggested agenda for the ${name} call: review open items, confirm the decision maker, agree the next follow up date.` },
+      ],
+    });
+  }
+  console.log(`Seeded ${demo.length} SAMPLE accounts (set SEED_SAMPLE=false to skip).`);
+}
+if (SEED) await seedSample();
+
+function cell(v) {
+  if (v === null || v === undefined) return "";
+  const s = v instanceof Date ? v.toISOString() : String(v);
+  return s.replace(/\r?\n/g, " ").replace(/\|/g, "/").trim();
+}
+function toMarkdownTable(fields, rows) {
+  if (!rows.length) return "No rows.";
+  const head = fields.map((f) => f.name);
+  const out = [`| ${head.join(" | ")} |`, `| ${head.map(() => "---").join(" | ")} |`];
+  for (const row of rows) out.push(`| ${head.map((h) => cell(row[h])).join(" | ")} |`);
+  return out.join("\n");
+}
+function assertReadOnly(sql) {
+  const s = String(sql || "").trim().replace(/;+\s*$/, "");
+  if (!/^(select|with)\b/i.test(s) || s.includes(";")) throw new Error("Only a single read-only SELECT/WITH statement is allowed.");
+  return s;
+}
+
+const TOOLS = [
+  { name: "query", description: "Run one read-only SELECT and get rows back as a markdown table.", inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] } },
+  { name: "get_full_text", description: "Run a read-only SELECT returning one row and one column; returns that value as plain text.", inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] } },
+];
+
+async function callTool(name, args) {
+  const sql = assertReadOnly(args?.sql);
+  const res = await db.query(sql);
+  if (name === "query") return toMarkdownTable(res.fields, res.rows);
+  if (name === "get_full_text") {
+    if (res.rows.length !== 1 || res.fields.length !== 1) throw new Error("get_full_text needs exactly one row and one column.");
+    const v = res.rows[0][res.fields[0].name];
+    return v === null ? "" : String(v);
+  }
+  throw new Error(`Unknown tool: ${name}`);
+}
+
+function send(res, status, obj) {
+  const body = JSON.stringify(obj);
+  res.writeHead(status, { "content-type": "application/json; charset=utf-8", "content-length": Buffer.byteLength(body) });
+  res.end(body);
+}
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let b = "";
+    req.on("data", (c) => { b += c; if (b.length > 5 * 1024 * 1024) { reject(new Error("Body too large")); req.destroy(); } });
+    req.on("end", () => { try { resolve(b ? JSON.parse(b) : {}); } catch (e) { reject(e); } });
+    req.on("error", reject);
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.method === "GET" && req.url === "/health") return send(res, 200, { ok: true, service: "personal-wiki" });
+    if (req.headers.authorization !== TOKEN) return send(res, 401, { ok: false, error: "Unauthorized: send the token in the authorization header." });
+    const body = await readBody(req);
+
+    if (req.method === "POST" && req.url === "/pages") return send(res, 200, { ok: true, id: await addPage(body) });
+    if (req.method === "POST" && req.url === "/threads") return send(res, 200, { ok: true, id: await addThread(body) });
+
+    if (req.method === "POST" && req.url === "/mcp") {
+      const { id, method, params } = body;
+      if (method === "notifications/initialized") { res.writeHead(202); return res.end(); }
+      try {
+        let result;
+        if (method === "initialize") result = { protocolVersion: "2024-11-05", capabilities: { tools: {} }, serverInfo: { name: "personal-wiki", version: "0.1.0" } };
+        else if (method === "ping") result = {};
+        else if (method === "tools/list") result = { tools: TOOLS };
+        else if (method === "tools/call") result = { content: [{ type: "text", text: await callTool(params?.name, params?.arguments) }] };
+        else return send(res, 200, { jsonrpc: "2.0", id, error: { code: -32601, message: `Method not found: ${method}` } });
+        return send(res, 200, { jsonrpc: "2.0", id, result });
+      } catch (e) {
+        return send(res, 200, { jsonrpc: "2.0", id, error: { code: -32000, message: e.message } });
+      }
+    }
+    return send(res, 404, { ok: false, error: "Use POST /mcp, /pages or /threads, or GET /health." });
+  } catch (e) {
+    return send(res, 500, { ok: false, error: e.message });
+  }
+});
+server.listen(PORT, "0.0.0.0", () => console.log(`Personal wiki MCP listening on ${PORT}`));
+'@
+[IO.File]::WriteAllText("$root\personal-wiki\server.js", $server, $utf8)
+
+# 3. Start the wiki (with the 12 sample accounts)
+docker run -d --name personal-wiki --restart unless-stopped -p 3100:3100 `
+  -e PORT=3100 -e DATA_DIR=/data -e SEED_SAMPLE=true -e PERSONAL_WIKI_TOKEN=local-wiki-token `
+  -v "${root}\personal-wiki:/app" -v personal_wiki_data:/data -w /app `
+  node:20-alpine sh -c "npm install --omit=dev --no-audit --no-fund && node server.js"
+
+# 4. Wait until it answers
+for ($i = 0; $i -lt 40; $i++) {
+    try { Invoke-RestMethod http://localhost:3100/health -TimeoutSec 2; break } catch { Start-Sleep -Seconds 3 }
+}
+
+# 5. Check the counts and list the pages
+$h = @{ authorization = 'local-wiki-token' }
+function Invoke-WikiQuery($sql) {
+    $q = @{ jsonrpc = '2.0'; id = 1; method = 'tools/call'; params = @{ name = 'query'; arguments = @{ sql = $sql } } } | ConvertTo-Json -Depth 5
+    (Invoke-RestMethod -Uri http://localhost:3100/mcp -Method Post -Headers $h -ContentType 'application/json' -Body $q).result.content[0].text
+}
+Invoke-WikiQuery 'select (select count(*) from wiki.pages) as pages, (select count(*) from public.threads) as threads, (select count(*) from public.thread_messages) as messages'
+Invoke-WikiQuery 'select id, entity_class, title from wiki.pages order by id'
+```
+
+The first start takes about a minute while the container installs its one dependency. If the counts don't print, run `docker logs personal-wiki --tail 30` and paste the output.
+
+## Expected result
+
+The counts table should show **12 pages, 12 threads and 24 messages**. The page list should show Northwind Steel, Globex Alloys, Initech Forgings, Umbrella Steel Supply, Stark Industrial Supply (clients), then Wayne Metals, Contoso Metals, Fabrikam Pipe, Wonka Manufacturing, Acme Steel, Hooli Materials and Vandelay Industries (prospects).
+
+## Adding more pages yourself
+
+For one page:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:3100/pages -Method Post -Headers $h -ContentType 'application/json' -Body (@{
+    title = 'Sabre Alloys - account notes'; page_type = 'client'; entity_class = 'client'
+    entity_name = 'Sabre Alloys'; body = 'Write your real notes here.' } | ConvertTo-Json)
+```
+
+To bulk-import a folder of `.md` or `.txt` notes, use the folder-import snippet from my earlier message. Each file becomes one page, and the file name becomes the company name.
+
+Two reminders:
+- The wiki runs separately from the Odoo stack for now. Connecting it to the sync button is the next step.
+- The sample accounts are fake, so remove them before using real data. To start empty, change `SEED_SAMPLE=true` to `false` in the `docker run` command and run the script again.

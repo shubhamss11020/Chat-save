@@ -1,0 +1,122 @@
+PS C:\dev\Sales-Specialist> cd C:\dev\Sales-Specialist
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> $path = (Resolve-Path "odoo\addons\sales_intelligence\views\sales_intelligence_views.xml").Path
+PS C:\dev\Sales-Specialist> $xml  = [System.IO.File]::ReadAllText($path)
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> if ($xml -match 'records_draggable') {
+>>     Write-Host "Kanban already updated - nothing changed."
+>> } else {
+>>     Copy-Item $path "$path.bak" -Force      # backup before editing
+>>
+>> $newKanban = @'
+>> <record id="view_sales_intelligence_account_kanban" model="ir.ui.view">
+>>         <field name="name">sales.intelligence.account.kanban</field>
+>>         <field name="model">sales.intelligence.account</field>
+>>         <field name="arch" type="xml">
+>>             <kanban default_group_by="review_state" records_draggable="false" quick_create="false" group_create="false" group_delete="false" group_edit="false">
+>>                 <field name="name"/>
+>>                 <field name="score"/>
+>>                 <field name="inferred_stage"/>
+>>                 <field name="risk_level"/>
+>>                 <field name="confidence"/>
+>>                 <field name="last_scan_date"/>
+>>                 <field name="review_state"/>
+>>                 <field name="partner_id"/>
+>>                 <field name="suggested_next_action"/>
+>>                 <field name="direct_evidence_count"/>
+>>                 <field name="cross_reference_count"/>
+>>                 <field name="weak_evidence_count"/>
+>>                 <templates>
+>>                     <t t-name="kanban-box">
+>>                         <div class="oe_kanban_global_click">
+>>                             <div class="o_kanban_record_top">
+>>                                 <strong><field name="name"/></strong>
+>>                                 <span class="badge badge-primary"><field name="score"/></span>
+>>                             </div>
+>>                             <div class="mt-1">
+>>                                 <field name="inferred_stage"/>
+>>                             </div>
+>>                             <div class="mt-1">
+>>                                 <span t-attf-class="badge #{record.risk_level.raw_value == 'High' ? 'badge-danger' : (record.risk_level.raw_value == 'Medium' ? 'badge-warning' : (record.risk_level.raw_value == 'Low-medium' || record.risk_level.raw_value == 'Low' ? 'badge-success' : 'badge-secondary'))}">
+>>                                     Risk: <field name="risk_level"/>
+>>                                 </span>
+>>                                 <span class="text-muted ml-1">Confidence: <field name="confidence"/></span>
+>>                             </div>
+>>                             <div class="text-muted small mt-1">
+>>                                 Evidence: <field name="direct_evidence_count"/> direct | <field name="cross_reference_count"/> cross-ref | <field name="weak_evidence_count"/> weak
+>>                             </div>
+>>                             <div t-if="record.partner_id.raw_value" class="small mt-1">
+>>                                 Contact: <field name="partner_id"/>
+>>                             </div>
+>>                             <div t-if="record.suggested_next_action.raw_value" class="small mt-1">
+>>                                 <strong>Next:</strong> <t t-esc="(record.suggested_next_action.value || '').substring(0, 120)"/>
+>>                             </div>
+>>                             <div class="text-muted small mt-1">
+>>                                 Scan: <field name="last_scan_date"/>
+>>                             </div>
+>>                             <div class="mt-2">
+>>                                 <button t-if="record.review_state.raw_value != 'approved'" type="object" name="action_mark_approved" class="btn btn-sm btn-success">Approve</button>
+>>                                 <button t-if="record.review_state.raw_value != 'needs_context'" type="object" name="action_mark_needs_context" class="btn btn-sm btn-warning">Needs Context</button>
+>>                                 <button t-if="record.review_state.raw_value != 'rejected'" type="object" name="action_mark_rejected" class="btn btn-sm btn-secondary">Reject</button>
+>>                             </div>
+>>                         </div>
+>>                     </t>
+>>                 </templates>
+>>             </kanban>
+>>         </field>
+>>     </record>
+>> '@
+>>
+>>     $pattern = '(?s)<record id="view_sales_intelligence_account_kanban".*?</record>'
+>>     if (-not [regex]::IsMatch($xml, $pattern)) { throw "Kanban record not found - file not changed." }
+>>     $updated = [regex]::Replace($xml, $pattern, { param($m) $newKanban })
+>>     [System.IO.File]::WriteAllText($path, $updated, (New-Object System.Text.UTF8Encoding($false)))
+>>     Write-Host "Kanban view updated."
+>> }
+Kanban view updated.
+PS C:\dev\Sales-Specialist>
+PS C:\dev\Sales-Specialist> # Verify, upgrade, restart
+PS C:\dev\Sales-Specialist> Select-String -Path $path -Pattern "records_draggable"
+
+odoo\addons\sales_intelligence\views\sales_intelligence_views.xml:30:            <kanban
+default_group_by="review_state" records_draggable="false" quick_create="false" group_create="false"
+group_delete="false" group_edit="false">
+
+
+PS C:\dev\Sales-Specialist> docker compose run --rm odoo odoo -d sales_intelligence -u sales_intelligence --stop-after-init
+[+]  1/1t 1/11
+ ✔ Container sales-specialist-db-1 Running                                                                          0.0s
+Container sales-specialist-odoo-run-70ec99a6aef2 Creating
+Container sales-specialist-odoo-run-70ec99a6aef2 Created
+2026-10-13 17:17:51,361 1 INFO ? odoo: Odoo version 13.0-20221005
+2026-10-13 17:17:51,361 1 INFO ? odoo: Using configuration file at /etc/odoo/odoo.conf
+2026-10-13 17:17:51,361 1 INFO ? odoo: addons paths: ['/usr/lib/python3/dist-packages/odoo/addons', '/var/lib/odoo/addons/13.0', '/mnt/extra-addons']
+2026-10-13 17:17:51,362 1 INFO ? odoo: database: odoo@db:5432
+2026-10-13 17:17:51,871 1 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltopdf binary at /usr/local/bin/wkhtmltopdf
+2026-10-13 17:17:52,497 1 INFO sales_intelligence odoo.modules.loading: loading 1 modules...
+2026-10-13 17:17:52,511 1 INFO sales_intelligence odoo.modules.loading: 1 modules loaded in 0.01s, 0 queries
+2026-10-13 17:17:52,678 1 INFO sales_intelligence odoo.modules.loading: updating modules list
+2026-10-13 17:17:52,702 1 INFO sales_intelligence odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a
+2026-10-13 17:17:54,095 1 INFO sales_intelligence odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Contact Intelligence Extension'] to user __system__ #1 via n/a
+2026-10-13 17:17:54,095 1 INFO sales_intelligence odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Contact Intelligence Extension'] to user __system__ #1 via n/a
+2026-10-13 17:17:55,245 1 INFO sales_intelligence odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user __system__ #1 via n/a
+2026-10-13 17:17:55,416 1 INFO sales_intelligence odoo.modules.loading: loading 20 modules...
+2026-10-13 17:17:56,350 1 INFO sales_intelligence odoo.modules.registry: module sales_intelligence: creating or updating database tables
+2026-10-13 17:17:59,019 1 WARNING sales_intelligence odoo.addons.base.models.ir_model: Two fields (job_position_id, function) of res.partner() have the same label: Job Position.
+2026-10-13 17:17:59,252 1 WARNING sales_intelligence odoo.addons.base.models.ir_model: Two fields (job_position_id, function) of res.users() have the same label: Job Position.
+2026-10-13 17:17:59,503 1 INFO sales_intelligence odoo.modules.loading: loading sales_intelligence/security/ir.model.access.csv
+2026-10-13 17:17:59,814 1 INFO sales_intelligence odoo.modules.loading: loading sales_intelligence/views/sales_intelligence_views.xml
+2026-10-13 17:18:00,559 1 INFO sales_intelligence odoo.modules.loading: loading sales_intelligence/wizard/import_wizard_views.xml
+2026-10-13 17:18:00,721 1 INFO sales_intelligence odoo.modules.loading: 20 modules loaded in 5.30s, 0 queries
+2026-10-13 17:18:01,064 1 INFO sales_intelligence odoo.modules.registry: verifying fields for every extended model
+2026-10-13 17:18:01,331 1 WARNING sales_intelligence odoo.addons.base.models.ir_model: Two fields (job_position_id, function) of res.users() have the same label: Job Position.
+2026-10-13 17:18:01,373 1 WARNING sales_intelligence odoo.addons.base.models.ir_model: Two fields (job_position_id, function) of res.partner() have the same label: Job Position.
+2026-10-13 17:18:01,765 1 INFO sales_intelligence odoo.modules.loading: Modules loaded.
+2026-10-13 17:18:01,776 1 INFO sales_intelligence odoo.service.server: Initiating shutdown
+2026-10-13 17:18:01,776 1 INFO sales_intelligence odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown.
+2026-10-13 17:18:01,777 1 INFO sales_intelligence odoo.sql_db: ConnectionPool(used=0/count=0/max=64): Closed 1 connections
+PS C:\dev\Sales-Specialist> docker compose restart odoo
+[+] restart 0/1
+ - Container sales-specialist-odoo-1 Restarting                                                                     4.0s
+PS C:\dev\Sales-Specialist> Start-Process "http://localhost:8070/web#action=sales_intelligence.action_sales_intelligence_account&view_type=kanban"
+PS C:\dev\Sales-Specialist>

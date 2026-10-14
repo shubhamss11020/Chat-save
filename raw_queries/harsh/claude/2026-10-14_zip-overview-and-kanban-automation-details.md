@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-14 08:34:00 EDT"
-updated_at: "2026-10-14 08:39:21 EDT"
+updated_at: "2026-10-14 08:44:21 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1874,3 +1874,339 @@ If the sync button gives an error, paste the message and `docker compose logs sc
 ## User (2026-10-14 08:38:14 EDT)
 
 I want to add my data from my wiki so tell me that how to that
+
+## Claude (2026-10-14 08:39:20 EDT)
+
+> *Thinking:*
+>
+
+First I'll write and test an importer that copies your pages and threads from the existing Thread Wiki into the personal wiki, so you get something that has actually run.
+
+The scanner crashed against the copied data. I'm looking at why.
+
+## User (2026-10-14 08:40:07 EDT)
+
+Listen I want it in a way where the data from my personal wiki not from Thread wiki
+
+## Claude (2026-10-14 08:40:28 EDT)
+
+> *Thinking:*
+>
+
+The setup I gave you already reads only from your personal wiki, and it never contacts Thread Wiki. The scanner uses the `.env` values, which I set to `THREAD_WIKI_MCP_URL=http://personal-wiki:3100/mcp` and `THREAD_WIKI_AUTH_TOKEN=local-wiki-token`. The `THREAD_WIKI_` names are only variable names in the zip's code, so the real Thread Wiki server isn't involved. The wiki currently holds only the 3 `[SAMPLE]` accounts, so the next step is loading your own data into it.
+
+## Confirm which wiki it reads
+
+```powershell
+cd C:\dev\Sales-Specialist
+docker compose exec scanner printenv THREAD_WIKI_MCP_URL
+```
+
+It should print `http://personal-wiki:3100/mcp`. If it shows `https://mcp.askcruz.com/...`, run `docker compose up -d scanner` to pick up the `.env` change.
+
+## 1. Remove the sample data
+
+```powershell
+docker compose rm -sf personal-wiki
+docker volume rm sales-specialist_personal_wiki_data
+Add-Content .env "`nPERSONAL_WIKI_SEED=false"
+docker compose up -d personal-wiki
+```
+
+## 2. Load your own notes
+
+This imports every `.md` and `.txt` file in a folder as one wiki page. The file name becomes the company name (`sabre-alloys.md` becomes "sabre alloys").
+
+```powershell
+$folder = 'C:\dev\my-notes'      # <- put your notes here
+$pageClass = 'client'            # use 'prospect' for prospect notes
+$h = @{ authorization = 'local-wiki-token' }
+
+Get-ChildItem $folder -Include *.md,*.txt -Recurse | ForEach-Object {
+    $name = ($_.BaseName -replace '[-_]', ' ')
+    $json = @{
+        title        = "$name - account notes"
+        body         = (Get-Content $_.FullName -Raw -Encoding UTF8)
+        page_type    = $pageClass
+        entity_class = $pageClass
+        entity_name  = $name
+    } | ConvertTo-Json
+    Invoke-RestMethod -Uri http://localhost:3100/pages -Method Post -Headers $h `
+        -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($json))
+}
+```
+
+Run it once for client notes and again with `$pageClass = 'prospect'` for prospects. The scanner only discovers a company if its page is classed as client, prospect or company, or its title contains sales words like "demo", "proposal" or "follow up". You can also add a single page by hand with the `/pages` example from my last message.
+
+## 3. Run the sync
+
+In Odoo, open **Contacts**, open any contact, then **Scanner → Sync Latest Scan → Run Live Scan & Sync**. The cards and badges are then built from the pages you loaded.
+
+## Things to know
+
+- **Labels still say Thread Wiki.** The zip's code writes `Thread Wiki MCP` in the JSON's source field and uses source types like `wiki.page` and `thread`. That is naming only, and the data still comes from your wiki.
+- **If you already have your own wiki or connector:** if you meant an existing personal wiki, I need to know what it is. Tell me its URL and how it's accessed. It would have to answer the same two queries (`query` and `get_full_text` over those four tables), or I'd write an adapter for it.
+
+## User (2026-10-14 08:41:38 EDT)
+
+I do not have a current any wiki so first let's create that okay
+
+## Claude (2026-10-14 08:42:14 EDT)
+
+> *Thinking:*
+>
+
+You don't need an existing wiki, because this step creates one. It's a small wiki service of your own that runs in Docker, stores its data in a Docker volume, and can be filled with your notes. I tested this same code here against the zip's scanner. This version runs the wiki by itself first, with no Odoo, so you can check it works before we connect anything.
+
+If you already ran my previous big script, a wiki is already running at `localhost:3100`. In that case run `docker ps` to confirm it, and skip to "Add your first page" below.
+
+```powershell
+cd C:\dev\Sales-Specialist
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$root = (Get-Location).Path
+New-Item -ItemType Directory -Force personal-wiki | Out-Null
+
+$pkg = @'
+{
+  "name": "personal-wiki-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@electric-sql/pglite": "0.2.17"
+  }
+}
+'@
+[IO.File]::WriteAllText("$root\personal-wiki\package.json", $pkg, $utf8)
+
+$server = @'
+import http from "node:http";
+import { PGlite } from "@electric-sql/pglite";
+
+const PORT = Number(process.env.PORT || 3100);
+const TOKEN = process.env.PERSONAL_WIKI_TOKEN || "local-wiki-token";
+const DATA_DIR = process.env.DATA_DIR || "./data";
+const SEED = String(process.env.SEED_SAMPLE ?? "true") === "true";
+
+const db = new PGlite(DATA_DIR);
+await db.waitReady;
+
+await db.exec(`
+  CREATE SCHEMA IF NOT EXISTS wiki;
+  DO $$ BEGIN
+    CREATE TYPE wiki.page_type AS ENUM ('client','prospect','note','topic');
+  EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+  CREATE TABLE IF NOT EXISTS wiki.pages (
+    id serial PRIMARY KEY, title text NOT NULL,
+    page_type wiki.page_type NOT NULL DEFAULT 'note',
+    entity_class text, entity_name text, body text NOT NULL DEFAULT '',
+    created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS public.threads (
+    id serial PRIMARY KEY, username text, thread_name text,
+    created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS public.thread_messages (
+    id serial PRIMARY KEY, thread_id int REFERENCES public.threads(id) ON DELETE CASCADE,
+    role text DEFAULT 'user', content text NOT NULL, created_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS wiki.entity_refs (
+    id serial PRIMARY KEY, entity_name text, entity_class text,
+    page_id int REFERENCES wiki.pages(id) ON DELETE CASCADE,
+    thread_id int REFERENCES public.threads(id) ON DELETE CASCADE);
+`);
+
+async function addPage({ title, body = "", page_type = "note", entity_class = null, entity_name = null }) {
+  const r = await db.query(
+    "INSERT INTO wiki.pages (title, body, page_type, entity_class, entity_name) VALUES ($1,$2,$3::wiki.page_type,$4,$5) RETURNING id",
+    [title, body, page_type, entity_class, entity_name],
+  );
+  const id = r.rows[0].id;
+  if (entity_name) {
+    await db.query("INSERT INTO wiki.entity_refs (entity_name, entity_class, page_id) VALUES ($1,$2,$3)", [entity_name, entity_class, id]);
+  }
+  return id;
+}
+
+async function addThread({ username = "me", thread_name, messages = [], entity_name = null, entity_class = "client" }) {
+  const t = await db.query("INSERT INTO public.threads (username, thread_name) VALUES ($1,$2) RETURNING id", [username, thread_name]);
+  const id = t.rows[0].id;
+  for (const m of messages) {
+    await db.query("INSERT INTO public.thread_messages (thread_id, role, content) VALUES ($1,$2,$3)", [id, m.role || "user", m.content ?? String(m)]);
+  }
+  if (entity_name) {
+    await db.query("INSERT INTO wiki.entity_refs (entity_name, entity_class, thread_id) VALUES ($1,$2,$3)", [entity_name, entity_class, id]);
+  }
+  return id;
+}
+
+async function seedSample() {
+  const n = await db.query("SELECT count(*)::int AS n FROM wiki.pages");
+  if (n.rows[0].n > 0) return;
+  const demo = [
+    ["Northwind Steel", "client", "Northwind Steel is an active client. Contract signed and implementation kickoff completed. Contact: Dana Reyes (COO), dana@northwindsteel.example. Onboarding is live for the sales team. Risk: inventory sync is delayed and the client is waiting on a fix. Next step: schedule a follow up call about the delayed sync."],
+    ["Contoso Metals", "prospect", "Contoso Metals is a prospect in the pipeline. A demo was held and a proposal was sent for review. Contact: Lee Park (Plant Manager). Budget approval is blocked until next quarter. Next step: send a quote and follow up after the budget meeting."],
+    ["Fabrikam Pipe", "prospect", "Fabrikam Pipe asked for a pilot of the ERP. Outreach started with a cold call; the owner wants pricing before a demo. No decision yet and the contact has not replied to the last email."],
+  ];
+  for (const [name, cls, text] of demo) {
+    await addPage({ title: `${name} - account notes [SAMPLE]`, body: `[SAMPLE DATA] ${text}`, page_type: cls, entity_class: cls, entity_name: name });
+    await addThread({
+      username: "me", thread_name: `${name} follow up call prep [SAMPLE]`, entity_name: name, entity_class: cls,
+      messages: [{ content: `[SAMPLE DATA] Prep notes for ${name}: confirm next steps, owner, and the proposal status. They are a ${cls} account and the last meeting went well.` }],
+    });
+  }
+  console.log("Seeded 3 SAMPLE accounts (set SEED_SAMPLE=false to skip).");
+}
+if (SEED) await seedSample();
+
+function cell(v) {
+  if (v === null || v === undefined) return "";
+  const s = v instanceof Date ? v.toISOString() : String(v);
+  return s.replace(/\r?\n/g, " ").replace(/\|/g, "/").trim();
+}
+function toMarkdownTable(fields, rows) {
+  if (!rows.length) return "No rows.";
+  const head = fields.map((f) => f.name);
+  const out = [`| ${head.join(" | ")} |`, `| ${head.map(() => "---").join(" | ")} |`];
+  for (const row of rows) out.push(`| ${head.map((h) => cell(row[h])).join(" | ")} |`);
+  return out.join("\n");
+}
+function assertReadOnly(sql) {
+  const s = String(sql || "").trim().replace(/;+\s*$/, "");
+  if (!/^(select|with)\b/i.test(s) || s.includes(";")) throw new Error("Only a single read-only SELECT/WITH statement is allowed.");
+  return s;
+}
+
+const TOOLS = [
+  { name: "query", description: "Run one read-only SELECT and get rows back as a markdown table.", inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] } },
+  { name: "get_full_text", description: "Run a read-only SELECT returning one row and one column; returns that value as plain text.", inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] } },
+];
+
+async function callTool(name, args) {
+  const sql = assertReadOnly(args?.sql);
+  const res = await db.query(sql);
+  if (name === "query") return toMarkdownTable(res.fields, res.rows);
+  if (name === "get_full_text") {
+    if (res.rows.length !== 1 || res.fields.length !== 1) throw new Error("get_full_text needs exactly one row and one column.");
+    const v = res.rows[0][res.fields[0].name];
+    return v === null ? "" : String(v);
+  }
+  throw new Error(`Unknown tool: ${name}`);
+}
+
+function send(res, status, obj) {
+  const body = JSON.stringify(obj);
+  res.writeHead(status, { "content-type": "application/json; charset=utf-8", "content-length": Buffer.byteLength(body) });
+  res.end(body);
+}
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let b = "";
+    req.on("data", (c) => { b += c; if (b.length > 5 * 1024 * 1024) { reject(new Error("Body too large")); req.destroy(); } });
+    req.on("end", () => { try { resolve(b ? JSON.parse(b) : {}); } catch (e) { reject(e); } });
+    req.on("error", reject);
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.method === "GET" && req.url === "/health") return send(res, 200, { ok: true, service: "personal-wiki" });
+    if (req.headers.authorization !== TOKEN) return send(res, 401, { ok: false, error: "Unauthorized: send the token in the authorization header." });
+    const body = await readBody(req);
+
+    if (req.method === "POST" && req.url === "/pages") return send(res, 200, { ok: true, id: await addPage(body) });
+    if (req.method === "POST" && req.url === "/threads") return send(res, 200, { ok: true, id: await addThread(body) });
+
+    if (req.method === "POST" && req.url === "/mcp") {
+      const { id, method, params } = body;
+      if (method === "notifications/initialized") { res.writeHead(202); return res.end(); }
+      try {
+        let result;
+        if (method === "initialize") result = { protocolVersion: "2024-11-05", capabilities: { tools: {} }, serverInfo: { name: "personal-wiki", version: "0.1.0" } };
+        else if (method === "ping") result = {};
+        else if (method === "tools/list") result = { tools: TOOLS };
+        else if (method === "tools/call") result = { content: [{ type: "text", text: await callTool(params?.name, params?.arguments) }] };
+        else return send(res, 200, { jsonrpc: "2.0", id, error: { code: -32601, message: `Method not found: ${method}` } });
+        return send(res, 200, { jsonrpc: "2.0", id, result });
+      } catch (e) {
+        return send(res, 200, { jsonrpc: "2.0", id, error: { code: -32000, message: e.message } });
+      }
+    }
+    return send(res, 404, { ok: false, error: "Use POST /mcp, /pages or /threads, or GET /health." });
+  } catch (e) {
+    return send(res, 500, { ok: false, error: e.message });
+  }
+});
+server.listen(PORT, "0.0.0.0", () => console.log(`Personal wiki MCP listening on ${PORT}`));
+'@
+[IO.File]::WriteAllText("$root\personal-wiki\server.js", $server, $utf8)
+
+# Run the wiki on its own (no samples, data kept in a Docker volume)
+docker rm -f personal-wiki 2>$null | Out-Null
+docker run -d --name personal-wiki --restart unless-stopped -p 3100:3100 `
+  -e PORT=3100 -e DATA_DIR=/data -e SEED_SAMPLE=false -e PERSONAL_WIKI_TOKEN=local-wiki-token `
+  -v "${root}\personal-wiki:/app" -v personal_wiki_data:/data -w /app `
+  node:20-alpine sh -c "npm install --omit=dev --no-audit --no-fund && node server.js"
+
+# Wait until it answers
+for ($i = 0; $i -lt 40; $i++) {
+    try { Invoke-RestMethod http://localhost:3100/health -TimeoutSec 2; break } catch { Start-Sleep -Seconds 3 }
+}
+```
+
+The first start takes about a minute while the container installs its one dependency. If the health check never answers, run `docker logs personal-wiki --tail 30` and paste the output.
+
+## Add your first page and check it
+
+```powershell
+$h = @{ authorization = 'local-wiki-token' }
+Invoke-RestMethod -Uri http://localhost:3100/pages -Method Post -Headers $h -ContentType 'application/json' -Body (@{
+    title = 'Sabre Alloys - account notes'; page_type = 'client'; entity_class = 'client'
+    entity_name = 'Sabre Alloys'; body = 'Write your real notes about this company here.' } | ConvertTo-Json)
+
+$q = @{ jsonrpc = '2.0'; id = 1; method = 'tools/call'; params = @{ name = 'query'; arguments = @{ sql = 'select id, title, entity_class from wiki.pages' } } } | ConvertTo-Json -Depth 5
+(Invoke-RestMethod -Uri http://localhost:3100/mcp -Method Post -Headers $h -ContentType 'application/json' -Body $q).result.content[0].text
+```
+
+You should see a small table with your page in it. If so, the wiki is working and has your first entry.
+
+## What happens next
+
+1. Load your real notes with the folder-import snippet from my last message.
+2. Connect the wiki to the scanner and Odoo. I'll move it into the project's compose file so the sync button can reach it, and I'll set it up so the notes you've already loaded are kept.
+
+Add a few real pages first, then tell me and we'll do the connection.
+
+## User (2026-10-14 08:44:07 EDT)
+
+So increase the size the size of the wiki
+
+## Claude (2026-10-14 08:44:16 EDT)
+
+> *Thinking:*
+>
+
+"Size" can mean three things here. I've covered each, and only the first has a quick fix. I haven't tested the larger limit.
+
+## 1. Bigger pages and bigger uploads
+
+The only limit I put in the wiki is **5 MB per request**, so a single page or thread import can't be larger than that. This raises it to 50 MB:
+
+```powershell
+cd C:\dev\Sales-Specialist
+$f = "personal-wiki\server.js"
+(Get-Content $f -Raw) -replace '5 \* 1024 \* 1024', '50 * 1024 * 1024' | Set-Content $f -Encoding utf8 -NoNewline
+Select-String $f -Pattern "1024 \* 1024"        # should show 50
+docker restart personal-wiki
+```
+
+The server file is mounted into the container, so a restart is enough. If you started the wiki through the compose file, run `docker compose restart personal-wiki` instead.
+
+## 2. More total data
+
+The wiki has no cap on the number of pages. Its data sits in the Docker volume `personal_wiki_data`, so the real limits are your free disk space and Docker Desktop's virtual disk size, which you can raise under **Settings → Resources**.
+
+I built the wiki on PGlite, a Postgres engine that runs inside Node. It's good for notes and threads in the thousands, but it isn't meant for very large databases. If you plan to load gigabytes, tell me and I'll swap it for a normal Postgres container. The scanner's queries stay the same, because they're ordinary Postgres SQL.
+
+## 3. More content or sample data
+
+If you mean "put more data in it", the loading is done with the folder-import snippet from earlier. Point it at a folder of your real notes, and it loads every `.md` and `.txt` file as a page.
+
+Which of these did you mean? If it's the third, how many pages and what kind of content?

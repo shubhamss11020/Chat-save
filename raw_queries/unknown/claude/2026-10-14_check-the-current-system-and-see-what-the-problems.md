@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System problems and improvement ideas - Claude"
 created_at: "2026-10-14 09:29:43 EDT"
-updated_at: "2026-10-14 09:44:15 EDT"
+updated_at: "2026-10-14 09:53:30 EDT"
 ---
 
 # System problems and improvement ideas - Claude
 
-## User (2026-10-14 09:44:15 EDT)
+## User (2026-10-14 09:53:30 EDT)
 
 check the current system and see what the problems are that can be fixed in the current system and also give me some list of ideas by which our system can be improved with its limitations and working.
 
-## Claude (2026-10-14 09:44:15 EDT)
+## Claude (2026-10-14 09:53:30 EDT)
 
 I checked the AskCruz knowledge system: the thread archive, the synthesized wiki, and the pipeline between them. You didn’t say which system you meant, so I assumed this one. If you meant the Odoo/ERP side, tell me and I’ll audit that instead.
 
@@ -52,7 +52,7 @@ Two setup gaps this session: the askcruz skill file doesn’t exist at any path 
 
 Would you like me to start with the contradiction and dead-citation list, or with the uncited backlog?
 
-## User (2026-10-14 09:44:15 EDT)
+## User (2026-10-14 09:53:30 EDT)
 
 You are a product research analyst helping me (a product intern) understand AskCruzand find ways to improve it. Use the connected AskCruz tools (wiki, calls, emails,client profiles, implementation tasks, assets) and Threads-Wiki for past Claudeconversations. Always start with search_wiki and get_wiki_page, then drill into rawcalls, emails and tasks through each page's citations.
 
@@ -66,7 +66,7 @@ You are a product research analyst helping me (a product intern) understand AskC
 
 ## Constraints- Treat all material as internal and confidential. Don't include personal contact  details or salary data, and omit anything restricted.- Keep it concise. Prioritise insight over volume.- If a tool isn't connected or returns nothing, say so briefly and continue with  what you have.- Finish with 3 follow-up research questions I could ask you next.
 
-## Claude (2026-10-14 09:44:15 EDT)
+## Claude (2026-10-14 09:53:30 EDT)
 
 Research plan. I’ll start with search_wiki and get_wiki_page for the AskCruz product, pricing, clients, prospects, bugs and competitors. Then I’ll follow the citations into raw calls, emails and tasks. Finally I’ll check Threads-Wiki for what the team has already analysed, and the SOP and ICP assets for the documented-versus-actual gap.
 
@@ -152,3 +152,43 @@ Financial reporting is a Sabre ERP ask (quarter-over-quarter income statement co
 Which workflows (matching, forecasting, MTR, proposals) do prospects request most, and which could become a standard package?
 What did each lost or stalled deal say or do before going quiet, and what do those patterns suggest about the sales process?
 How do the 3GM and Sabre implementation timelines compare with the six-week plan in the proposals?
+
+## User (2026-10-14 09:53:30 EDT)
+
+give me ideas by which we can reduce the cost of the architecture of askcruz
+
+## Claude (2026-10-14 09:53:30 EDT)
+
+I couldn’t find a cost breakdown (the figures are restricted), so these ideas rest on the cost drivers that appear in the evidence. Savings sizes are not quantified. Items I’m inferring are marked (inference).
+
+Known cost drivers
+Conversation history is resent on every prompt. There is no native thread context, and the summary workaround costs more than native context handling [W1063].
+Every client seat carries a Claude subscription, and Claude hosting is billed separately by Anthropic [TW76 v2 terms].
+The knowledge pipeline runs an LLM at every stage: classification, synthesis, citation check, then human approval [W1893]. In the archive pipeline I checked earlier, 144 drafts needed rework and 53 were rejected. The archive also holds about 27k email threads and 2k calls, including 137k-character transcripts.
+Bespoke integrations and several separate servers. Servers and the vault migration compete for engineers [W1063, TW27 §7].
+There are no spend caps. The team cites a large bill at a four-person company as a cautionary example [TW27 §7].
+Ideas
+Idea	How it cuts cost	Effort	Risk or trade-off
+Prompt caching and a slim system prompt	Cache the stable system prompt, tool schemas and client glossary so the repeated part of each prompt is billed at a lower rate. Load tools only when needed.	S	Low
+Rolling context: recent turns plus retrieved facts	Stop resending whole threads. Keep the last few turns and pull the rest from the vault. This builds on the existing index → wiki → raw retrieval design.	M	Can lose nuance. Test against the earlier summary approach, which cost more.
+Trim tool results	Page wiki pages and calls in chunks (the tools already support offset and max_chars). Return summaries first and fetch raw text only on request.	S	Low
+Model routing by task	Use a small, cheap model for filtering, sensitivity classification and first-pass summaries, and the strongest model only for final answers. The team already evaluated per-task model routing [W1063].	M	Quality drops on hard questions. See the data-handling caveat below.
+Batch the synthesis jobs	The six-hour synthesis and reviewer passes are not interactive, so run them through a discounted batch tier.	M	Slower turnaround. The 6-hour freshness limit is already documented.
+Skip unchanged work in synthesis	Re-synthesize only when a source’s hash has changed. The archive already tracks cited length and hash per source.	S–M	Low
+Cut rework loops	mis_scoped is the top rework cause (74 drafts). Tighter scoping rules reduce repeated draft–review cycles.	M	Needs reviewer feedback fed back into the prompts
+Filter noise before the LLM	Newsletters, recruiting threads and duplicates show up in the archive and get processed anyway (inference). Drop them by sender type and rule, not by a contact allowlist. The allowlist approach already lost a real Discount Pipe thread [TW27 §9].	S	Needs a completeness audit so real mail isn’t dropped
+Pre-computed briefs and cached answers	Cache recurring questions per role or client, such as daily account summaries, instead of recomputing them on every ask (inference).	M	Stale answers. Show the refresh time.
+Send numeric questions to SQL	Totals and counts come straight from live ERP data, as the Oct 2 Sabre reply says [E70271], not from an LLM reading records.	S	Low
+Spend caps and cost attribution	Per-user and per-client daily token limits, plus a usage dashboard. Raj already named this a must-have [TW27 §7].	S–M	Caps can annoy heavy users. Use alerts first.
+Tiered query depth	Offer shallow, standard and deep answers with different cost ceilings. This is Raj’s articulated idea [TW27 §7].	M	Needs a user-facing explanation
+Consolidate infrastructure	Finish the Postgres vault migration. Use pgvector inside the same database instead of a separate vector store. Run one shared multi-tenant front end instead of a deployment per client.	M–L	Tenant isolation must be airtight because of per-client access control
+Productize onboarding	The six-week plan and the vault setup (1–2 weeks) become templates and scripts, reducing hands-on hours per client [TW76, TW27 §7].	M	Needs 2–3 clients to generalize from
+Fit pricing to cost	Charge by seat or usage with minimums. Email beyond the included volume is already billed per GB [TW76].	S	Price pushback is already a problem [TW76, TW129]
+Caveat on routing to other models
+
+Routing some work to other vendors or open-source models could conflict with the zero-data-retention agreement with Anthropic and the contract clause that client data is never used for training [TW27 §7, W2053]. Check the data-handling terms of any alternative model before sending client data to it.
+
+Where I’d start
+Measure first. Pull cost per user, per client and per pipeline stage, so you know whether chat prompts, synthesis, or infrastructure dominates.
+Do the cheap wins: prompt caching, trimmed tool results, and spend caps with alerts.
+Then test rolling context and model routing on one client, and compare cost and answer quality against the current setup before rolling out.

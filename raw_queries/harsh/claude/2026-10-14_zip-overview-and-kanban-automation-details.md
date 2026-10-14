@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-14 08:34:00 EDT"
-updated_at: "2026-10-14 08:34:20 EDT"
+updated_at: "2026-10-14 08:39:21 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -1563,3 +1563,314 @@ If the "-" lines still collapse into the line above after pasting, tell me and I
 ## User (2026-10-14 08:34:00 EDT)
 
 now listen I want to create a workflow for the sync button whenever I click on the sync button it automatically fetches the threads from the wiki and does its work and I want to connect a personal wiki for this and then tell me that will it automatically fetch the thread from the wiki and then create the badges for that yes or no and first we will create a wiki for this and we will create that wiki using powershell okay
+
+## Claude (2026-10-14 08:37:26 EDT)
+
+> *Thinking:*
+>
+
+First I'll re-check exactly what the sync button sends and expects back, so the answer is accurate.
+
+I need to correct something before answering: the zip does contain a scanner, a docker-compose file and an n8n workflow, which I told you were missing. I'm reading them now.
+
+Still working: I'm building the personal wiki server and testing it here against the zip's own scanner, so what I give you has actually run.
+
+Installed. Now I'm running the server and pointing the zip's real scanner at it.
+
+The scanner ran end to end against the personal wiki. I'm checking that its output is sensible.
+
+**Yes.** Once the stack below is running, clicking the sync button fetches the threads from your wiki and creates the cards and badges. The chain is:
+
+1. You click **Run Live Scan & Sync**.
+2. Odoo calls the `scanner` service.
+3. The scanner queries your wiki and writes a fresh JSON file.
+4. Odoo imports that JSON into the cards and badges.
+
+It runs on a click only. The timer is the n8n workflow, which I cover below.
+
+**Correction:** I told you the scanner service, `docker-compose.yml`, `push-to-odoo-rpc.js` and an n8n workflow were missing from the zip. That was wrong, because all of them are in it. The scanner is in `scripts/`, and there's a ready-made n8n workflow in `n8n/` with a daily schedule, a webhook and a manual trigger. It's inactive and defaults to dry-run. Also, my own `docker-compose.yml` overwrote the zip's one, which is why the live scan looked impossible. The script below restores theirs.
+
+**What I tested:** I built the personal wiki and ran the zip's real scanner against it here. It returned a correct JSON, with Northwind Steel as a likely client and the other two as prospects. The script below is the same code, but I haven't run the PowerShell or the Odoo button.
+
+**How the wiki works:** The scanner speaks the Thread Wiki's protocol (MCP tools `query` and `get_full_text` over the tables `wiki.pages`, `wiki.entity_refs`, `public.threads` and `public.thread_messages`). The personal wiki is a small Node service with those same tables, built on PGlite (Postgres compiled to WebAssembly), so it needs no separate Postgres container. It starts with 3 clearly marked `[SAMPLE]` accounts.
+
+```powershell
+cd C:\dev\Sales-Specialist
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$root = (Get-Location).Path
+
+# 1. Stop the old stack (data volumes are kept)
+docker compose down
+
+# 2. Restore the zip's own docker-compose.yml (my earlier one overwrote it)
+Copy-Item docker-compose.yml docker-compose.my-old.yml -Force
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$zip = [IO.Compression.ZipFile]::OpenRead("$HOME\Downloads\Sales-Specialist.zip")
+$entry = $zip.Entries | Where-Object { $_.FullName -eq 'Sales-Specialist/docker-compose.yml' }
+[IO.Compression.ZipFileExtensions]::ExtractToFile($entry, "$root\docker-compose.yml", $true)
+$zip.Dispose()
+
+# 3. Create the personal wiki
+New-Item -ItemType Directory -Force personal-wiki | Out-Null
+
+$pkg = @'
+{
+  "name": "personal-wiki-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@electric-sql/pglite": "0.2.17"
+  }
+}
+'@
+[IO.File]::WriteAllText("$root\personal-wiki\package.json", $pkg, $utf8)
+
+$server = @'
+import http from "node:http";
+import { PGlite } from "@electric-sql/pglite";
+
+const PORT = Number(process.env.PORT || 3100);
+const TOKEN = process.env.PERSONAL_WIKI_TOKEN || "local-wiki-token";
+const DATA_DIR = process.env.DATA_DIR || "./data";
+const SEED = String(process.env.SEED_SAMPLE ?? "true") === "true";
+
+const db = new PGlite(DATA_DIR);
+await db.waitReady;
+
+await db.exec(`
+  CREATE SCHEMA IF NOT EXISTS wiki;
+  DO $$ BEGIN
+    CREATE TYPE wiki.page_type AS ENUM ('client','prospect','note','topic');
+  EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+  CREATE TABLE IF NOT EXISTS wiki.pages (
+    id serial PRIMARY KEY, title text NOT NULL,
+    page_type wiki.page_type NOT NULL DEFAULT 'note',
+    entity_class text, entity_name text, body text NOT NULL DEFAULT '',
+    created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS public.threads (
+    id serial PRIMARY KEY, username text, thread_name text,
+    created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS public.thread_messages (
+    id serial PRIMARY KEY, thread_id int REFERENCES public.threads(id) ON DELETE CASCADE,
+    role text DEFAULT 'user', content text NOT NULL, created_at timestamptz DEFAULT now());
+  CREATE TABLE IF NOT EXISTS wiki.entity_refs (
+    id serial PRIMARY KEY, entity_name text, entity_class text,
+    page_id int REFERENCES wiki.pages(id) ON DELETE CASCADE,
+    thread_id int REFERENCES public.threads(id) ON DELETE CASCADE);
+`);
+
+async function addPage({ title, body = "", page_type = "note", entity_class = null, entity_name = null }) {
+  const r = await db.query(
+    "INSERT INTO wiki.pages (title, body, page_type, entity_class, entity_name) VALUES ($1,$2,$3::wiki.page_type,$4,$5) RETURNING id",
+    [title, body, page_type, entity_class, entity_name],
+  );
+  const id = r.rows[0].id;
+  if (entity_name) {
+    await db.query("INSERT INTO wiki.entity_refs (entity_name, entity_class, page_id) VALUES ($1,$2,$3)", [entity_name, entity_class, id]);
+  }
+  return id;
+}
+
+async function addThread({ username = "me", thread_name, messages = [], entity_name = null, entity_class = "client" }) {
+  const t = await db.query("INSERT INTO public.threads (username, thread_name) VALUES ($1,$2) RETURNING id", [username, thread_name]);
+  const id = t.rows[0].id;
+  for (const m of messages) {
+    await db.query("INSERT INTO public.thread_messages (thread_id, role, content) VALUES ($1,$2,$3)", [id, m.role || "user", m.content ?? String(m)]);
+  }
+  if (entity_name) {
+    await db.query("INSERT INTO wiki.entity_refs (entity_name, entity_class, thread_id) VALUES ($1,$2,$3)", [entity_name, entity_class, id]);
+  }
+  return id;
+}
+
+async function seedSample() {
+  const n = await db.query("SELECT count(*)::int AS n FROM wiki.pages");
+  if (n.rows[0].n > 0) return;
+  const demo = [
+    ["Northwind Steel", "client", "Northwind Steel is an active client. Contract signed and implementation kickoff completed. Contact: Dana Reyes (COO), dana@northwindsteel.example. Onboarding is live for the sales team. Risk: inventory sync is delayed and the client is waiting on a fix. Next step: schedule a follow up call about the delayed sync."],
+    ["Contoso Metals", "prospect", "Contoso Metals is a prospect in the pipeline. A demo was held and a proposal was sent for review. Contact: Lee Park (Plant Manager). Budget approval is blocked until next quarter. Next step: send a quote and follow up after the budget meeting."],
+    ["Fabrikam Pipe", "prospect", "Fabrikam Pipe asked for a pilot of the ERP. Outreach started with a cold call; the owner wants pricing before a demo. No decision yet and the contact has not replied to the last email."],
+  ];
+  for (const [name, cls, text] of demo) {
+    await addPage({ title: `${name} - account notes [SAMPLE]`, body: `[SAMPLE DATA] ${text}`, page_type: cls, entity_class: cls, entity_name: name });
+    await addThread({
+      username: "me", thread_name: `${name} follow up call prep [SAMPLE]`, entity_name: name, entity_class: cls,
+      messages: [{ content: `[SAMPLE DATA] Prep notes for ${name}: confirm next steps, owner, and the proposal status. They are a ${cls} account and the last meeting went well.` }],
+    });
+  }
+  console.log("Seeded 3 SAMPLE accounts (set SEED_SAMPLE=false to skip).");
+}
+if (SEED) await seedSample();
+
+function cell(v) {
+  if (v === null || v === undefined) return "";
+  const s = v instanceof Date ? v.toISOString() : String(v);
+  return s.replace(/\r?\n/g, " ").replace(/\|/g, "/").trim();
+}
+function toMarkdownTable(fields, rows) {
+  if (!rows.length) return "No rows.";
+  const head = fields.map((f) => f.name);
+  const out = [`| ${head.join(" | ")} |`, `| ${head.map(() => "---").join(" | ")} |`];
+  for (const row of rows) out.push(`| ${head.map((h) => cell(row[h])).join(" | ")} |`);
+  return out.join("\n");
+}
+function assertReadOnly(sql) {
+  const s = String(sql || "").trim().replace(/;+\s*$/, "");
+  if (!/^(select|with)\b/i.test(s) || s.includes(";")) throw new Error("Only a single read-only SELECT/WITH statement is allowed.");
+  return s;
+}
+
+const TOOLS = [
+  { name: "query", description: "Run one read-only SELECT and get rows back as a markdown table.", inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] } },
+  { name: "get_full_text", description: "Run a read-only SELECT returning one row and one column; returns that value as plain text.", inputSchema: { type: "object", properties: { sql: { type: "string" } }, required: ["sql"] } },
+];
+
+async function callTool(name, args) {
+  const sql = assertReadOnly(args?.sql);
+  const res = await db.query(sql);
+  if (name === "query") return toMarkdownTable(res.fields, res.rows);
+  if (name === "get_full_text") {
+    if (res.rows.length !== 1 || res.fields.length !== 1) throw new Error("get_full_text needs exactly one row and one column.");
+    const v = res.rows[0][res.fields[0].name];
+    return v === null ? "" : String(v);
+  }
+  throw new Error(`Unknown tool: ${name}`);
+}
+
+function send(res, status, obj) {
+  const body = JSON.stringify(obj);
+  res.writeHead(status, { "content-type": "application/json; charset=utf-8", "content-length": Buffer.byteLength(body) });
+  res.end(body);
+}
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let b = "";
+    req.on("data", (c) => { b += c; if (b.length > 5 * 1024 * 1024) { reject(new Error("Body too large")); req.destroy(); } });
+    req.on("end", () => { try { resolve(b ? JSON.parse(b) : {}); } catch (e) { reject(e); } });
+    req.on("error", reject);
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.method === "GET" && req.url === "/health") return send(res, 200, { ok: true, service: "personal-wiki" });
+    if (req.headers.authorization !== TOKEN) return send(res, 401, { ok: false, error: "Unauthorized: send the token in the authorization header." });
+    const body = await readBody(req);
+
+    if (req.method === "POST" && req.url === "/pages") return send(res, 200, { ok: true, id: await addPage(body) });
+    if (req.method === "POST" && req.url === "/threads") return send(res, 200, { ok: true, id: await addThread(body) });
+
+    if (req.method === "POST" && req.url === "/mcp") {
+      const { id, method, params } = body;
+      if (method === "notifications/initialized") { res.writeHead(202); return res.end(); }
+      try {
+        let result;
+        if (method === "initialize") result = { protocolVersion: "2024-11-05", capabilities: { tools: {} }, serverInfo: { name: "personal-wiki", version: "0.1.0" } };
+        else if (method === "ping") result = {};
+        else if (method === "tools/list") result = { tools: TOOLS };
+        else if (method === "tools/call") result = { content: [{ type: "text", text: await callTool(params?.name, params?.arguments) }] };
+        else return send(res, 200, { jsonrpc: "2.0", id, error: { code: -32601, message: `Method not found: ${method}` } });
+        return send(res, 200, { jsonrpc: "2.0", id, result });
+      } catch (e) {
+        return send(res, 200, { jsonrpc: "2.0", id, error: { code: -32000, message: e.message } });
+      }
+    }
+    return send(res, 404, { ok: false, error: "Use POST /mcp, /pages or /threads, or GET /health." });
+  } catch (e) {
+    return send(res, 500, { ok: false, error: e.message });
+  }
+});
+server.listen(PORT, "0.0.0.0", () => console.log(`Personal wiki MCP listening on ${PORT}`));
+'@
+[IO.File]::WriteAllText("$root\personal-wiki\server.js", $server, $utf8)
+
+# 4. Add the personal-wiki service + volume to the zip's compose file
+$c = [IO.File]::ReadAllText("$root\docker-compose.yml")
+if ($c -match '(?m)^  personal-wiki:') {
+    Write-Host "Compose already has personal-wiki - skipped."
+} else {
+    $svc = @'
+  personal-wiki:
+    image: node:20-alpine
+    container_name: sales-intelligence-personal-wiki
+    working_dir: /app
+    environment:
+      PORT: "3100"
+      DATA_DIR: /data
+      PERSONAL_WIKI_TOKEN: "${THREAD_WIKI_AUTH_TOKEN:-local-wiki-token}"
+      SEED_SAMPLE: "${PERSONAL_WIKI_SEED:-true}"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./personal-wiki:/app
+      - personal_wiki_data:/data
+    command: ["sh", "-c", "npm install --omit=dev --no-audit --no-fund && node server.js"]
+    restart: unless-stopped
+
+'@
+    $c = [regex]::Replace($c, '(?m)^volumes:[ \t]*\r?$', { param($m) $svc + "volumes:" }, 1)
+    $c = [regex]::Replace($c, '(?m)^(  sales_intelligence_n8n:)[ \t]*\r?$', { param($m) "  sales_intelligence_n8n:`n  personal_wiki_data:" }, 1)
+    [IO.File]::WriteAllText("$root\docker-compose.yml", $c, $utf8)
+    Write-Host "Compose updated."
+}
+
+# 5. Point the scanner (and n8n) at the personal wiki via .env
+if (-not (Test-Path "$root\.env")) { Copy-Item "$root\.env.example" "$root\.env" }
+$envText = [IO.File]::ReadAllText("$root\.env")
+$envText = [regex]::Replace($envText, '(?m)^THREAD_WIKI_MCP_URL=.*$', 'THREAD_WIKI_MCP_URL=http://personal-wiki:3100/mcp')
+$envText = [regex]::Replace($envText, '(?m)^THREAD_WIKI_AUTH_TOKEN=.*$', 'THREAD_WIKI_AUTH_TOKEN=local-wiki-token')
+[IO.File]::WriteAllText("$root\.env", $envText, $utf8)
+
+# 6. Start the database, create the Odoo DB, install the module
+docker compose up -d --wait db
+docker compose exec db createdb -U odoo -E UTF8 sales_intelligence
+docker compose run --rm --no-deps odoo odoo -d sales_intelligence -i base,sales_intelligence --without-demo=all --stop-after-init
+
+# 7. Start Odoo, the scanner and the personal wiki
+docker compose up -d odoo scanner personal-wiki
+
+# 8. Check that the wiki is up and answers the scanner's query
+for ($i = 0; $i -lt 40; $i++) {
+    try { Invoke-RestMethod http://localhost:3100/health -TimeoutSec 2 | Out-Null; break } catch { Start-Sleep -Seconds 3 }
+}
+$q = @{ jsonrpc = '2.0'; id = 1; method = 'tools/call'; params = @{ name = 'query'; arguments = @{ sql = 'select id, title, entity_class from wiki.pages' } } } | ConvertTo-Json -Depth 5
+(Invoke-RestMethod -Uri http://localhost:3100/mcp -Method Post -Headers @{ authorization = 'local-wiki-token' } -ContentType 'application/json' -Body $q).result.content[0].text
+
+Start-Process "http://localhost:8070/web?db=sales_intelligence"
+```
+
+The first start takes a couple of minutes because the wiki container runs `npm install`. The check at the end should print a table with 3 `[SAMPLE]` pages.
+
+## Using the button
+
+1. Log in to Odoo (`admin` / `admin`, database `sales_intelligence`).
+2. Go to **Contacts** and open any contact.
+3. Open the **Scanner** tab, click **Sync Latest Scan**, then **Run Live Scan & Sync**.
+4. The 3 sample accounts should appear on the Scanner Reviews board and as score badges on their contacts.
+
+## Adding your real content to the wiki
+
+```powershell
+$h = @{ authorization = 'local-wiki-token' }
+Invoke-RestMethod -Uri http://localhost:3100/pages -Method Post -Headers $h -ContentType 'application/json' -Body (@{
+    title = 'Sabre Alloys - account notes'; page_type = 'client'; entity_class = 'client'
+    entity_name = 'Sabre Alloys'; body = 'Paste your real notes here.' } | ConvertTo-Json)
+```
+
+To start without the samples, add `PERSONAL_WIKI_SEED=false` to `.env` before step 6.
+
+## Things to know
+
+- **The database is new.** The module has to be reinstalled, so the 9 accounts from the Sept 23 scan aren't there. Your edits to the board files are still in place, since they live in the project folder.
+- **Old data is untouched.** The earlier database stays in the old Docker volume, `sales-specialist_pgdata`.
+- **The token is a local placeholder.** `local-wiki-token` is only meant for local use, and the wiki is reachable on port 3100.
+- **Pipes in wiki text:** the scanner reads results as a markdown table, so `|` characters in wiki text are shown as `/`.
+- **The scheduled run is separate.** That's the n8n workflow in `n8n/`, which is inactive and set to dry-run. I haven't read how it works yet, so that's the next thing to look at.
+- **Your log note needs correcting.** Item 5 says the scanner and related files are missing, and the "next step" says to build an n8n workflow. Both are wrong. The scanner and a workflow already exist, so the next step is to point the existing n8n workflow at your wiki.
+
+If the sync button gives an error, paste the message and `docker compose logs scanner --tail 40`.
+
+## User (2026-10-14 08:38:14 EDT)
+
+I want to add my data from my wiki so tell me that how to that

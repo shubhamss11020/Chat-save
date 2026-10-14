@@ -4,7 +4,7 @@ platform: claude
 username: "harsh"
 title: "Zip overview and kanban automation details"
 created_at: "2026-10-14 08:34:00 EDT"
-updated_at: "2026-10-14 08:59:20 EDT"
+updated_at: "2026-10-14 09:04:21 EDT"
 ---
 
 # Zip overview and kanban automation details
@@ -2664,3 +2664,142 @@ PS C:\dev\Sales-Specialist> Invoke-WikiQuery 'select id, entity_class, title fro
 | 12 | prospect | Vandelay Industries - account notes [SAMPLE] |
 PS C:\dev\Sales-Specialist>
 okay this is working now I want to create a n8n workflow it there is any way for it
+
+## Claude (2026-10-14 09:00:57 EDT)
+
+> *Thinking:*
+>
+
+The wiki works: 12 pages, 12 threads and 24 messages. Yes, you can do the n8n part, and the zip already contains a workflow for it, so I'm reading how it works before telling you how to use it.
+
+The workflow's code only uses three n8n globals, so I can run its real nodes in a small harness against the personal wiki, in dry-run mode.
+
+Yes, and you don't need to build one from scratch, because the zip already contains a complete n8n workflow ("Sales Intelligence - Thread Wiki to Odoo"). It reads the wiki, ranks the accounts, and writes them into Odoo. It has a manual trigger, a daily 06:00 schedule and a webhook. We only need to point it at your personal wiki.
+
+**What I tested:** I ran the workflow's real code nodes against your wiki design in a test harness, in dry-run mode. All five nodes passed with 12 accounts discovered, 12 ranked, 12 ready to push and no failures. I haven't tested n8n itself, the import command, or the part that writes into Odoo, so the first real run is where surprises would show up.
+
+## 1. Connect everything
+
+This restores the zip's own compose file (it already has the scanner and n8n), adds your wiki to it using the existing data volume, and sets `.env`. The `personal-wiki` folder from before is reused. Your 12 pages are kept.
+
+```powershell
+cd C:\dev\Sales-Specialist
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$root = (Get-Location).Path
+
+# 1. Stop the old Odoo stack and the standalone wiki container (the wiki data volume is kept)
+docker compose down
+docker rm -f personal-wiki 2>$null | Out-Null
+
+# 2. Restore the zip's own docker-compose.yml
+Copy-Item docker-compose.yml docker-compose.my-old.yml -Force
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$zip = [IO.Compression.ZipFile]::OpenRead("$HOME\Downloads\Sales-Specialist.zip")
+$entry = $zip.Entries | Where-Object { $_.FullName -eq 'Sales-Specialist/docker-compose.yml' }
+[IO.Compression.ZipFileExtensions]::ExtractToFile($entry, "$root\docker-compose.yml", $true)
+$zip.Dispose()
+
+# 3. Add the personal-wiki service (reusing the existing data volume)
+$c = [IO.File]::ReadAllText("$root\docker-compose.yml")
+if ($c -match '(?m)^  personal-wiki:') {
+    Write-Host "Compose already has personal-wiki - skipped."
+} else {
+    $svc = @'
+  personal-wiki:
+    image: node:20-alpine
+    container_name: personal-wiki
+    environment:
+      PORT: "3100"
+      DATA_DIR: /data
+      SEED_SAMPLE: "false"
+      PERSONAL_WIKI_TOKEN: "${THREAD_WIKI_AUTH_TOKEN:-local-wiki-token}"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./personal-wiki:/src:ro
+      - personal_wiki_data:/data
+    command: ["sh", "-c", "mkdir -p /srv && cp /src/package.json /src/server.js /srv/ && cd /srv && npm install --omit=dev --no-audit --no-fund && node server.js"]
+    restart: unless-stopped
+
+'@
+    $c = [regex]::Replace($c, '(?m)^volumes:[ \t]*\r?$', { param($m) $svc + "volumes:" }, 1)
+    $c = [regex]::Replace($c, '(?m)^(  sales_intelligence_n8n:)[ \t]*\r?$', { param($m) "  sales_intelligence_n8n:`n  personal_wiki_data:`n    external: true" }, 1)
+    [IO.File]::WriteAllText("$root\docker-compose.yml", $c, $utf8)
+    Write-Host "Compose updated."
+}
+
+# 4. .env: point scanner + n8n at the personal wiki; start in DRY-RUN mode
+if (-not (Test-Path "$root\.env")) { Copy-Item "$root\.env.example" "$root\.env" }
+$envText = [IO.File]::ReadAllText("$root\.env")
+function Set-EnvValue([string]$text, [string]$key, [string]$value) {
+    if ($text -match "(?m)^$key=") { return [regex]::Replace($text, "(?m)^$key=.*$", "$key=$value") }
+    return $text.TrimEnd() + "`n$key=$value`n"
+}
+$envText = Set-EnvValue $envText 'THREAD_WIKI_MCP_URL'      'http://personal-wiki:3100/mcp'
+$envText = Set-EnvValue $envText 'THREAD_WIKI_AUTH_TOKEN'    'local-wiki-token'
+$envText = Set-EnvValue $envText 'ODOO_DB'                   'sales_intelligence'
+$envText = Set-EnvValue $envText 'ODOO_RPC_USERNAME'         'admin'
+$envText = Set-EnvValue $envText 'ODOO_RPC_PASSWORD'         'admin'
+$envText = Set-EnvValue $envText 'SALES_SCAN_DRY_RUN'        'true'
+$envText = Set-EnvValue $envText 'SALES_SCAN_WEBHOOK_SECRET' ([guid]::NewGuid().ToString('N'))
+[IO.File]::WriteAllText("$root\.env", $envText, $utf8)
+
+# 5. Database + module install, then start everything
+docker volume create personal_wiki_data | Out-Null
+docker compose up -d --wait db
+docker compose exec db createdb -U odoo -E UTF8 sales_intelligence
+docker compose run --rm --no-deps odoo odoo -d sales_intelligence -i base,sales_intelligence --without-demo=all --stop-after-init
+docker compose up -d odoo scanner personal-wiki n8n
+
+# 6. Wait for the wiki and n8n
+foreach ($u in 'http://localhost:3100/health', 'http://localhost:5678/healthz') {
+    for ($i = 0; $i -lt 40; $i++) {
+        try { Invoke-RestMethod $u -TimeoutSec 2 | Out-Null; Write-Host "UP: $u"; break } catch { Start-Sleep -Seconds 3 }
+    }
+}
+Start-Process "http://localhost:5678"
+```
+
+The first start pulls the n8n image, which is large, so allow a few minutes. The `.env` file now holds a webhook secret, so don't share or commit it.
+
+## 2. Import the workflow into n8n
+
+1. In the browser tab that opened (`http://localhost:5678`), create the local owner account. Any email and password will do.
+2. Import the workflow:
+
+```powershell
+docker compose exec n8n n8n import:workflow --input=/files/n8n/sales-intelligence-threadwiki-to-odoo.workflow.json
+```
+
+If that command errors, import it by hand instead. In n8n, open the workflow menu (three dots), choose **Import from File**, and select `C:\dev\Sales-Specialist\n8n\sales-intelligence-threadwiki-to-odoo.workflow.json`.
+
+## 3. First run: dry run
+
+Open **Sales Intelligence - Thread Wiki to Odoo** and click **Execute workflow** (the Manual Trigger). Dry-run mode is on, so nothing is written to Odoo. The last node, **Finalize Run**, should show about:
+
+- `candidates_discovered: 12`
+- `analyses_pushed: 12`
+- `enrichment_failed: 0`
+- a warning that says the Odoo write was skipped because dry-run is on
+
+## 4. Real run: write into Odoo
+
+```powershell
+$envText = [IO.File]::ReadAllText("$root\.env")
+$envText = [regex]::Replace($envText, '(?m)^SALES_SCAN_DRY_RUN=.*$', 'SALES_SCAN_DRY_RUN=false')
+[IO.File]::WriteAllText("$root\.env", $envText, $utf8)
+docker compose up -d n8n
+```
+
+Run the workflow again in n8n. Then open Odoo at `http://localhost:8070/web?db=sales_intelligence` (`admin` / `admin`). The Scanner Reviews board should show the 12 accounts, and the matching contact cards are created.
+
+## 5. Turn on the schedule
+
+Once the real run looks right, switch the workflow to **Active** in n8n. It then runs daily at 06:00 (Asia/Kolkata) as long as the n8n container is running.
+
+## Things to know
+
+- **The workflow doesn't notify anyone.** The alert webhook it supports only reports warnings and failures. Notifying you when new accounts reach Pending Review would need an extra node, such as email or Slack.
+- **The Odoo board is empty after the reinstall.** The earlier Odoo database lives in the old Docker volume, so the board only fills after the real run.
+- **Two ways to sync now exist.** The Odoo button runs the scanner service and imports a JSON file. n8n scans and writes into Odoo directly on a schedule. Both read from your personal wiki, so either is fine.
+- **If n8n shows an error in a Code node,** paste the text. The likeliest causes are newer n8n sandbox rules about `$env` or `fetch`, which I couldn't test.

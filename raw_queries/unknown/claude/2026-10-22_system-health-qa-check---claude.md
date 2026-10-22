@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-22 12:35:47 EDT"
-updated_at: "2026-10-22 13:11:25 EDT"
+updated_at: "2026-10-22 13:12:24 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-22 13:11:25 EDT)
+## User (2026-10-22 13:12:24 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-22 13:11:25 EDT)
+## Claude (2026-10-22 13:12:24 EDT)
 
 Latest call with Travis Lane: “3GM Steel & AskCruz – Weekly Check-in”
 Field	Value
@@ -118,11 +118,11 @@ Speech-recognition errors: Claude is rendered as “quad”, “Cruze” or “C
 
 I can pull the Oct 1 kickoff call (2516), check whether other Fathom calls are unlinked to a client, or check for a recording of today’s check-in later. Which would you like?
 
-## User (2026-10-22 13:11:25 EDT)
+## User (2026-10-22 13:12:24 EDT)
 
 What's the status of Sabre Alloys onboarding right now?
 
-## Claude (2026-10-22 13:11:25 EDT)
+## Claude (2026-10-22 13:12:24 EDT)
 
 Sabre Alloys (client ID 1)
 
@@ -175,11 +175,11 @@ Everything above is wiki-derived. The 3GM pricing citations didn’t resolve aga
 
 I can verify the open items against the Odoo database (Teams EOXS) or open the underlying emails for the blanking errors and the Grexo thread. Which should I do first?
 
-## User (2026-10-22 13:11:25 EDT)
+## User (2026-10-22 13:12:24 EDT)
 
 Pull the full transcript of the latest call for travis
 
-## Claude (2026-10-22 13:11:25 EDT)
+## Claude (2026-10-22 13:12:24 EDT)
 
 Latest call with Travis Lane: “3GM Steel & AskCruz – Weekly Check-in”
 Field	Value
@@ -284,7 +284,7 @@ Speech-recognition errors: Claude is rendered as “quad”, “Cruze” or “C
 
 I can pull the Oct 1 kickoff call (2516), check whether other Fathom calls are unlinked to a client, or check for a recording of today’s check-in later. Which would you like?
 
-## Claude (2026-10-22 13:11:25 EDT)
+## Claude (2026-10-22 13:12:24 EDT)
 
 Source check on the 3GM pricing claims: mostly not verified
 
@@ -326,11 +326,11 @@ Pull the invoice PDF text (attachment 50738): it may show the 50% amount and ter
 
 Which should I run? Number 1 is the one that would verify the proposal, signature and term claims.
 
-## User (2026-10-22 13:11:25 EDT)
+## User (2026-10-22 13:12:24 EDT)
 
 What's the status of Sabre Alloys onboarding right now?
 
-## Claude (2026-10-22 13:11:25 EDT)
+## Claude (2026-10-22 13:12:24 EDT)
 
 Sabre Alloys: AskCruz onboarding status (as of Oct 20-21, 2026)
 
@@ -363,45 +363,44 @@ Move the onboarding tasks onto the board, as Raj suggested, so blockers don’t 
 
 I can open the three source email threads (71093, 71100, 71165) to confirm current status, or check whether anything new arrived after Oct 20. Which would you like?
 
-## User (2026-10-22 13:11:25 EDT)
+## User (2026-10-22 13:12:24 EDT)
 
 What have we discussed with 3gm about pricing?
 
-## Claude (2026-10-22 13:11:25 EDT)
+## Claude (2026-10-22 13:12:24 EDT)
 
-3GM Steel: pricing discussions
+EOXS Client Implementation and Go-Live SOP: stages in order
 
-I’m taking “pricing” to mean the AskCruz (Company Brain) deal. 3GM’s product-pricing bugs on tonnage cards are a separate issue, covered earlier. All dollar amounts in the source pages are masked as restricted, so I can only give structure and sequence, not figures.
+This is v1.0 Draft (June 2026). Approval is still “Pending” and the approval table is blank. The effective date is “to be confirmed” and the change history is empty. So there is no history of stage changes, only the sequence the draft defines.
 
-Timeline
-Date	What happened
-Jul 29	Demo call with Travis Lane (CCO). Raj pitched the AI-agent tier as a cheaper alternative to hiring for a planned VP of Trading Ops role.
-Aug 12	27-minute proposal call. A verbal quote was given: a monthly platform fee plus a per-user Claude fee, with no email integration.
-Aug 14	Two written 3-user proposals went out about 90 minutes apart, with different line-item pricing but the same total. Travis got the PDF.
-Aug 14	Travis (copying Stefan, the CFO) raised five points before taking it to the CEO. He found a Claude line that didn’t multiply out, a monthly total that didn’t match its own lines, an email-integration price that differed from what he was quoted, a proposal describing the wrong team, and an unexplained EOXS integration fee.
-Aug 14	Raj conceded: “This version doesn’t match what we discussed... That’s on me.”
-Aug 17	Ron and Raj sent point-by-point answers and a reconciled proposal. This was a third, higher total than the 08-14 documents, because it added Historical Data and an agents line.
-Aug 19	Travis confirmed the deal at a reduced scope: 2 users (himself and Stefan), with Prompt History and Historical Data deferred to next year. He asked for a shorter term.
-Aug 20	Raj shortened the initial term from 12 to 6 months. Travis signed the same day, with no changes.
-Aug 24	Raj confirmed in writing that the 3-year term does not auto-renew. 3GM gets a decision point at month 6, with 30 days’ notice to EOXS.
-Sep 7	The 50% kickoff invoice went out.
-Oct 12-13	Raj soft-pitched adding the inside-sales inboxes. Travis explained the trading and distribution split and said the VP of Trading Ops “refuses” AI. There is no decision on record.
-Final deal terms (as signed)
-Lines: Platform fee, Company Brain (2 users), Claude subscription, EOXS integration, email integration (per GB, 3GB minimum) and AI agents on demand (hourly).
-Claude subscription: Billed by Anthropic directly to 3GM, not on the EOXS invoice.
-EOXS integration fee: One-time, with no recurring maintenance charge.
-Added users later: An extra one-time charge per user.
-Billing: 50% at kickoff, then monthly in advance, Net 7.
-Contract terms: Up to 8% per year renewal increase, 30-day price validity, and the client owns its data.
-Front end: EOXS told 3GM it would use Claude as the sole front end rather than AskCruz.
-What this means for you
-Quote quality hurt credibility. The wrong proposal reached the client, and Travis independently caught the same arithmetic errors your team had flagged internally. He asked for an itemized, reconciled version before going to his CEO.
-Money and term: Month 6 is the real commercial test. With a 30-day notice requirement, that decision lands around mid-to-late Jan 2027 if kickoff was early-to-mid Sep (the kickoff date is unverified), with notice due about a month earlier. The final implementation invoice is already past due, per the Oct wiki page. Raise it at today’s check-in.
-Upsell is soft. The deferred Prompt History and Historical Data are the natural re-pitch for next year, and the inside-sales expansion is blocked by adoption resistance.
-Gaps
-I read about 24k of the 35k characters of the main wiki page, plus the October expansion page. I did not open the underlying emails or the PDF attachments.
-The wiki does not say whether the kickoff invoice (INV/2026/0367) was paid or what the kickoff date was.
-The Aug 14 line-item discrepancies were never reconciled in the record.
-The final past-due invoice page is known only from its title, and I haven’t read it.
+Project lifecycle, in order
+#	Stage	What happens	§
+1	Initiation and commercial handover	Written Sales-to-Implementation handover (agreement, pricing, promises, exclusions, contacts, risks), then Implementation Owner review, then kickoff. No work starts from verbal information alone.	7
+2	Project planning	A working plan covering modules, locations, users, data quality, integrations and customization level. Six cycles are only an example.	8
+3	Continuous discovery and requirement management	Runs through the whole project. Each requirement is captured, classified (training, config, defect, billable, out of scope and so on) and confirmed in writing before build.	9
+4	Iterative implementation cycles (repeating)	Demo the workflow, give the client guided access, collect items (a two-week window is the default), classify, confirm scope at cutoff, check capacity and commercial approval, build, test internally, test with the client, approve the release, deploy, validate live, inform the client, close the cycle.	10, 26
+5	Initial production use	The client starts using one or more completed workflows live. Progressive go-live is allowed.	18
+6	Operational go-live	The agreed core daily operations can be completed in EOXS (criteria in 31.10).	18, 31.10
+7	Stabilization	Live issues, user questions and adoption gaps are handled. The standard period is six months from go-live or cutover.	20, 31.12
+8	Ongoing customization	Further approved work continues without blocking operations.	18
+9	Implementation closure and support handoff	Written completion and open-item summary, handoff package, support owner confirmation. Open items must be classified and assigned, but zero open tasks is not required.	27, 31.11
 
-I can pull the source emails (68402, 66466, 70903), open the Oct 15 and Oct 22 check-in details, or check the Odoo invoice records for payment status. Which?
+Parallel workstreams that feed stages 4 to 6: data (extraction, cleansing, import, client-approved reconciliation, §13), configuration and development (§14), internal QA (§15), client testing (§16) and training (§17).
+
+Requirement and task status order (Appendix F)
+
+New, Needs clarification, Classified, Proposed for cycle, Approved for cycle, In progress, Internal testing, Client testing, Approved for release, Deployed, then Live validated.
+
+Side states: Deferred, Blocked.
+Final state: Closed.
+Key rules that affect the order
+Source of truth: The client project board, through the six-month stabilization.
+Support: SLA response times begin at first production use, not at closure. After stabilization, ongoing work moves to the internal support board and keeps a link back to the original task.
+Delivery: A task is “delivered” only after testing, client approval where needed, live deployment, live check and client notification (§25).
+QA observations
+The SOP isn’t official yet. It is a draft with no approver and no effective date, and the document says it should be reviewed annually, so nothing is enforceable yet.
+Actual Kanban stages don’t match Appendix F. The boards I’ve seen use stages like Tasks, Sub Tasks, Need discussion, QA and Completed. Nothing maps to “Client testing”, “Deployed” or “Live validated”. If the SOP is adopted, the board’s stages need updating, otherwise the “Completed” bucket can’t distinguish tested from live-validated work.
+Stage order is ambiguous in two places. §18.1 puts Implementation closure after Stabilization, but §31.11 has the completion summary sent “at go-live or before formal closure”, and §31.12 fixes stabilization at six months. So it isn’t clear whether closure happens before or after the six months.
+Title mismatch. The table of contents calls section 31 “Leadership Decisions Required Before Final Approval”, but the body calls it “Leadership Decisions and Approved Operating Rules”. That is a sign the document was edited after the contents were generated.
+
+I can compare this against how 3GM and Sabre onboarding actually progressed, or map the current Kanban stages onto these. Which would you like?

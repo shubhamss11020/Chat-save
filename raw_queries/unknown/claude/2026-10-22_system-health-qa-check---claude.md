@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-22 12:35:47 EDT"
-updated_at: "2026-10-22 12:43:33 EDT"
+updated_at: "2026-10-22 12:52:00 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-22 12:43:33 EDT)
+## User (2026-10-22 12:52:00 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-22 12:43:33 EDT)
+## Claude (2026-10-22 12:52:00 EDT)
 
 3GM Steel (client ID 2)
 
@@ -73,48 +73,68 @@ Not in this system. Support tickets, invoices and sales orders live in the EOXS 
 
 The wiki titles are the source here, and I haven’t read any page in full. I can drill into a specific item, or query the Odoo database (e.g. INV/2026/2403, POV/OUT/00029) to confirm which issues are actually still open. Which should I do first?
 
-## User (2026-10-22 12:43:33 EDT)
+## User (2026-10-22 12:52:00 EDT)
 
 What's the status of Sabre Alloys onboarding right now?
 
-## Claude (2026-10-22 12:43:33 EDT)
+## Claude (2026-10-22 12:52:00 EDT)
 
-Sabre Alloys: AskCruz onboarding status (as of Oct 20-21, 2026)
+Sabre Alloys (client ID 1)
 
-I’m assuming you mean the AskCruz (Company Brain) onboarding, not the original EOXS Odoo rollout. The Odoo implementation went live in 2024 (soft launch and go-live Q1 2024) and is in steady-state support. Tell me if you meant that one.
+I’m working from the profile I pulled earlier in this session. The wiki page titles are my source, and I haven’t opened the underlying pages or emails.
 
-Overall: in early onboarding and blocked on two client-side prerequisites. The formal kickoff went out after the Oct 15 call, but nothing has been confirmed as completed since.
+Snapshot
+Slug and domain: sabre-alloys, sabrealloys.com
+Odoo: https://sabre.eoxs.com (database sabre)
+Business: Stainless and alloy metals (plate, round bar). Processing, blanking, waterjet, toll processing and control-tag inventory.
+Data in the system: 190 implementation tasks, 1,465 emails, 89 calls and about 190 wiki pages. The largest account in the registry by volume.
+Contacts (9): Charles White, Christi, Ernie Valdez, Jesus Rios (no email), Jim (Zeigler), Juan Deshon (no email), Michael Mercadante, Tye Webb, and a relay inbox (info.sabrealloys@gmail.com).
+History
+2024: Odoo implementation, soft launch in Apr-Jun 2024 and go-live in Q1 2024. It covered control tags, processing, landed cost, gross profit and sales order fixes, AR/AP cleanup and the Load Scheduler.
+Open since 2024: An “Order Lost” feature request (open since Jan 2024), and the Drops Tags and Specifications item.
+Mar-Oct 2026: Ongoing contact with Juan and Raj: training calls, reservation functionality (Mar, Apr, Oct 6), inventory forecasting, scoreboard and mass email marketing.
+Where things stand now (Oct 2026)
 
-Timeline
-Aug 13 and Sep 2: Proposal calls. The proposal was resent Sep 3 with the recaps.
-Oct 15: “Sabre Alloys & AskCruz” call held.
-After Oct 15: Formal onboarding kickoff emailed to Michael Mercadante and Tye Webb.
-Oct 19-20: Follow-ups on both blockers below.
-Blockers
-#	Item	Status	Risk
-1	Microsoft 365 approval via Sabre’s IT vendor Grexo (contact Joe Chevalier)	Three messages sent (Oct 19 AM, Oct 19 PM, Oct 20) with no recorded reply. The approval link now expires Oct 26, already extended once.	High. About 4 days left. If it lapses, the Outlook access prerequisite stalls again.
-2	Org chart and user list (roles, reporting lines, names and emails of all users)	Routed to Ernie Valdez, who was chased twice with no reply. On Oct 20 it was reassigned back to Tye Webb and Michael Mercadante per Ron, with a call offered as an alternative to writing it up.	Medium. There is no explanation on record for the ownership change.
-Other points
-Process friction: Raj questioned the email-not-board process, meaning onboarding tasks are being tracked by email rather than on the board.
-Open items from the proposal calls: a new stakeholder, a toll-processing side deal that has been formally priced, and data-privacy pushback. I can’t see the resolution of the privacy pushback, and the proposal and pricing detail is restricted.
-Claude access: Juan Deshon and Tye Webb were provisioned in Sep. The “EOXS IRIS Sabre” connector failed for Tye on Oct 5 and Ron reconnected it, but the client-side fix is unconfirmed.
-Verification gaps
-I read one wiki page (updated Oct 20, citing three email threads) and its flags. I haven’t opened the underlying emails, so nothing here is checked against the source threads.
-The page body was truncated, so I only saw the opening section.
-The wiki has nothing after Oct 20. Whether Grexo or Tye replied in the last two days is unknown.
-The wiki flags both the Grexo approval and the ownership change as unverified or contradictory.
-Suggested actions
-Call Grexo rather than emailing again. Their last reply came after a call, and email has produced nothing for three tries. Do it before Oct 26.
-Get one named owner for the org chart and user list, with a date.
-Move the onboarding tasks onto the board, as Raj suggested, so blockers don’t sit in email threads.
+AskCruz (Company Brain) onboarding: Early stage, with two blockers.
 
-I can open the three source email threads (71093, 71100, 71165) to confirm current status, or check whether anything new arrived after Oct 20. Which would you like?
+The Microsoft 365 approval via their IT vendor Grexo has had no recorded reply, and the link expires Oct 26.
+The org chart and user list was reassigned from Ernie Valdez back to Tye Webb and Michael Mercadante.
+Claude access was provisioned for Juan and Tye in Sep. The IRIS connector failed for Tye on Oct 5 and Ron reconnected it, with the client-side fix unconfirmed.
+A toll-processing side deal was priced separately, and data-privacy pushback was raised. Details are restricted.
 
-## User (2026-10-22 12:43:33 EDT)
+Support: recurring error clusters
+
+Theme	Evidence (per wiki titles)
+Blanking processing order errors	About 15 separate pages from Aug to Oct (PR7148 through PR8159). PR8010 was unresolved for more than 3 hours and escalated on Oct 7.
+Gross profit miscalculation	SO-23017, SO-23008, SO-22815 and SO-22940 (Sep 29-Oct 12), plus landed cost and freight not moving GP (SO-23109, SO-23061).
+Landed cost distribution	LC/5722, LC/5689, LC/6081 and LC/6083. An Oct 1 “all addressed” claim was contradicted, and an Oct 8 fix is “pending client confirmation”.
+“Cannot Confirm PL” on packing lists	Recurring since Aug 24, including three in one hour on Sep 22.
+Inventory and tag integrity	A parent/child control tag cost bug (Sep 21-29), 37 tags reissued on Oct 19, and residual inventory after PO P03451.
+Possible outage fallout	Inventory discrepancies tied to an unspecified “crash” (Oct 12-13), a daily backup failure alert on Oct 4 (one escalation address bounced), and a “client asks if a recent update caused it” wave on Oct 1.
+Reporting	Statement of Income period filter bug, a quarter-over-quarter comparison request, and a customer statement issue raised by Juan on Oct 20-21.
+AR write-offs	Process questioned on Oct 21 after two non-payment orders (Gulf Coast SO-18976 resolved for inventory, ASI SO-17594 still under review).
+
+Product and engineering decisions:
+
+A new Processing Module was proposed after 30 concurrency tickets in about 3 months. The wiki pages conflict: one says “prioritized”, another says “in limbo, no confirmed ticket”, and another says the decision is pending. I can’t tell which is current.
+On Oct 16 Tye asked for vendor creation to be restricted to 5 named staff, and ad hoc vendor requests were redirected to support.
+
+People changes: Walker Hammons replaced Jordan as salesperson on Aug 27.
+
+Flags
+Stability is the real risk. Five or more error categories recur, several with “fix claimed, then contradicted”. A client who is also being onboarded to AI will judge it on this.
+Conflicting wiki pages on the Processing Module decision.
+Escalation path gap: A backup-failure alert had a bounced escalation address.
+Two contacts have no email on file: Juan Deshon and Jesus Rios. Juan is the most active contact on calls.
+Everything above is wiki-derived. The 3GM pricing citations didn’t resolve against raw sources, so the same caution applies here until checked.
+
+I can verify the open items against the Odoo database (Teams EOXS) or open the underlying emails for the blanking errors and the Grexo thread. Which should I do first?
+
+## User (2026-10-22 12:52:00 EDT)
 
 Tell me everything about 3gm
 
-## Claude (2026-10-22 12:43:33 EDT)
+## Claude (2026-10-22 12:52:00 EDT)
 
 3GM Steel (client ID 2)
 
@@ -174,7 +194,7 @@ Not in this system. Support tickets, invoices and sales orders live in the EOXS 
 
 The wiki titles are the source here, and I haven’t read any page in full. I can drill into a specific item, or query the Odoo database (e.g. INV/2026/2403, POV/OUT/00029) to confirm which issues are actually still open. Which should I do first?
 
-## Claude (2026-10-22 12:43:33 EDT)
+## Claude (2026-10-22 12:52:00 EDT)
 
 Hi Jagriti. I’ve reviewed the thread-wiki skill file. There’s no standalone AskCruz skill file in this session, only the AskCruz connector tools, so I’ll treat those as the AskCruz reference.
 
@@ -195,11 +215,11 @@ Rigor level:
 
 Once you answer, I’ll start with a connectivity and row-count sweep.
 
-## User (2026-10-22 12:43:33 EDT)
+## User (2026-10-22 12:52:00 EDT)
 
 What's the status of Sabre Alloys onboarding right now?
 
-## Claude (2026-10-22 12:43:33 EDT)
+## Claude (2026-10-22 12:52:00 EDT)
 
 Sabre Alloys: AskCruz onboarding status (as of Oct 20-21, 2026)
 
@@ -232,11 +252,11 @@ Move the onboarding tasks onto the board, as Raj suggested, so blockers don’t 
 
 I can open the three source email threads (71093, 71100, 71165) to confirm current status, or check whether anything new arrived after Oct 20. Which would you like?
 
-## User (2026-10-22 12:43:33 EDT)
+## User (2026-10-22 12:52:00 EDT)
 
 What have we discussed with 3gm about pricing?
 
-## Claude (2026-10-22 12:43:33 EDT)
+## Claude (2026-10-22 12:52:00 EDT)
 
 3GM Steel: pricing discussions
 

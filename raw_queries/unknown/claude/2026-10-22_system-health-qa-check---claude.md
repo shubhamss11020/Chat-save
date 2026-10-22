@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-22 12:35:47 EDT"
-updated_at: "2026-10-22 14:16:03 EDT"
+updated_at: "2026-10-22 14:17:05 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-22 14:16:03 EDT)
+## User (2026-10-22 14:17:05 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-22 14:16:03 EDT)
+## Claude (2026-10-22 14:17:05 EDT)
 
 Latest call with Travis Lane: “3GM Steel & AskCruz – Weekly Check-in”
 Field	Value
@@ -118,11 +118,11 @@ Speech-recognition errors: Claude is rendered as “quad”, “Cruze” or “C
 
 I can pull the Oct 1 kickoff call (2516), check whether other Fathom calls are unlinked to a client, or check for a recording of today’s check-in later. Which would you like?
 
-## User (2026-10-22 14:16:03 EDT)
+## User (2026-10-22 14:17:05 EDT)
 
 What's the status of Sabre Alloys onboarding right now?
 
-## Claude (2026-10-22 14:16:03 EDT)
+## Claude (2026-10-22 14:17:05 EDT)
 
 Sabre Alloys (client ID 1)
 
@@ -175,11 +175,11 @@ Everything above is wiki-derived. The 3GM pricing citations didn’t resolve aga
 
 I can verify the open items against the Odoo database (Teams EOXS) or open the underlying emails for the blanking errors and the Grexo thread. Which should I do first?
 
-## User (2026-10-22 14:16:03 EDT)
+## User (2026-10-22 14:17:05 EDT)
 
 What onboarding work happened with EOXS before August 2026?
 
-## Claude (2026-10-22 14:16:03 EDT)
+## Claude (2026-10-22 14:17:05 EDT)
 
 Latest call with Travis Lane: “3GM Steel & AskCruz – Weekly Check-in”
 Field	Value
@@ -284,7 +284,7 @@ Speech-recognition errors: Claude is rendered as “quad”, “Cruze” or “C
 
 I can pull the Oct 1 kickoff call (2516), check whether other Fathom calls are unlinked to a client, or check for a recording of today’s check-in later. Which would you like?
 
-## Claude (2026-10-22 14:16:03 EDT)
+## Claude (2026-10-22 14:17:05 EDT)
 
 Source check on the 3GM pricing claims: mostly not verified
 
@@ -326,11 +326,11 @@ Pull the invoice PDF text (attachment 50738): it may show the 50% amount and ter
 
 Which should I run? Number 1 is the one that would verify the proposal, signature and term claims.
 
-## User (2026-10-22 14:16:03 EDT)
+## User (2026-10-22 14:17:05 EDT)
 
 What's the status of Sabre Alloys onboarding right now?
 
-## Claude (2026-10-22 14:16:03 EDT)
+## Claude (2026-10-22 14:17:05 EDT)
 
 Sabre Alloys: AskCruz onboarding status (as of Oct 20-21, 2026)
 
@@ -363,11 +363,11 @@ Move the onboarding tasks onto the board, as Raj suggested, so blockers don’t 
 
 I can open the three source email threads (71093, 71100, 71165) to confirm current status, or check whether anything new arrived after Oct 20. Which would you like?
 
-## User (2026-10-22 14:16:03 EDT)
+## User (2026-10-22 14:17:05 EDT)
 
 What have we discussed with 3gm about pricing?
 
-## Claude (2026-10-22 14:16:03 EDT)
+## Claude (2026-10-22 14:17:05 EDT)
 
 EOXS Client Implementation and Go-Live SOP: stages in order
 
@@ -404,3 +404,45 @@ Stage order is ambiguous in two places. §18.1 puts Implementation closure after
 Title mismatch. The table of contents calls section 31 “Leadership Decisions Required Before Final Approval”, but the body calls it “Leadership Decisions and Approved Operating Rules”. That is a sign the document was edited after the contents were generated.
 
 I can compare this against how 3GM and Sabre onboarding actually progressed, or map the current Kanban stages onto these. Which would you like?
+
+## Claude (2026-10-22 14:17:05 EDT)
+
+Source check on the 3GM pricing claims: mostly not verified
+
+The source the wiki cites doesn’t contain the pricing claims, and the other cited sources don’t resolve.
+
+What I pulled
+
+Email 68402 (“Invoice / AskCruz — 3GM Steel Kickoff Invoice”, ron_gmail, 10 messages, Sep 7 to Oct 1, 2026) is the only citation on the proposal-call wiki page. It is a kickoff-invoice thread, not a proposal or pricing thread.
+
+What 68402 confirms
+Claim from my earlier summary	Status	Source detail
+Kickoff invoice went out Sep 7	Confirmed	Ron to Travis and Stefan, invoice INV/2026/0367 for 50% kickoff payment (amount masked).
+Travis was asking where things stood	Confirmed (new)	On Sep 22 Travis wrote “Any updates on progress? Not sure where we stand.”
+Setup progress	Confirmed (new)	Sep 22: Ron said the email data pull was done and being structured. Sep 28: “Everything is ready on our end.”
+Setup call date	Confirmed (new)	Oct 1, 2 PM ET, Zoom invite sent to Travis and Stefan.
+Invoice paid	Not stated	The thread never mentions payment.
+What I could not verify
+
+These all came from the wiki synthesis, with no raw source behind them:
+
+The two Aug 14 proposals and the line-item mismatch between them
+Travis’s five-point pushback and Raj’s “That’s on me” reply
+Ron’s Aug 17 reconciled proposal and the decision to use Claude as the front end
+The 2-user scope reduction on Aug 19
+The 6-month term and the signed proposal on Aug 20
+The Aug 24 written no-auto-renewal confirmation
+Every pricing table, rate and term
+
+The page’s other cited thread IDs (66466, 66474) return “no email thread matching”, and so does 66450, which the page text references. The ones that should hold the actual pricing emails aren’t retrievable by ID.
+
+QA finding
+
+For your system-health check, the wiki cites raw sources that don’t resolve and one that is the wrong thread. A reader following the citation lands on an invoice-follow-up thread, not a pricing source. I also repeated those claims without that caveat earlier.
+
+Next steps
+Search the Aug 14-24 threads directly: list raj_gmail and ron_gmail for those dates, since a keyword search on the subject returned nothing relevant.
+Pull the Aug 12 call transcript (call 2388): a raw source for the verbal quote.
+Pull the invoice PDF text (attachment 50738): it may show the 50% amount and terms (amounts may be masked).
+
+Which should I run? Number 1 is the one that would verify the proposal, signature and term claims.

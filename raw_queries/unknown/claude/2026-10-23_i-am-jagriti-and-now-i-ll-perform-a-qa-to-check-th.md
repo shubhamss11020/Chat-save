@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-23 08:49:49 EDT"
-updated_at: "2026-10-23 09:54:30 EDT"
+updated_at: "2026-10-23 10:00:22 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-23 09:54:30 EDT)
+## User (2026-10-23 10:00:22 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
 Here’s the 3GM Steel profile from the AskCruz registry. All of it comes from titles and metadata, so I haven’t opened any email, call, or wiki page to verify details.
 
@@ -55,11 +55,11 @@ Registry gap: several 2022 implementation tasks are still in “Sub Tasks” or 
 
 Do you want me to open the tickets on the tonnage card and pricing issues to check whether it’s one root cause, or look at the uptime alert and performance fix first?
 
-## User (2026-10-23 09:54:30 EDT)
+## User (2026-10-23 10:00:22 EDT)
 
 What does the unpublished draft page on implementation of 3gm say?
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
 Assuming you mean the AskCruz (Company Brain) onboarding, it’s early-stage and blocked on client-side prerequisites. The Sabre EOXS ERP itself has been live since the 2024 soft launch and is now in post-implementation support, with Shubham Sharma named relationship manager on Sep 14-15. I read the first 8,000 of 15,027 characters of the main wiki page, covering Oct 16-22. The earlier proposal history is unread.
 
@@ -85,44 +85,58 @@ Parallel pressure: Sabre has a steady stream of ERP defects (blanking processing
 
 Do you want the full proposal and deal history (scope, toll-processing side deal, data-privacy pushback), or an ERP stability check on Sabre for your QA?
 
-## User (2026-10-23 09:54:30 EDT)
+## User (2026-10-23 10:00:22 EDT)
 
 What does the unpublished draft page on implementation of 3gm say?
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
-Here’s the AskCruz (Company Brain) pricing history with 3GM. I assumed you mean the commercial pricing, not the ERP tonnage-card pricing bugs from earlier. Dollar amounts are restricted in the wiki, so I can’t give you figures. I read about 9,000 of 35,446 characters of the main page, which is the best summary of the deal: it covers the proposal mix-up through Travis’s pushback. The reconciled 2-user deal terms below come from its summary at the top.
+There is no real stage-transition history in the data. The AskCruz ingest keeps only each task’s current stage. The two tasks I opened in full (the parent “Kick Off Call” and “Customer Data”) have empty change logs, and I didn’t open the other 26. So the first table below is creation order with current stage, not a record of how tasks moved between stages. The second table is the 2026 AskCruz onboarding, which is a separate track.
 
-Timeline
-Date	What happened
-Aug 12	Rajat pitches Company Brain to Travis Lane (CCO) as an upsell. A verbal quote is given: platform fee plus a per-user Claude fee per month.
-Aug 14	Two 3-user proposals go out about 90 minutes apart. Line-item pricing differs between them but the totals are the same. One was addressed to Rajat’s own inbox, so it may never have reached Travis.
-Aug 14	Travis reproduces the pricing errors himself and wants a reconciled version before he takes it to 3GM’s CEO.
-Aug 14	Rajat admits the proposal “doesn’t match what we discussed” and commits to rebuilding it.
-Aug 17	Ron sends a point-by-point reply with a corrected proposal. EOXS also decides to run Company Brain on Claude rather than AskCruz as the front end.
-Aug 19	Travis confirms they’ll proceed at a reduced scope.
-Aug 20	Rajat agrees to a 6-month initial term. Travis signs and returns the 2-user proposal the same day.
-Aug 24	Rajat confirms in writing that the 3-year term does not auto-renew, and 3GM gets an explicit decision at month 6. That was Travis’s condition for releasing the 50% kickoff payment.
-Sep 7	The 50% kickoff invoice is sent.
-Oct	The final implementation invoice is now past due.
-Terms discussed
-Original 3-user terms: 12-month initial term, 3 years going forward, 50% at kickoff, Net 7, and up to 8% annual renewal increases.
-Structure: a one-time capital fee plus a monthly fee.
-Deal signed: 2 users, 6-month initial term, no auto-renewal.
-Travis’s five objections (Aug 14)
-What the EOXS integration fee actually covers, and confirmation it’s truly one-time.
-The Claude subscription line didn’t match its total. It only works out at a higher tier than the one listed.
-The line items didn’t sum to the stated monthly total.
-Email integration pricing differed from what he recalled being quoted verbally.
-The proposal’s team description (“salespeople and four partners”) didn’t fit 3GM. It looked like a reused template.
-What stands out
-Pricing credibility took a hit. The sent proposal had arithmetic errors that the client caught himself, and the three pricing figures on record cover different scopes, so they were never reconciled in the record. 3GM closed anyway, which suggests the relationship carried it.
-Payment risk. Travis had to be asked twice for term clarity before paying. The final invoice is now past due, so the cost of the early pricing confusion may still be showing up.
-Expansion is pending. Raj pitched adding inside-sales inboxes, which would be a second pricing conversation. I haven’t read how that was priced.
+1. ERP onboarding board (2022): creation order, current stage
+Created	Task	Owner	Current stage
+Apr 26	Kick Off Call (parent)	Rajat	Tasks
+Apr 26	Introductory Email (due Apr 27)	Travis Lane	Archive
+Apr 26	Schedule Meetings (due Apr 28)	Travis Lane	Archive
+Apr 26	Org Chart (due May 3)	Jessica Worley	Archive
+Apr 26	Kick off Payment	Rajat	Archive
+Apr 26	Company Details (due May 9)	Sai Siddhartha Dutta	Completed
+Apr 26	Vendor Data	none	Completed
+Apr 26	Customer Data (High, due May 23)	Alka Jain	Completed
+Apr 26	Third Party Service Vendors Data	Rajat	Sub Tasks
+Apr 26	Discovery Calls (parent)	Rajat	Tasks
+Apr 27	Discovery calls with Travis, Jessica, Adam Buck, Rachel, Leslie, Donnie, Rajat (7 tasks)	Rajat (Rachel: Sai Siddhartha Dutta)	Completed
+Apr 27	Kick Off Call: Reports (due May 4)	Sai Siddhartha Dutta	Completed
+May 3	Kick Off Call: Access Rights (due May 5)	Sai Siddhartha Dutta	Completed
+May 4	Kick Off Call: Ports information (due May 26)	none	Completed
+May 5	Library	Rajat	Tasks
+May 5	Discovery Calls: Workflow of existing system	Rajat	Sub Tasks
+May 17	EOXS Internal (parent)	Rajat	Tasks
+May 17	EOXS Internal: Move Dis Calls, Untag Client, Make BPF, Create Data Task (4 tasks)	Rajat	Sub Tasks
+May 25	Product Master	Alka Jain	Completed
+Current stages (28 tasks): Completed 14, Sub Tasks 6, Archive 4, Tasks 4.
+No later activity: nothing was created after May 25, 2022, and every task shows the same last-updated date, Jul 17, 2024, which looks like a bulk close. The board has nothing on training, go-live, or hypercare.
+Open items in 2022: six tasks are still in Sub Tasks and four in Tasks, so some tracked work may never have been closed out. I can’t tell whether it was done and just not updated.
+2. AskCruz (Company Brain) onboarding (2026), in order
+Date	Event	Source
+Aug 12	Proposal call with Travis	Fireflies call 2388
+Aug 17	Corrected proposal sent	Email 71396
+Aug 20	6-month term agreed, 2-user proposal signed	Email 71396
+Aug 24	Rajat confirms no auto-renewal; 30 days’ notice before month 6	Email 71396
+Aug 27 – Sep 1	Kickoff requirements: Claude Pro accounts, Outlook, mail history	Email 71396
+Sep 4	Outlook admin-consent blocker resolved after an approval call	Wiki page title only
+Sep 7	50% kickoff invoice INV/2026/0367 sent	Email 68402
+Sep 22	Travis asks for a status update (“not sure where we stand”)	Email 68402
+Oct 1	Setup and handover call, 2pm ET	Email 68402 scheduling, Ron’s thread
+Oct 3	Balance and October licensing invoice INV/2026/0368 built; planned send Oct 5	Ron’s thread; sending not confirmed
+Oct 15	First weekly check-in held; 21-item data questionnaire answered	Wiki page title only
+Oct 22	Second check-in planned with Travis; Stefan out, separate session offered for Oct 23 or 26	Wiki page title only
+Unconfirmed: whether the Oct 5 send happened, and whether either invoice was paid.
+Title-only sources: the Sep 4 and Oct 15/22 rows come from wiki titles that I haven’t opened or checked against emails.
 
-I haven’t verified whether the kickoff invoice was paid, since the wiki flags that as unknown. Do you want me to check the emails for payment status, or read the expansion pitch for how it was priced?
+Do you want me to open the remaining 26 tasks to check for any change logs, or verify the Oct 15 and Oct 22 entries against the source emails?
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -152,11 +166,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 09:54:30 EDT)
+## User (2026-10-23 10:00:22 EDT)
 
 Pull the exact source for that pricing claim.
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -186,11 +200,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 09:54:30 EDT)
+## User (2026-10-23 10:00:22 EDT)
 
 How many calls came through Fireflies vs. Fathom?
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
 I’m assuming “teams cruz” means Teams AskCruz, the internal Odoo instance, and not the AskCruz product or an MS Teams integration. Tell me if you meant something else. This comes from wiki pages, which are secondary summaries, and I haven’t queried the instance directly.
 
@@ -213,11 +227,11 @@ Tasks closed without activity: some tasks were completed with zero notes or by s
 
 For your QA, would you like me to run read-only checks on the instance itself (task counts, stale tasks, stage consistency), or just map the Teams AskCruz and Teams Eoxs connectors?
 
-## User (2026-10-23 09:54:30 EDT)
+## User (2026-10-23 10:00:22 EDT)
 
 Show me the latest invoice for 3gm.
 
-## Claude (2026-10-23 09:54:30 EDT)
+## Claude (2026-10-23 10:00:22 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 

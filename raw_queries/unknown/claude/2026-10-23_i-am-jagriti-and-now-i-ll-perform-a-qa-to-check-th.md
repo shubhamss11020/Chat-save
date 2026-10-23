@@ -4,92 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-23 08:49:49 EDT"
-updated_at: "2026-10-23 10:00:22 EDT"
+updated_at: "2026-10-23 10:01:22 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-23 10:00:22 EDT)
+## User (2026-10-23 10:01:22 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-23 10:00:22 EDT)
-
-Here’s the 3GM Steel profile from the AskCruz registry. All of it comes from titles and metadata, so I haven’t opened any email, call, or wiki page to verify details.
-
-Account basics
-Slug / ID: 3gm-steel / 2
-Domain: 3gmsteel.com
-Odoo: https://3gm.eoxs.com (DB: threegmsteels)
-Contacts: Jessica Worley, Leslie Countryman, Travis Lane
-Volume: 982 emails, 13 calls, 28 implementation tasks, 48 live wiki pages (4 are restricted)
-Relationship
-Two products: 3GM is an EOXS/Odoo ERP client from 2022 onboarding (28 implementation tasks). It is also a newer AskCruz (“Company Brain”) customer: proposal call Aug 12, 2026, then a deal at reduced 2-user scope with a shorter initial term.
-AskCruz status (Oct 2026):
-The final implementation invoice is past due.
-The first weekly check-in was Oct 15, and the second was set for Oct 22 with Travis.
-A 21-item data questionnaire was answered. 7 items are left for Stefan, who is now out; a separate session was offered for Oct 23 or 26.
-Travis flagged a contradiction between the corporate structure and a July 2026 LOI.
-A 3GM-side Claude Max case is stalled.
-Expansion: Raj pitched extending AskCruz to inside-sales inboxes. Travis flagged the VP of Trading Ops as AI-resistant.
-Open ERP issues relevant to your QA
-Area	Issue	Date
-Platform	Client-portal uptime monitor: 3GM and Greer unreachable	Oct 19
-Platform	Customer Overview Statement module performance fix deployed	Oct 14
-Transfers	POV/OUT/00029 stuck, blocking remaining deliveries; EOXS response delayed by holiday	Oct 20–21
-Pricing	Related Prices tab showing all-zero PO#/CWT cost on POV/OUT/00029 (flagged urgent)	Oct 20
-Pricing	PBR Polar White priced in MT instead of CWT, SO S10729 (urgent)	Oct 14
-Inventory	Coil search/availability bug on the tonnage card, possibly fixed Oct 14	Jun–Oct
-Inventory	12 coils invoiced under INV/2026/2246 still show as available	Sep 21
-Invoicing	INV/2026/2403 unresolved after second escalation (INV/2026/2368 confirmed correct)	Oct 6
-Invoicing	INV/2026/2434 amount-due mismatch vs. weight × CWT	Sep 30
-POs	Four POs (P04612–P04615) stuck in “confirmed but can’t receive”	Sep 28
-POs	Recurring coil-upload error (ND/IN/00015, 00016)	Sep 22–23
-
-Beyond the issues above, recent product-variant requests (PRM:26, PRM:28, color variants) are routine catalog additions.
-
-What stands out
-Recurring defect pattern: the tonnage card and related-pricing logic shows up in at least four separate issues (S10729, POV/OUT/00029, S11105, CNJ/OUT/00074) from August to October. That looks like a systemic problem rather than one-off tickets, but I’d need to read the tickets to confirm.
-Compounding commercial risk: an overdue invoice, urgent unresolved tickets, and an uptime alert are all open while you’re trying to expand the account.
-Registry gap: several 2022 implementation tasks are still in “Sub Tasks” or “Tasks” stages. I don’t know whether they are abandoned or just never closed out.
-
-Do you want me to open the tickets on the tonnage card and pricing issues to check whether it’s one root cause, or look at the uptime alert and performance fix first?
-
-## User (2026-10-23 10:00:22 EDT)
-
-What does the unpublished draft page on implementation of 3gm say?
-
-## Claude (2026-10-23 10:00:22 EDT)
-
-Assuming you mean the AskCruz (Company Brain) onboarding, it’s early-stage and blocked on client-side prerequisites. The Sabre EOXS ERP itself has been live since the 2024 soft launch and is now in post-implementation support, with Shubham Sharma named relationship manager on Sep 14-15. I read the first 8,000 of 15,027 characters of the main wiki page, covering Oct 16-22. The earlier proposal history is unread.
-
-Where it stands (as of Oct 22, 2026)
-Kickoff: The Oct 15 call was held. On Oct 16, Ayan Dutta (AskCruz Implementation Head) sent a formal onboarding email to Michael Mercadante and Tye Webb. The first installment invoice has also gone out.
-Prerequisite 1, Outlook access: blocked.
-It needs a one-time Microsoft 365 admin approval from a Sabre admin, routed through their IT vendor Grexo (Joe Chevalier).
-Ayan emailed Grexo three times between Oct 19 and Oct 20, with no recorded reply.
-The approval link deadline was extended from Oct 23 to Oct 26.
-On Oct 22, Ayan said Grexo is opening a support ticket and told him approval won’t happen before Monday, Oct 26. That is his verbal account only, with no email or ticket confirming it.
-Prerequisite 2, org chart and user list: stalled.
-Ernie Valdez was asked on Oct 16 and chased on Oct 19, with no reply.
-On Oct 20 the task was reassigned to Tye Webb and Michael Mercadante per Ron.
-Delivery is targeted for around Oct 23, pending Michael’s sign-off, but Michael was out.
-Planned start of Oct 19: missed. The team is now aiming to “hit the ground running” Monday, Oct 26.
-Risks and flags
-Hard deadline: If M365 approval isn’t actioned by Oct 26, the link expires and the process restarts.
-Single point of dependency: Everything hinges on Grexo, a third party, plus one Sabre admin.
-Unreconciled ownership: The sources don’t explain why the org-chart task moved from Ernie to Tye and Michael.
-Unverified name: Ron’s “Dai” on the Oct 22 call is probably a mis-transcription of “Tye”, but that isn’t confirmed.
-Process critique: Raj asked internally why these tasks went out by email instead of onto the project board. No resolution is recorded.
-Parallel pressure: Sabre has a steady stream of ERP defects (blanking processing errors, “Cannot Confirm PL,” GP miscalculations, and landed-cost issues). Tye Webb asked on Oct 1 whether a recent update caused them. That likely competes for the same stakeholders’ attention.
-
-Do you want the full proposal and deal history (scope, toll-processing side deal, data-privacy pushback), or an ERP stability check on Sabre for your QA?
-
-## User (2026-10-23 10:00:22 EDT)
-
-What does the unpublished draft page on implementation of 3gm say?
-
-## Claude (2026-10-23 10:00:22 EDT)
+## Claude (2026-10-23 10:01:22 EDT)
 
 There is no real stage-transition history in the data. The AskCruz ingest keeps only each task’s current stage. The two tasks I opened in full (the parent “Kick Off Call” and “Customer Data”) have empty change logs, and I didn’t open the other 26. So the first table below is creation order with current stage, not a record of how tasks moved between stages. The second table is the 2026 AskCruz onboarding, which is a separate track.
 
@@ -136,7 +60,88 @@ Title-only sources: the Sep 4 and Oct 15/22 rows come from wiki titles that I ha
 
 Do you want me to open the remaining 26 tasks to check for any change logs, or verify the Oct 15 and Oct 22 entries against the source emails?
 
-## Claude (2026-10-23 10:00:22 EDT)
+## User (2026-10-23 10:01:22 EDT)
+
+What does the unpublished draft page on implementation of 3gm say?
+
+## Claude (2026-10-23 10:01:22 EDT)
+
+Assuming you mean the AskCruz (Company Brain) onboarding, it’s early-stage and blocked on client-side prerequisites. The Sabre EOXS ERP itself has been live since the 2024 soft launch and is now in post-implementation support, with Shubham Sharma named relationship manager on Sep 14-15. I read the first 8,000 of 15,027 characters of the main wiki page, covering Oct 16-22. The earlier proposal history is unread.
+
+Where it stands (as of Oct 22, 2026)
+Kickoff: The Oct 15 call was held. On Oct 16, Ayan Dutta (AskCruz Implementation Head) sent a formal onboarding email to Michael Mercadante and Tye Webb. The first installment invoice has also gone out.
+Prerequisite 1, Outlook access: blocked.
+It needs a one-time Microsoft 365 admin approval from a Sabre admin, routed through their IT vendor Grexo (Joe Chevalier).
+Ayan emailed Grexo three times between Oct 19 and Oct 20, with no recorded reply.
+The approval link deadline was extended from Oct 23 to Oct 26.
+On Oct 22, Ayan said Grexo is opening a support ticket and told him approval won’t happen before Monday, Oct 26. That is his verbal account only, with no email or ticket confirming it.
+Prerequisite 2, org chart and user list: stalled.
+Ernie Valdez was asked on Oct 16 and chased on Oct 19, with no reply.
+On Oct 20 the task was reassigned to Tye Webb and Michael Mercadante per Ron.
+Delivery is targeted for around Oct 23, pending Michael’s sign-off, but Michael was out.
+Planned start of Oct 19: missed. The team is now aiming to “hit the ground running” Monday, Oct 26.
+Risks and flags
+Hard deadline: If M365 approval isn’t actioned by Oct 26, the link expires and the process restarts.
+Single point of dependency: Everything hinges on Grexo, a third party, plus one Sabre admin.
+Unreconciled ownership: The sources don’t explain why the org-chart task moved from Ernie to Tye and Michael.
+Unverified name: Ron’s “Dai” on the Oct 22 call is probably a mis-transcription of “Tye”, but that isn’t confirmed.
+Process critique: Raj asked internally why these tasks went out by email instead of onto the project board. No resolution is recorded.
+Parallel pressure: Sabre has a steady stream of ERP defects (blanking processing errors, “Cannot Confirm PL,” GP miscalculations, and landed-cost issues). Tye Webb asked on Oct 1 whether a recent update caused them. That likely competes for the same stakeholders’ attention.
+
+Do you want the full proposal and deal history (scope, toll-processing side deal, data-privacy pushback), or an ERP stability check on Sabre for your QA?
+
+## User (2026-10-23 10:01:22 EDT)
+
+What does the unpublished draft page on implementation of 3gm say?
+
+## Claude (2026-10-23 10:01:22 EDT)
+
+There is no real stage-transition history in the data. The AskCruz ingest keeps only each task’s current stage. The two tasks I opened in full (the parent “Kick Off Call” and “Customer Data”) have empty change logs, and I didn’t open the other 26. So the first table below is creation order with current stage, not a record of how tasks moved between stages. The second table is the 2026 AskCruz onboarding, which is a separate track.
+
+1. ERP onboarding board (2022): creation order, current stage
+Created	Task	Owner	Current stage
+Apr 26	Kick Off Call (parent)	Rajat	Tasks
+Apr 26	Introductory Email (due Apr 27)	Travis Lane	Archive
+Apr 26	Schedule Meetings (due Apr 28)	Travis Lane	Archive
+Apr 26	Org Chart (due May 3)	Jessica Worley	Archive
+Apr 26	Kick off Payment	Rajat	Archive
+Apr 26	Company Details (due May 9)	Sai Siddhartha Dutta	Completed
+Apr 26	Vendor Data	none	Completed
+Apr 26	Customer Data (High, due May 23)	Alka Jain	Completed
+Apr 26	Third Party Service Vendors Data	Rajat	Sub Tasks
+Apr 26	Discovery Calls (parent)	Rajat	Tasks
+Apr 27	Discovery calls with Travis, Jessica, Adam Buck, Rachel, Leslie, Donnie, Rajat (7 tasks)	Rajat (Rachel: Sai Siddhartha Dutta)	Completed
+Apr 27	Kick Off Call: Reports (due May 4)	Sai Siddhartha Dutta	Completed
+May 3	Kick Off Call: Access Rights (due May 5)	Sai Siddhartha Dutta	Completed
+May 4	Kick Off Call: Ports information (due May 26)	none	Completed
+May 5	Library	Rajat	Tasks
+May 5	Discovery Calls: Workflow of existing system	Rajat	Sub Tasks
+May 17	EOXS Internal (parent)	Rajat	Tasks
+May 17	EOXS Internal: Move Dis Calls, Untag Client, Make BPF, Create Data Task (4 tasks)	Rajat	Sub Tasks
+May 25	Product Master	Alka Jain	Completed
+Current stages (28 tasks): Completed 14, Sub Tasks 6, Archive 4, Tasks 4.
+No later activity: nothing was created after May 25, 2022, and every task shows the same last-updated date, Jul 17, 2024, which looks like a bulk close. The board has nothing on training, go-live, or hypercare.
+Open items in 2022: six tasks are still in Sub Tasks and four in Tasks, so some tracked work may never have been closed out. I can’t tell whether it was done and just not updated.
+2. AskCruz (Company Brain) onboarding (2026), in order
+Date	Event	Source
+Aug 12	Proposal call with Travis	Fireflies call 2388
+Aug 17	Corrected proposal sent	Email 71396
+Aug 20	6-month term agreed, 2-user proposal signed	Email 71396
+Aug 24	Rajat confirms no auto-renewal; 30 days’ notice before month 6	Email 71396
+Aug 27 – Sep 1	Kickoff requirements: Claude Pro accounts, Outlook, mail history	Email 71396
+Sep 4	Outlook admin-consent blocker resolved after an approval call	Wiki page title only
+Sep 7	50% kickoff invoice INV/2026/0367 sent	Email 68402
+Sep 22	Travis asks for a status update (“not sure where we stand”)	Email 68402
+Oct 1	Setup and handover call, 2pm ET	Email 68402 scheduling, Ron’s thread
+Oct 3	Balance and October licensing invoice INV/2026/0368 built; planned send Oct 5	Ron’s thread; sending not confirmed
+Oct 15	First weekly check-in held; 21-item data questionnaire answered	Wiki page title only
+Oct 22	Second check-in planned with Travis; Stefan out, separate session offered for Oct 23 or 26	Wiki page title only
+Unconfirmed: whether the Oct 5 send happened, and whether either invoice was paid.
+Title-only sources: the Sep 4 and Oct 15/22 rows come from wiki titles that I haven’t opened or checked against emails.
+
+Do you want me to open the remaining 26 tasks to check for any change logs, or verify the Oct 15 and Oct 22 entries against the source emails?
+
+## Claude (2026-10-23 10:01:22 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -166,11 +171,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 10:00:22 EDT)
+## User (2026-10-23 10:01:22 EDT)
 
 Pull the exact source for that pricing claim.
 
-## Claude (2026-10-23 10:00:22 EDT)
+## Claude (2026-10-23 10:01:22 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -200,11 +205,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 10:00:22 EDT)
+## User (2026-10-23 10:01:22 EDT)
 
 How many calls came through Fireflies vs. Fathom?
 
-## Claude (2026-10-23 10:00:22 EDT)
+## Claude (2026-10-23 10:01:22 EDT)
 
 I’m assuming “teams cruz” means Teams AskCruz, the internal Odoo instance, and not the AskCruz product or an MS Teams integration. Tell me if you meant something else. This comes from wiki pages, which are secondary summaries, and I haven’t queried the instance directly.
 
@@ -227,11 +232,11 @@ Tasks closed without activity: some tasks were completed with zero notes or by s
 
 For your QA, would you like me to run read-only checks on the instance itself (task counts, stale tasks, stage consistency), or just map the Teams AskCruz and Teams Eoxs connectors?
 
-## User (2026-10-23 10:00:22 EDT)
+## User (2026-10-23 10:01:22 EDT)
 
 Show me the latest invoice for 3gm.
 
-## Claude (2026-10-23 10:00:22 EDT)
+## Claude (2026-10-23 10:01:22 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 

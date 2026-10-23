@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-23 08:49:49 EDT"
-updated_at: "2026-10-23 10:07:07 EDT"
+updated_at: "2026-10-23 10:09:09 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-23 10:07:07 EDT)
+## User (2026-10-23 10:09:09 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
 Here’s the Sabre Alloys profile from the AskCruz registry. It comes from record metadata and wiki page titles, and I haven’t opened most of the underlying pages, so treat the details as leads. I could not check the staging area for drafts because the Threads-Wiki connector isn’t available this turn (see “Pending review”).
 
@@ -71,41 +71,49 @@ The AskCruz page title lists a chase for Ernie with no reply, then a reassignmen
 
 I can query the staging area for drafts and needs_rework pages once that connector is back. Do you want me to open the new processing module pages first to resolve the contradiction?
 
-## User (2026-10-23 10:07:07 EDT)
+## User (2026-10-23 10:09:09 EDT)
 
 What does the unpublished draft page on implementation of 3gm say?
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
-Assuming you mean the AskCruz (Company Brain) onboarding, it’s early-stage and blocked on client-side prerequisites. The Sabre EOXS ERP itself has been live since the 2024 soft launch and is now in post-implementation support, with Shubham Sharma named relationship manager on Sep 14-15. I read the first 8,000 of 15,027 characters of the main wiki page, covering Oct 16-22. The earlier proposal history is unread.
+I can’t give you a real ticket list for last quarter. The ticket system isn’t in AskCruz, and the best ticket record I have stops on July 16, 2026. I took “last quarter” as calendar Q3 (Jul 1 to Sep 30, 2026).
 
-Where it stands (as of Oct 22, 2026)
-Kickoff: The Oct 15 call was held. On Oct 16, Ayan Dutta (AskCruz Implementation Head) sent a formal onboarding email to Michael Mercadante and Tye Webb. The first installment invoice has also gone out.
-Prerequisite 1, Outlook access: blocked.
-It needs a one-time Microsoft 365 admin approval from a Sabre admin, routed through their IT vendor Grexo (Joe Chevalier).
-Ayan emailed Grexo three times between Oct 19 and Oct 20, with no recorded reply.
-The approval link deadline was extended from Oct 23 to Oct 26.
-On Oct 22, Ayan said Grexo is opening a support ticket and told him approval won’t happen before Monday, Oct 26. That is his verbal account only, with no email or ticket confirming it.
-Prerequisite 2, org chart and user list: stalled.
-Ernie Valdez was asked on Oct 16 and chased on Oct 19, with no reply.
-On Oct 20 the task was reassigned to Tye Webb and Michael Mercadante per Ron.
-Delivery is targeted for around Oct 23, pending Michael’s sign-off, but Michael was out.
-Planned start of Oct 19: missed. The team is now aiming to “hit the ground running” Monday, Oct 26.
-Risks and flags
-Hard deadline: If M365 approval isn’t actioned by Oct 26, the link expires and the process restarts.
-Single point of dependency: Everything hinges on Grexo, a third party, plus one Sabre admin.
-Unreconciled ownership: The sources don’t explain why the org-chart task moved from Ernie to Tye and Michael.
-Unverified name: Ron’s “Dai” on the Oct 22 call is probably a mis-transcription of “Tye”, but that isn’t confirmed.
-Process critique: Raj asked internally why these tasks went out by email instead of onto the project board. No resolution is recorded.
-Parallel pressure: Sabre has a steady stream of ERP defects (blanking processing errors, “Cannot Confirm PL,” GP miscalculations, and landed-cost issues). Tye Webb asked on Oct 1 whether a recent update caused them. That likely competes for the same stakeholders’ attention.
+What’s available
+Ticket export: a wiki synthesis of 3GM’s Odoo tickets (192 tickets, T04425 to T07460, Jul 23, 2025 to Jul 16, 2026). It covers only about 16 days of Q3, and I read only the first 7,000 of its 58,135 characters.
+Ticket system: the registry says support tickets live in the EOXS Teams Odoo database. That connector isn’t loadable in this session, so I can’t query it.
+What’s below: I reconstructed the Q3 list from wiki page titles on 3GM issues. These are issue pages, not tickets, so there are no ticket numbers or statuses, and I haven’t opened them.
+3GM issues in Q3 2026 (from wiki titles)
+Date	Issue
+Jun-Sep	Coil search/availability bug on the tonnage card (CNJ/OUT/00074)
+Aug	S11105 tonnage-card pricing error (MAC Metal Sales, KY) and the line-item correction
+Aug	PO product creation: steel spec fields and unit-of-measure fix
+Aug 24, Aug 31, Sep 1	Product variant catalog additions (three requests)
+Sep 1	Coil availability and sales-order tagging fixes
+Sep 3-4	PO/lot-serial related-price mismatch (SCP/OUT/02587)
+Sep 4	Suspected duplicate payment (Reliable Metal Buildings, INV/2026/2146)
+Sep 4	PRM:28 variants, 17 color variants for a new coating line
+Sep 8-9	New HOT ROLL oxide-coated product, width correction follow-up
+Sep 9	New PRM:26 color and width variants
+Sep 21	12 coils invoiced under INV/2026/2246 still showing as available
+Sep 22-23	Recurring coil-upload error into POs (ND/IN/00015, 00016)
+Sep 28	Four POs (P04612 to P04615) stuck in “confirmed but can’t receive”
+Sep 30	INV/2026/2434 amount-due mismatch vs. weight × CWT
 
-Do you want the full proposal and deal history (scope, toll-processing side deal, data-privacy pushback), or an ERP stability check on Sabre for your QA?
+A Sep 1 support health report email flagged 3GM as Critical: a phantom 2024 credit-balance bug blocked payment on 3 invoices. I saw only the email snippet.
 
-## User (2026-10-23 10:07:07 EDT)
+Caveats
+Not a ticket count: one issue page can cover several tickets, and some tickets may have no page, so I can’t tell you how many tickets 3GM filed in Q3.
+Q2 spillover: if you meant Apr-Jun, the export covers that period well (it includes the Apr 2026 loading-time cluster and the Jun 29 recurrence, T07384).
+Chronic defects: the export shows invoices pulling footage instead of weight, and “Amount Due” mismatches, recurring across at least four months and never root-caused. The Sep 30 mismatch fits that pattern, but I haven’t confirmed it’s the same bug.
+
+Which should I do: open the Q3 issue pages to pull their ticket numbers, or dig into the export for the July 1-16 tickets?
+
+## User (2026-10-23 10:09:09 EDT)
 
 What does the unpublished draft page on implementation of 3gm say?
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
 There is no real stage-transition history in the data. The AskCruz ingest keeps only each task’s current stage. The two tasks I opened in full (the parent “Kick Off Call” and “Customer Data”) have empty change logs, and I didn’t open the other 26. So the first table below is creation order with current stage, not a record of how tasks moved between stages. The second table is the 2026 AskCruz onboarding, which is a separate track.
 
@@ -152,7 +160,7 @@ Title-only sources: the Sep 4 and Oct 15/22 rows come from wiki titles that I ha
 
 Do you want me to open the remaining 26 tasks to check for any change logs, or verify the Oct 15 and Oct 22 entries against the source emails?
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -182,11 +190,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 10:07:07 EDT)
+## User (2026-10-23 10:09:09 EDT)
 
 Pull the exact source for that pricing claim.
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -216,11 +224,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 10:07:07 EDT)
+## User (2026-10-23 10:09:09 EDT)
 
 How many calls came through Fireflies vs. Fathom?
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
 I’m assuming “teams cruz” means Teams AskCruz, the internal Odoo instance, and not the AskCruz product or an MS Teams integration. Tell me if you meant something else. This comes from wiki pages, which are secondary summaries, and I haven’t queried the instance directly.
 
@@ -243,11 +251,11 @@ Tasks closed without activity: some tasks were completed with zero notes or by s
 
 For your QA, would you like me to run read-only checks on the instance itself (task counts, stale tasks, stage consistency), or just map the Teams AskCruz and Teams Eoxs connectors?
 
-## User (2026-10-23 10:07:07 EDT)
+## User (2026-10-23 10:09:09 EDT)
 
 Give me sabre alloy's full profile including anything pending review.
 
-## Claude (2026-10-23 10:07:07 EDT)
+## Claude (2026-10-23 10:09:09 EDT)
 
 Here’s the Sabre Alloys profile from the AskCruz registry. It comes from record metadata and wiki page titles, and I haven’t opened most of the underlying pages, so treat the details as leads. I could not check the staging area for drafts because the Threads-Wiki connector isn’t available this turn (see “Pending review”).
 

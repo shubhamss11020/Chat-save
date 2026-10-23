@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-23 08:49:49 EDT"
-updated_at: "2026-10-23 08:50:01 EDT"
+updated_at: "2026-10-23 08:50:28 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-23 08:50:01 EDT)
+## User (2026-10-23 08:50:28 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-23 08:50:01 EDT)
+## Claude (2026-10-23 08:50:28 EDT)
 
 Hi Jagriti. Per the org workflow, I’ll review the threads-wiki skill first.
 
@@ -50,3 +50,25 @@ Rigor level. Pick one:
 100 ft, Staged: Deep, delivered section by section, waiting for your “next” between sections.
 
 I’ll ask about craft level (Sketch, Draft, Painting, or Commissioned) once we get to a deliverable.
+
+## User (2026-10-23 08:50:28 EDT)
+
+List all clients in the registry.
+
+## Claude (2026-10-23 08:50:28 EDT)
+
+The registry has 8 clients:
+
+ID	Client	Slug	Domain(s)	Odoo instance
+1	Sabre Alloys	sabre-alloys	sabrealloys.com	sabre.eoxs.com
+2	3GM Steel	3gm-steel	3gmsteel.com	3gm.eoxs.com
+3	Eastern States Steel	eastern-states-steel	easternstatessteel.com	ess.eoxs.com
+4	Discount Pipe & Steel	discount-pipe-steel	discountpipesteel.com	discountpipesteel.eoxs.com
+5	PPC Metals	ppc-metals	ppcmetals.com	ppc.eoxs.com
+6	Ohio Strip Steel (formerly Greer Steel)	greer-steel	ohiostripsteel.com, greersteel.com	greersteel.eoxs.com
+7	RW Conklin Steel	rw-conklin-steel	conklinsteel.com	none
+8	Brannon Steel	brannon-steel	brannonsteel.com	none
+Two clients have no Odoo instance recorded: RW Conklin Steel and Brannon Steel. For QA, either they aren’t live on the platform yet or the registry is missing the URL. I don’t know which.
+One naming mismatch: Ohio Strip Steel still uses the old greer-steel slug and a greersteel.eoxs.com instance, so use the slug when querying.
+
+Which clients or instances are in scope for your QA?

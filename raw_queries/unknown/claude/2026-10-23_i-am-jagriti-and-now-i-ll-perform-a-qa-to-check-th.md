@@ -4,16 +4,16 @@ platform: claude
 username: "unknown"
 title: "System health QA check - Claude"
 created_at: "2026-10-23 08:49:49 EDT"
-updated_at: "2026-10-23 09:53:01 EDT"
+updated_at: "2026-10-23 09:54:30 EDT"
 ---
 
 # System health QA check - Claude
 
-## User (2026-10-23 09:53:01 EDT)
+## User (2026-10-23 09:54:30 EDT)
 
 I am Jagriti and now i'll perform a QA to check the system health and performance
 
-## Claude (2026-10-23 09:53:01 EDT)
+## Claude (2026-10-23 09:54:30 EDT)
 
 Here’s the 3GM Steel profile from the AskCruz registry. All of it comes from titles and metadata, so I haven’t opened any email, call, or wiki page to verify details.
 
@@ -55,11 +55,11 @@ Registry gap: several 2022 implementation tasks are still in “Sub Tasks” or 
 
 Do you want me to open the tickets on the tonnage card and pricing issues to check whether it’s one root cause, or look at the uptime alert and performance fix first?
 
-## User (2026-10-23 09:53:01 EDT)
+## User (2026-10-23 09:54:30 EDT)
 
 What does the unpublished draft page on implementation of 3gm say?
 
-## Claude (2026-10-23 09:53:01 EDT)
+## Claude (2026-10-23 09:54:30 EDT)
 
 Assuming you mean the AskCruz (Company Brain) onboarding, it’s early-stage and blocked on client-side prerequisites. The Sabre EOXS ERP itself has been live since the 2024 soft launch and is now in post-implementation support, with Shubham Sharma named relationship manager on Sep 14-15. I read the first 8,000 of 15,027 characters of the main wiki page, covering Oct 16-22. The earlier proposal history is unread.
 
@@ -85,11 +85,11 @@ Parallel pressure: Sabre has a steady stream of ERP defects (blanking processing
 
 Do you want the full proposal and deal history (scope, toll-processing side deal, data-privacy pushback), or an ERP stability check on Sabre for your QA?
 
-## User (2026-10-23 09:53:01 EDT)
+## User (2026-10-23 09:54:30 EDT)
 
 What does the unpublished draft page on implementation of 3gm say?
 
-## Claude (2026-10-23 09:53:01 EDT)
+## Claude (2026-10-23 09:54:30 EDT)
 
 Here’s the AskCruz (Company Brain) pricing history with 3GM. I assumed you mean the commercial pricing, not the ERP tonnage-card pricing bugs from earlier. Dollar amounts are restricted in the wiki, so I can’t give you figures. I read about 9,000 of 35,446 characters of the main page, which is the best summary of the deal: it covers the proposal mix-up through Travis’s pushback. The reconciled 2-user deal terms below come from its summary at the top.
 
@@ -122,7 +122,7 @@ Expansion is pending. Raj pitched adding inside-sales inboxes, which would be a 
 
 I haven’t verified whether the kickoff invoice was paid, since the wiki flags that as unknown. Do you want me to check the emails for payment status, or read the expansion pitch for how it was priced?
 
-## Claude (2026-10-23 09:53:01 EDT)
+## Claude (2026-10-23 09:54:30 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -152,11 +152,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 09:53:01 EDT)
+## User (2026-10-23 09:54:30 EDT)
 
 Pull the exact source for that pricing claim.
 
-## Claude (2026-10-23 09:53:01 EDT)
+## Claude (2026-10-23 09:54:30 EDT)
 
 The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
 
@@ -186,11 +186,11 @@ Payment status: whether the kickoff invoice was paid, and the “final invoice p
 
 Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?
 
-## User (2026-10-23 09:53:01 EDT)
+## User (2026-10-23 09:54:30 EDT)
 
 How many calls came through Fireflies vs. Fathom?
 
-## Claude (2026-10-23 09:53:01 EDT)
+## Claude (2026-10-23 09:54:30 EDT)
 
 I’m assuming “teams cruz” means Teams AskCruz, the internal Odoo instance, and not the AskCruz product or an MS Teams integration. Tell me if you meant something else. This comes from wiki pages, which are secondary summaries, and I haven’t queried the instance directly.
 
@@ -212,3 +212,37 @@ Ownership gaps: a high-priority R&D task sat with a non-human “MCP Write Tool�
 Tasks closed without activity: some tasks were completed with zero notes or by someone other than the assignee. Treat completion counts in that board’s data with caution.
 
 For your QA, would you like me to run read-only checks on the instance itself (task counts, stale tasks, stage consistency), or just map the Teams AskCruz and Teams Eoxs connectors?
+
+## User (2026-10-23 09:54:30 EDT)
+
+Show me the latest invoice for 3gm.
+
+## Claude (2026-10-23 09:54:30 EDT)
+
+The first source I pulled (68402) is the kickoff-invoice thread, not the pricing negotiation. I’m pulling the other two cited sources.
+
+Short answer: the source the wiki cites for this page (email 68402) does not contain the pricing negotiation. It is the kickoff-invoice thread. I found the real source in a different thread, and checking it exposed two errors in my earlier summary.
+
+Sources checked
+Source	Result
+Email 68402 (cited by wiki)	Kickoff invoice thread only. It supports one fact: invoice INV/2026/0367 for the 50% kickoff payment was sent on Sep 7. Dollar amount restricted.
+Emails 66466, 66474 (also cited)	Both return “no email thread matching”. I can’t verify anything against them.
+Email 71396 (found by search)	The actual pricing chain, Aug 17 to Sep 1 (2 messages, each quoting the full earlier thread). Verified details below.
+Verified in 71396
+Aug 17 (Rajat Jain): The corrected proposal reply addresses Travis’s “five points”. It admits the platform fee was left out of the version Travis reviewed, and that the monthly total, email rate, and team description were errors. It says the original per-user quote covered IRIS, a different, read-only product. It also says EOXS moved to Claude as the sole front end, not AskCruz.
+Aug 19 (Travis): Ready to proceed. Scope is 2 users (himself and Stefan), Prompt History and Historical Data left out for now. He asks for an itemized SOW and a shorter initial term. He cites the original structure of 12 months initial, then a 3-year contract with up to 8% annual increases.
+Aug 20, 12:03 PM (Rajat): Agrees to a 6-month initial term and sends the finalized 2-user proposal.
+Aug 20, 6:03 PM (Travis): Returns the signed proposal. He asks for written confirmation that the 3-year term isn’t automatic before he releases the 50% payment.
+Aug 24 (Rajat): Confirms there is an affirmative decision point at month 6, and that 3GM must give 30 days’ notice before the 6-month mark on which way it’s going.
+Sep 22 (Travis): “Any updates on progress? Not sure where we stand.” This is in 68402, 15 days after the invoice went out.
+Corrections to what I told you earlier
+Wrong sender: I said Ron sent the Aug 17 point-by-point reply. The source shows Rajat sent it. The wiki page says Ron, so the wiki has an error here too.
+Wrong inference: I said “Travis had to be asked twice for term clarity before paying.” That’s unsupported. Travis asked for the clarification once and Rajat answered it four days later. I also called this a payment risk, and the source doesn’t support that either.
+Omitted: The 30-day notice requirement at month 6. It matters for your renewal planning.
+Not verified from raw sources
+Aug 14 events: the two same-day proposals with mismatched line items, Travis’s written objections, and Rajat’s “this version doesn’t match” admission. Rajat’s Aug 17 reply corroborates that errors existed. It does not show the Aug 14 emails themselves.
+Travis’s specific claims: that he independently caught the Claude-tier arithmetic mismatch and recalled a per-5GB email quote. Rajat’s reply doesn’t admit either.
+Dollar amounts and the proposal PDFs: restricted, and the signed and corrected proposals aren’t attached in the thread.
+Payment status: whether the kickoff invoice was paid, and the “final invoice past due” claim.
+
+Do you want me to look for the Aug 14 thread (emails or the Aug 12 call, ID 2388) to confirm the proposal errors, or check payment status next?

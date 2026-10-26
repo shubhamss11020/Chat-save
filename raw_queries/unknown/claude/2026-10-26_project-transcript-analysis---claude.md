@@ -4,23 +4,23 @@ platform: claude
 username: "unknown"
 title: "Project transcript analysis - Claude"
 created_at: "2026-10-26 08:43:58 EDT"
-updated_at: "2026-10-26 09:12:31 EDT"
+updated_at: "2026-10-26 09:32:10 EDT"
 ---
 
 # Project transcript analysis - Claude
 
-## User (2026-10-26 09:12:31 EDT)
+## User (2026-10-26 09:32:10 EDT)
 
 Hi, I'm Jagriti and I'm working on a very important project for the company. go through the transcript and try to understand its basic concept. after you are done, we can start with the requirements and basic structure of the project.
 
 **Attachments:**
 - 📎 **attachment** *(Attached in Claude conversation)*
 
-## User (2026-10-26 09:12:31 EDT)
+## User (2026-10-26 09:32:10 EDT)
 
 Hi, I'm Jagriti and I'm working on a very important project for the company. go through the transcript and try to understand its basic concept. after you are done, we can start with the requirements and basic structure of the project.
 
-## Claude (2026-10-26 09:12:31 EDT)
+## Claude (2026-10-26 09:32:10 EDT)
 
 I'll check the thread-wiki skill file first, as the org instructions require.
 
@@ -63,7 +63,7 @@ The transcript is Raj, the founder, pushing Ayan (product) to turn the company's
 4. **Rigor:** 5 ft (quick), 10 ft (verified), 50 ft (deep, with risks and blind spots), or 100 ft (staged, section by section)?
 5. **Craft:** Sketch, Draft, Painting or Commissioned?
 
-## User (2026-10-26 09:12:31 EDT)
+## User (2026-10-26 09:32:10 EDT)
 
 We will come to your questions later, here is my high level understanding of all the little things we need to make to make this entire automation working. I want to have a high level vision of the entire framework then make a structure to start the implementation.
 
@@ -117,7 +117,7 @@ Look at the entire build from the perspective of a problem and solution statemen
 
 I want this entire system to be built on a very centralised scale where we have the complete picture of what we are building. Every tool plugs into each other simultaneously and seamlessly to create one symbiotic system. You can keep asking me questions as long as you want until you have complete clarity of what we need to do.
 
-## Claude (2026-10-26 09:12:31 EDT)
+## Claude (2026-10-26 09:32:10 EDT)
 
 Your decomposition by function is sound, and treating this as one connected system is the right instinct. But the plan has gaps and a few assumptions that will hurt you if they stay as written.
 
@@ -193,11 +193,11 @@ Is PR/email nurture in scope now, later, or out?
 
 Answer whichever you can, and for the rest, tell me and I’ll make an assumption and flag it. After that I’ll draw the architecture so we can agree on it before any build starts.
 
-## User (2026-10-26 09:12:31 EDT)
+## User (2026-10-26 09:32:10 EDT)
 
 1.. yes the daily snippet pipeline is already built and people from our company upload their snippets everyday over there. 2. there will be 12 profiles and for those 12 profiles there will be 6 people whose work is to manually upload the comments, post and everything else as linkedin does not support aumtomation.3. Operator will be provided a file or a document by following that they will manually upload everything.4. there will be 6 operators, and each will manage 2 profiles.5. the profiles which will have the same interest as us (like companies working with AI) or have the potential to be our client will be the ICP.6. the main goal now is to create a document which will consists of all the comments, contents and data which needs to be posted every day and will be posted by the operator on time.7. success should be if we have more connections with people with good followers and more scheduled meetings.8. that's for later
 
-## Claude (2026-10-26 09:12:31 EDT)
+## Claude (2026-10-26 09:32:10 EDT)
 
 Your answers change the architecture. Manual posting makes the daily operator document the actual product, so the system is now “generate a high-quality, copy-ready daily pack per operator, and capture what happened afterward.”
 
@@ -264,3 +264,24 @@ Daily deadline: By what time must the pack be ready, and does the snippet upload
 Approval: Who signs off on posts before they go in the pack, and how long do they get?
 
 If any of these are unknown, tell me and I’ll make an assumption and flag it.
+
+## User (2026-10-26 09:32:10 EDT)
+
+the main workflow is:-
+
+There are 12 profiles with 6 people managing it. the operators are present to just manually upload everything in linkedin.
+
+the google sheet is made by the AI Agents.
+
+the task of the AI agents will be 
+
+       a. first it will be search for the SIC code which can be our potential client.
+
+## Claude (2026-10-26 09:32:10 EDT)
+
+Identifying likely client industries by SIC code.
+Identifying likely client industries by SIC code.
+
+Claude’s response was interrupted.
+Edit prompt
+Try again

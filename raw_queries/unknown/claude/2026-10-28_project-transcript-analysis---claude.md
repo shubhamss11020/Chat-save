@@ -4,7 +4,7 @@ platform: claude
 username: "unknown"
 title: "Project transcript analysis - Claude"
 created_at: "2026-10-28 09:43:26 EDT"
-updated_at: "2026-10-28 11:05:26 EDT"
+updated_at: "2026-10-28 11:17:13 EDT"
 ---
 
 # Project transcript analysis - Claude
@@ -191,7 +191,7 @@ What I need to refine this
 What are the 12 profiles’ roles?
 Does each owner log notes in Odoo the way yours are written, or only some?
 
-## User (2026-10-28 11:05:26 EDT)
+## User (2026-10-28 11:17:13 EDT)
 
 We will come to your questions later, here is my high level understanding of all the little things we need to make to make this entire automation working. I want to have a high level vision of the entire framework then make a structure to start the implementation.
 
@@ -245,72 +245,82 @@ Look at the entire build from the perspective of a problem and solution statemen
 
 I want this entire system to be built on a very centralised scale where we have the complete picture of what we are building. Every tool plugs into each other simultaneously and seamlessly to create one symbiotic system. You can keep asking me questions as long as you want until you have complete clarity of what we need to do.
 
-## Claude (2026-10-28 11:05:26 EDT)
+## Claude (2026-10-28 11:17:13 EDT)
 
-Apify scraping tool plan, staged (100 ft)
-Outline
-#	Section	Status
-1	What Apify is and how our tool is structured	Delivered below
-2	The three scrapers: which Apify Actors fit, their inputs and outputs	Next
-3	Data pipeline: from Apify results to the central database	After 2
-4	Scheduling and orchestration (weekly and daily runs)	After 3
-5	Costs, volume and limits	After 4
-6	Risks: LinkedIn rules, account safety, legal and data protection	After 5
-7	Step-by-step build and test plan	Last
-Section 1: What Apify is and how our tool is structured
-Apify in plain terms
+Architecture: industry list to profile data
 
-Apify is a cloud platform for web scraping and automation that offers over 30,000 ready-made scrapers (called Actors), managed proxies, and storage, and delivers results through datasets, APIs, webhooks and integrations. You don’t run servers yourself. 
-use-apify
+Scope as I understand it now: You give the tool a list of industries. It finds companies in those industries, then fetches information from LinkedIn profiles using Apify, and stores clean records for the later steps. There is no ICP scoring in this version.
 
-Term	What it means for us
-Actor	A serverless program that runs in a container on Apify’s cloud. One Actor does one job, such as “scrape LinkedIn company pages”
-Apify Store	The marketplace of ready-made Actors, published by Apify and by third parties
-Task	A saved configuration of an Actor (inputs set). We would make one task per scraping job
-Run	One execution of a task
-Dataset	The rows an Actor produces, exportable as JSON, CSV, JSONL or Excel. This is the data we collect
-Schedule	Cron-style recurring runs, for example weekly discovery and daily post fetching
-Webhook	A notification to our systems when a run starts, succeeds or fails. This is how our ingest script learns that new data is ready
-API	Lets code start runs, check them, and read dataset items. There are also client libraries for JavaScript and Python
-Pricing models	Some Actors charge a fixed price per specific event rather than for platform usage. Pricing varies by Actor and is covered in section 5 
-apify actors
- +5
+Two assumptions I’m making, so please correct me:
 
-Two ways to build, and which I recommend
-Option	What it is	Pros	Cons
-A. Configure Store Actors	Pick existing scrapers, set inputs, schedule them	Fast, little code, maintained by others	You depend on the author, and quality and pricing vary
-B. Build custom Actors	Write our own scraper with Crawlee and the Apify SDK, and deploy it	Full control	More work, we must maintain it, and LinkedIn changes break it
+“Fetch information from a profile” means you give it a profile URL and it returns structured data, so the core job is profile in, record out.
+Profile URLs come either from your team or from a people-search step after company discovery. The brief doesn’t say which, so I’ve designed for both.
+How it works end to end
+Step	Component	What happens
+1	Input sheet	You enter the industries (and optionally country, since you earlier chose US and Canada). One row per industry
+2	Company discovery (Apify task A)	The tool searches companies per industry and returns company name, LinkedIn company URL, size, location and industry label
+3	People discovery (Apify task B, optional)	For each company, it finds employee profile URLs. A job-title keyword list controls who gets picked
+4	Profile fetch (Apify task C, the core)	For each profile URL, it returns the structured profile data
+5	Ingest and clean	Our script reads the Apify results, normalises fields, removes duplicates, flags missing data and stamps the fetch date
+6	Storage	Clean rows go to the Companies and Profiles tabs. Raw results are kept for audit
+7	Hand-off	The profile table feeds profile mapping, scoring and comment drafting later
+Components in detail
+1. Input layer
+A Config tab with: industries list, country, job-title keywords, daily run limit, and a switch to pause everything.
+Industry labels: LinkedIn uses its own industry names, not SIC codes, so each of your industries must map to one or more LinkedIn labels. Keep that mapping in the sheet and review it by hand.
+2. Apify layer (three tasks)
+Task	Input	Output
+A. Company discovery	Industry label, country	Company records
+B. People discovery	Company URL, title keywords	Profile URLs
+C. Profile fetch	Profile URL list	Profile records
 
-My recommendation: start with A, and write only a small amount of our own code (an “ingest script” that reads results and writes them to the database). Build a custom Actor only where no Store Actor works. This is my judgment, based on your team being two interns with limited time.
+Each is a saved Apify Task using a ready-made Store Actor where one is reliable (my recommendation from last time). I have not yet checked which Actors exist or work, so Actor choice is still open. A custom Actor is the fallback.
 
-Architecture of our scraping tool
-Layer	Job	Built with
-1. Config	Holds the ICP: industries, location, size band, job titles, keywords, suppression list	A “Config” tab in the central Google Sheet
-2. Scrapers	Three scraping jobs: company discovery, profile enrichment, post fetching	Apify Tasks
-3. Trigger	Runs them on schedule and passes inputs from the config	Apify Schedules, or our own script calling the Apify API
-4. Ingest	When a run finishes, read the dataset, clean and dedupe, remove suppressed contacts, and write rows to the Companies, Contacts and Target Posts tabs	A small Python or Apps Script job, triggered by the webhook
-5. Downstream	Scoring, profile matching, comment drafting, operator sheets	The persona engine and scoring sheet from earlier phases
-How this maps to your original scraping tools
-Your original idea	Status
-SIC code company scraping from LinkedIn	Needs rethinking. LinkedIn doesn’t expose SIC codes (an earlier point, from my general knowledge, not yet re-verified). Section 2 looks at company-search sources instead
-Profile scraping	Fits an Apify task
-Keyword and post scraping	Fits an Apify task
-Decisions to make now
-Account ownership: create the Apify account under a company email, not a personal one, so the work doesn’t depend on one intern.
-Token and secrets: store the Apify API token in a secrets manager or a protected sheet, never in shared documents or code that goes into a repository.
-Budget cap: set a monthly spending limit in Apify so a misconfigured schedule can’t produce a large bill.
-Who maintains it: name one person responsible when a scraper breaks.
-What this section does and doesn’t establish
+3. Orchestrator (our own small script)
 
-The platform features above come from Apify-related documentation and third-party explainers, so they describe how Apify works in general. I have not yet checked which LinkedIn Actors exist, whether they are reliable or priced reasonably, or what the legal and account risks are. Those are sections 2, 5 and 6.
+Runs the flow and has four jobs:
 
-One question that affects section 2
+Batching: sends profile URLs in small batches, not all at once.
+Calling Apify: starts runs through the API and waits for the completion webhook.
+Retries and failure handling: retries failed items once, then logs them.
+Limits: enforces the daily cap and a monthly Apify budget cap.
+4. Ingest and clean
+Dedupe key: the profile URL (stripped of tracking parameters).
+Normalise: consistent job titles, location and company names.
+Completeness flag: mark rows missing key fields (for example no headline or no follower count).
+Freshness: store fetched_at, and refetch a profile only after 30 days (an arbitrary starting rule).
+Suppression check: skip anyone on your do-not-contact list.
+5. Storage
+Table	Key columns
+Industries	industry, LinkedIn label, status
+Companies	company_id, name, LinkedIn URL, industry, size, location, discovered_at
+Profiles	profile_id, URL, company_id, name, headline, current role, location, about, followers, connections, recent activity (if fetched), fetched_at, completeness
+Run log	run_id, task, inputs, items returned, cost, errors, timestamp
+Raw data	the untouched Apify result, kept so cleaning errors can be corrected
+6. Profile record: the fields to request
 
-Do you want to rely only on existing Store Actors, or does one of you have the coding skill to build and maintain a custom Actor when needed? That changes which options I recommend.
+Name, headline, current title, current company, location, about section, followers, connection count, past roles, and (optionally) recent posts. Followers and headline matter most for your earlier goal of connecting with well-followed people. Which fields are actually available depends on the Actor I haven’t chosen yet.
 
-Reply “next” for section 2, or answer the question first.
+Controls you need from day one
+Spend cap and run cap (monthly and daily).
+Alerts when a run fails or returns far fewer items than expected.
+Secrets: the Apify token stays out of shared sheets and code.
+A kill switch: the pause toggle in the Config tab.
+Pilot first: begin with one industry and about 50 profiles. Check data quality before any scale-up.
+Risks to decide on before building
+LinkedIn rules and account safety: from my general knowledge (not yet verified), LinkedIn’s terms restrict automated scraping, and some profile Actors require logging in with a real account’s session, which risks that account being restricted. Don’t use a real owner’s account for this. Section 6 of the plan should cover it properly.
+Personal data: profiles are personal data. US and Canadian privacy rules may apply to how you store and use them. Raj should decide whether legal review is needed, and I can’t judge that.
+Data quality: scraped fields are often missing or stale, so the completeness flag and freshness rule matter.
+Dependence on one Actor: a Store Actor can break when LinkedIn changes. Keep the raw data and log which Actor version produced each record.
+Open decisions
+Where do profile URLs come from: a people-search step (task B), or does your team supply them?
+Which fields do you need from each profile? That decides which Actor is acceptable.
+Should recent posts come from the same fetch, or separately?
+Who will own and maintain the orchestrator script?
 
-## User (2026-10-28 11:05:26 EDT)
+I can now go deeper on any component. The most useful next step is probably choosing the Actors, which means checking what exists, what each returns and what it costs. Tell me whether to proceed with that or with the data schema.
+
+## User (2026-10-28 11:17:13 EDT)
 
 We will come to your questions later, here is my high level understanding of all the little things we need to make to make this entire automation working. I want to have a high level vision of the entire framework then make a structure to start the implementation.
 
@@ -364,7 +374,7 @@ Look at the entire build from the perspective of a problem and solution statemen
 
 I want this entire system to be built on a very centralised scale where we have the complete picture of what we are building. Every tool plugs into each other simultaneously and seamlessly to create one symbiotic system. You can keep asking me questions as long as you want until you have complete clarity of what we need to do.
 
-## Claude (2026-10-28 11:05:26 EDT)
+## Claude (2026-10-28 11:17:13 EDT)
 
 Your decomposition by function is sound, and treating this as one connected system is the right instinct. But the plan has gaps and a few assumptions that will hurt you if they stay as written.
 
@@ -440,7 +450,7 @@ Is PR/email nurture in scope now, later, or out?
 
 Answer whichever you can, and for the rest, tell me and I’ll make an assumption and flag it. After that I’ll draw the architecture so we can agree on it before any build starts.
 
-## Claude (2026-10-28 11:05:26 EDT)
+## Claude (2026-10-28 11:17:13 EDT)
 
 I’ll look for evidence on these industries’ data problems so the reasons aren’t only my reasoning by analogy.
 
@@ -513,11 +523,11 @@ If you need a fourth industry that is better supported, the three from your scre
 
 Do you want me to set up the 50-company check sheet to test the size and CEO-reachability assumptions, or continue with section 3?
 
-## User (2026-10-28 11:05:26 EDT)
+## User (2026-10-28 11:17:13 EDT)
 
 so now there will be 12 profiles and from each profile content will be uploaded separately according to their personality. how will this work?
 
-## Claude (2026-10-28 11:05:26 EDT)
+## Claude (2026-10-28 11:17:13 EDT)
 
 Each profile becomes its own lane that shares one pipeline but has separate voice, topics and schedule. Here is how it works end to end.
 
@@ -573,7 +583,7 @@ What I need to refine this
 What are the 12 profiles’ roles?
 Does each owner log notes in Odoo the way yours are written, or only some?
 
-## Claude (2026-10-28 11:05:26 EDT)
+## Claude (2026-10-28 11:17:13 EDT)
 
 I’ll look for evidence on these industries’ data problems so the reasons aren’t only my reasoning by analogy.
 
@@ -646,7 +656,7 @@ If you need a fourth industry that is better supported, the three from your scre
 
 Do you want me to set up the 50-company check sheet to test the size and CEO-reachability assumptions, or continue with section 3?
 
-## Claude (2026-10-28 11:05:26 EDT)
+## Claude (2026-10-28 11:17:13 EDT)
 
 Apify scraping tool plan, staged (100 ft)
 Outline

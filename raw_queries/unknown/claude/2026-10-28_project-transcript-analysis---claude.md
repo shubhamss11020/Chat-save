@@ -4,7 +4,7 @@ platform: claude
 username: "unknown"
 title: "Project transcript analysis - Claude"
 created_at: "2026-10-28 09:43:26 EDT"
-updated_at: "2026-10-28 10:26:06 EDT"
+updated_at: "2026-10-28 10:44:12 EDT"
 ---
 
 # Project transcript analysis - Claude
@@ -190,3 +190,61 @@ Consent: each owner must agree to AI-drafted posts under their name.
 What I need to refine this
 What are the 12 profiles’ roles?
 Does each owner log notes in Odoo the way yours are written, or only some?
+
+## User (2026-10-28 10:44:12 EDT)
+
+We will come to your questions later, here is my high level understanding of all the little things we need to make to make this entire automation working. I want to have a high level vision of the entire framework then make a structure to start the implementation.
+
+Tools needed -
+
+a. A pipeline to summarise company's daily activity info. We can fetch this data from Askcruz vault, emails as well as call transcripts.
+
+b. Linked in Marketing AI (Placeholder name)
+
+Purpose : To understand daily activities from Pipeline and generate content to post on linked in. Text post/ Image Post/ Video Post
+
+Sub- Tools for marketing ai  -
+
+i. Trained AI model on Marketing and AskCruz content with the ability to gather relevancy information from linked in and other media sources to generate text post.
+
+ii. Trained AI model on Marketing and AskCruz content with the ability to gather relevancy information from linked in and other media sources to generate image post.
+
+iii. Trained AI model on Marketing and AskCruz content with the ability to gather relevancy information from linked in and other media sources to generate video post.
+
+c. Review AI - QA layer to review what Marketing AI generated.
+
+d. Platform to store generated content form Marketing AI. Structured, easy to navigate and store items into that Operator (humans) can copy paste and post to linked in from.
+
+Purpose : To make new connections and commenting on linked in to make active engagements.
+
+Tools :
+
+a. Data Scraping Tool : To scrape linked in data.
+
+Sub tools for Data Scraping :
+
+i. SIC Code Scraping : Scrape Companies through linked in and segregate based on SIC. Info required : Company name, Location, Size, Revenue, Activity, Employees
+
+ii. Profile Scraping : Individual data extraction for Linkedin Profiles
+
+iii. Keyword/Post Scrapping Ai : To scrape relevant ai related posts through keywords and relevancy from linked in.
+
+b. Profile Mapping Ai : To understand individuals and recommend which of the 12 Linked in profile they should be outreached from, based on their role and profile data.
+
+c. Connection Ai : To generate a customised message to send with the connection with the relevancy of who is sending, who who it is being sent to.
+
+d. Commenting Ai : To generate a comment that can be posted on the post scraping Ai fetched posts. based on context and personalisation, and user persona.
+
+Goal : To generate 700 comments per day to be sent form 12 different Linkedin Accounts and send 500 connection request everyday with a personalisation message.
+
+Lets start from here.
+
+This is the entire concept of my idea that we need to do for this marketing and outreach automation. Let me know if I'm missing something. Your goal here is to guide me through the right steps to understand what I'm trying to build.
+
+Look at the entire build from the perspective of a problem and solution statement. Do not agree with me if it is hindering the implementation in any way. Let it be time, resource, or the final output quality. You can challenge me all you want and find gaps in my theories and structure. We will keep this brainstorming going until we find a sweet balance of what we need to do and both of us agree to the entire architecture.
+
+I want this entire system to be built on a very centralised scale where we have the complete picture of what we are building. Every tool plugs into each other simultaneously and seamlessly to create one symbiotic system. You can keep asking me questions as long as you want until you have complete clarity of what we need to do.
+
+## User (2026-10-28 10:44:12 EDT)
+
+now give a full details information about the scraping tool we will develop by using apify. give me proper step by step explanation about this

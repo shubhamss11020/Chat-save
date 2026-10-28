@@ -4,7 +4,7 @@ platform: claude
 username: "unknown"
 title: "Project transcript analysis - Claude"
 created_at: "2026-10-28 09:43:26 EDT"
-updated_at: "2026-10-28 10:45:10 EDT"
+updated_at: "2026-10-28 11:05:26 EDT"
 ---
 
 # Project transcript analysis - Claude
@@ -191,7 +191,7 @@ What I need to refine this
 What are the 12 profiles’ roles?
 Does each owner log notes in Odoo the way yours are written, or only some?
 
-## User (2026-10-28 10:45:10 EDT)
+## User (2026-10-28 11:05:26 EDT)
 
 We will come to your questions later, here is my high level understanding of all the little things we need to make to make this entire automation working. I want to have a high level vision of the entire framework then make a structure to start the implementation.
 
@@ -245,48 +245,72 @@ Look at the entire build from the perspective of a problem and solution statemen
 
 I want this entire system to be built on a very centralised scale where we have the complete picture of what we are building. Every tool plugs into each other simultaneously and seamlessly to create one symbiotic system. You can keep asking me questions as long as you want until you have complete clarity of what we need to do.
 
-## Claude (2026-10-28 10:45:10 EDT)
+## Claude (2026-10-28 11:05:26 EDT)
 
-I reviewed the thread-wiki skill. Threads-Ov and Thread-wiki aren’t connected in this session, so transcript saving and thread lookups are skipped. There is no separate AskCruz skill file here, only the AskCruz connector tools, which I haven’t used because you gave me the transcript directly.
+Apify scraping tool plan, staged (100 ft)
+Outline
+#	Section	Status
+1	What Apify is and how our tool is structured	Delivered below
+2	The three scrapers: which Apify Actors fit, their inputs and outputs	Next
+3	Data pipeline: from Apify results to the central database	After 2
+4	Scheduling and orchestration (weekly and daily runs)	After 3
+5	Costs, volume and limits	After 4
+6	Risks: LinkedIn rules, account safety, legal and data protection	After 5
+7	Step-by-step build and test plan	Last
+Section 1: What Apify is and how our tool is structured
+Apify in plain terms
 
-Core concept
+Apify is a cloud platform for web scraping and automation that offers over 30,000 ready-made scrapers (called Actors), managed proxies, and storage, and delivers results through datasets, APIs, webhooks and integrations. You don’t run servers yourself. 
+use-apify
 
-The transcript is Raj, the founder, pushing Ayan (product) to turn the company’s stored data into outbound action, with AskCruz as the platform. His framing is that the data is crude oil: it’s collected but not refined, and nothing happens because of it.
+Term	What it means for us
+Actor	A serverless program that runs in a container on Apify’s cloud. One Actor does one job, such as “scrape LinkedIn company pages”
+Apify Store	The marketplace of ready-made Actors, published by Apify and by third parties
+Task	A saved configuration of an Actor (inputs set). We would make one task per scraping job
+Run	One execution of a task
+Dataset	The rows an Actor produces, exportable as JSON, CSV, JSONL or Excel. This is the data we collect
+Schedule	Cron-style recurring runs, for example weekly discovery and daily post fetching
+Webhook	A notification to our systems when a run starts, succeeds or fails. This is how our ingest script learns that new data is ready
+API	Lets code start runs, check them, and read dataset items. There are also client libraries for JavaScript and Python
+Pricing models	Some Actors charge a fixed price per specific event rather than for platform usage. Pricing varies by Actor and is covered in section 5 
+apify actors
+ +5
 
-The problem: Calls (Fathom, Fireflies, Phantom), emails and CRM data all feed a “Knowledge Center” or “company brain.” Nothing acts on that data. Raj says deals like ANC Metals and Titanium Industries sit idle and the board shows no pulse.
+Two ways to build, and which I recommend
+Option	What it is	Pros	Cons
+A. Configure Store Actors	Pick existing scrapers, set inputs, schedule them	Fast, little code, maintained by others	You depend on the author, and quality and pricing vary
+B. Build custom Actors	Write our own scraper with Crawlee and the Apify SDK, and deploy it	Full control	More work, we must maintain it, and LinkedIn changes break it
 
-The proposed system:
+My recommendation: start with A, and write only a small amount of our own code (an “ingest script” that reads results and writes them to the database). Build a custom Actor only where no Store Actor works. This is my judgment, based on your team being two interns with limited time.
 
-Data Miner AI runs daily (a 7 p.m. automation was mentioned). It reads the day’s calls and emails and writes a “daily snippet” into the Knowledge Center.
-Specialized agents consume the snippets:
-Marketing AI writes LinkedIn posts for each persona (Rajat on AI, Ron on implementation, Ayan on the product).
-PR AI manages a media pipeline (Steel Market Update, FMA, Fabtech, podcasters) and sends investor and industry updates.
-A news-editor AI decides what to share, and a “PR director” AI approves it.
-LinkedIn engine at scale:
-About 12 profiles, 500 connection requests/day and 700 comments/day (roughly 20,000 comments/month).
-Apify scrapes about 50 posts per persona per day, the AI qualifies or disqualifies them, then drafts comments.
-Connection requests are personalized to the prospect’s profile.
-Human operators vet and post, since LinkedIn can’t be driven directly by AI.
-Middle-of-funnel nurture:
-Short, personal, context-aware emails, not newsletters. The example was an email to Chris at ANC Metals a month after a call, mentioning EOXS’s two new customers.
-Outcomes feed back into the CRM or project board.
-Daily report to Raj: “Yesterday we sent 500 requests, 700 comments, and N emails.”
-Prerequisite: Move the EOXS team onto AskCruz email accounts and warm up 15–20 inboxes before sending about 25 emails each.
+Architecture of our scraping tool
+Layer	Job	Built with
+1. Config	Holds the ICP: industries, location, size band, job titles, keywords, suppression list	A “Config” tab in the central Google Sheet
+2. Scrapers	Three scraping jobs: company discovery, profile enrichment, post fetching	Apify Tasks
+3. Trigger	Runs them on schedule and passes inputs from the config	Apify Schedules, or our own script calling the Apify API
+4. Ingest	When a run finishes, read the dataset, clean and dedupe, remove suppressed contacts, and write rows to the Companies, Contacts and Target Posts tabs	A small Python or Apps Script job, triggered by the webhook
+5. Downstream	Scoring, profile matching, comment drafting, operator sheets	The persona engine and scoring sheet from earlier phases
+How this maps to your original scraping tools
+Your original idea	Status
+SIC code company scraping from LinkedIn	Needs rethinking. LinkedIn doesn’t expose SIC codes (an earlier point, from my general knowledge, not yet re-verified). Section 2 looks at company-search sources instead
+Profile scraping	Fits an Apify task
+Keyword and post scraping	Fits an Apify task
+Decisions to make now
+Account ownership: create the Apify account under a company email, not a personal one, so the work doesn’t depend on one intern.
+Token and secrets: store the Apify API token in a secrets manager or a protected sheet, never in shared documents or code that goes into a repository.
+Budget cap: set a monthly spending limit in Apify so a misconfigured schedule can’t produce a large bill.
+Who maintains it: name one person responsible when a scraper breaks.
+What this section does and doesn’t establish
 
-Raj’s stance: He calls himself the first guinea pig customer. His blunt view is that AskCruz adds no value yet and users will drop off unless it executes.
+The platform features above come from Apify-related documentation and third-party explainers, so they describe how Apify works in general. I have not yet checked which LinkedIn Actors exist, whether they are reliable or priced reasonably, or what the legal and account risks are. Those are sections 2, 5 and 6.
 
-Gaps and risks in the transcript
-Audio quality: It’s a garbled Hindi-English mix, so some details are unreliable. The investor-lawsuit remark about running a “separate company” in AskCruz is ambiguous and should be confirmed.
-Compliance risk (my read, not stated in the call): 500 connection requests and 700 comments daily across 12 profiles, plus cold email at volume, risks LinkedIn account bans and deliverability and spam-law exposure.
-Unspecified: Success metrics, who owns the system (Raj notes one person must own it), and what “done” looks like for Ayan.
-Questions before I draft requirements
-Scope: Is your project the whole pipeline, or one slice (data miner → snippets, LinkedIn engine, PR/media agents, or email nurture)?
-Audience: Is it internal (EOXS/AskCruz team only) or a productized feature for AskCruz customers?
-Your deliverable: What do you need from this: a requirements doc, an architecture, a build plan?
-Rigor: 5 ft (quick), 10 ft (verified), 50 ft (deep, with risks and blind spots), or 100 ft (staged, section by section)?
-Craft: Sketch, Draft, Painting or Commissioned?
+One question that affects section 2
 
-## User (2026-10-28 10:45:10 EDT)
+Do you want to rely only on existing Store Actors, or does one of you have the coding skill to build and maintain a custom Actor when needed? That changes which options I recommend.
+
+Reply “next” for section 2, or answer the question first.
+
+## User (2026-10-28 11:05:26 EDT)
 
 We will come to your questions later, here is my high level understanding of all the little things we need to make to make this entire automation working. I want to have a high level vision of the entire framework then make a structure to start the implementation.
 
@@ -340,7 +364,7 @@ Look at the entire build from the perspective of a problem and solution statemen
 
 I want this entire system to be built on a very centralised scale where we have the complete picture of what we are building. Every tool plugs into each other simultaneously and seamlessly to create one symbiotic system. You can keep asking me questions as long as you want until you have complete clarity of what we need to do.
 
-## Claude (2026-10-28 10:45:10 EDT)
+## Claude (2026-10-28 11:05:26 EDT)
 
 Your decomposition by function is sound, and treating this as one connected system is the right instinct. But the plan has gaps and a few assumptions that will hurt you if they stay as written.
 
@@ -416,7 +440,7 @@ Is PR/email nurture in scope now, later, or out?
 
 Answer whichever you can, and for the rest, tell me and I’ll make an assumption and flag it. After that I’ll draw the architecture so we can agree on it before any build starts.
 
-## Claude (2026-10-28 10:45:10 EDT)
+## Claude (2026-10-28 11:05:26 EDT)
 
 I’ll look for evidence on these industries’ data problems so the reasons aren’t only my reasoning by analogy.
 
@@ -489,11 +513,11 @@ If you need a fourth industry that is better supported, the three from your scre
 
 Do you want me to set up the 50-company check sheet to test the size and CEO-reachability assumptions, or continue with section 3?
 
-## User (2026-10-28 10:45:10 EDT)
+## User (2026-10-28 11:05:26 EDT)
 
 so now there will be 12 profiles and from each profile content will be uploaded separately according to their personality. how will this work?
 
-## Claude (2026-10-28 10:45:10 EDT)
+## Claude (2026-10-28 11:05:26 EDT)
 
 Each profile becomes its own lane that shares one pipeline but has separate voice, topics and schedule. Here is how it works end to end.
 
@@ -549,7 +573,7 @@ What I need to refine this
 What are the 12 profiles’ roles?
 Does each owner log notes in Odoo the way yours are written, or only some?
 
-## Claude (2026-10-28 10:45:10 EDT)
+## Claude (2026-10-28 11:05:26 EDT)
 
 I’ll look for evidence on these industries’ data problems so the reasons aren’t only my reasoning by analogy.
 
@@ -622,7 +646,7 @@ If you need a fourth industry that is better supported, the three from your scre
 
 Do you want me to set up the 50-company check sheet to test the size and CEO-reachability assumptions, or continue with section 3?
 
-## Claude (2026-10-28 10:45:10 EDT)
+## Claude (2026-10-28 11:05:26 EDT)
 
 Apify scraping tool plan, staged (100 ft)
 Outline
